@@ -1,0 +1,17 @@
+03/13/2003
+  Major Changes:
+    * Replaced MFC with WTL
+	* Changed install() API
+	* Major refactoring
+  Minor Chages:
+    * Details dialog preview window now uses system
+	  defined window color instead of white.
+	* Directory structure not saved in zip.
+  Bugs Fixed:
+    * Support for use by multiple apps
+	* Buffer overrun error when previewing files > 32k
+	* Main dialog now displays app icon
+
+01/12/2003
+  New:
+    * Initial release
