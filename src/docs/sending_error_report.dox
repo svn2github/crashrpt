@@ -1,0 +1,130 @@
+/*!
+
+\page send_report Sending Error Reports
+
+When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. 
+The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
+
+\note CrashRpt saves an error report as a ZIP archive to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
+CrashRpt moves the crash report file to the Recycle Bin after it was sent to the recipient successfuly. If an error occurs
+during error report sending procedure, CrashRpt doesn't remove the report.          
+
+The CrashSender.exe displays GUI and when user confirms error report submission, 
+it attempts to send the error report to the software support team
+using one of the following ways: 
+ - via HTTP request to a server-side script
+ - via connection to an SMTP server
+ - via Simple MAPI programming interface (the user's default E-mail client application)
+
+If one of these ways fails, CrashRpt tries others in turn. 
+
+\section httpsend Sending Crash Report Using HTTP Connection
+
+Many software products have web sites on the Internet. Such web servers typically have some 
+scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish an HTTP connection
+to a server-side script and send the error report as a script parameter.
+
+The crash report ZIP file data are converted to base64 encoding to replace all restricted characters with a set
+of 64 predefined characters. The server-side script should base64-decode the ZIP file data.
+
+The encoded data are passed to the script by POST as parameter named "crashrpt".
+
+Before encoding, an MD5 hash for the file data is calculated. The server-side script can extract the MD5 hash
+from "md5" parameter.
+
+The script should return the status of the request completion as server responce content. In HTTP/1.0 and since, 
+the first line of the HTTP response is called the status line and includes a numeric status code (such as "404") 
+and a textual reason phrase (such as "Not Found").
+
+If the script succeeds in saving the error report, it should return the "200 Success" as server responce content.
+If the script encounters an error, it should return a 4xx error code, for example "450 Invalid parameter". 
+Note that some error codes are reserved by HTTP specification. If the script uses custom error codes, they shouldn't
+intersect with standard predefined HTTP codes. 
+
+\note
+
+When creating your own script, be careful with the script's return code. If your script succeeds in
+saving error report it should return '200 Success'. If crash sending process 
+encounters another error code, it attempts sending the error report using another way. In such situation
+you may receive the same error report several times through different transport.
+
+Below is an example server-side PHP script that can receive a crash report and write it to a file.
+
+\code
+<?php
+
+$fileroot = "/home/username/crash_reports/";
+
+
+// Checks if field is correct
+function checkOK($field)
+{
+  if (eregi("\r",$field) || eregi("\n",$field))
+  {
+    echo "450 Invalid parameter";
+    exit(1);
+  }
+}
+
+/*** Begin ***/
+
+checkOK($_POST["crashrpt"]);
+checkOK($_POST["md5"]);
+
+// Decode file data
+$filedata = base64_decode( $_POST["crashrpt"] );
+
+// Check that decoded data have valid MD5 hash
+$my_md5_hash = strtolower(md5($filedata));
+$their_md5_hash = strtolower($_POST["md5"]);
+if($my_md5_hash!=$their_md5_hash)
+{
+  echo "451 MD5 hash is invalid (yours is ".$their_md5_hash.",but mine is ".$my_md5_hash.")";
+  exit(1);
+}
+
+// Generate ZIP file name
+$datetime = date(DATE_RFC822);
+$filename = $fileroot.md5($filedata.$datetime).".zip";
+
+// Write decoded data to file
+$file = fopen($filename, "w");
+if($file==FALSE)
+{
+  echo "452 Couldn't save data to local storage"; 
+  exit(1);
+}
+
+fwrite($file, $filedata);
+fclose($file);
+
+// OK.
+echo "200 Success";
+exit(0);
+?>
+\endcode
+
+\section smtpsend Sending Crash Report Using SMTP Connection
+
+CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP
+connection without any user interaction. An error report is sent as an E-mail multi-part message with 
+attachments.
+
+If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP
+server name and relay the email message to that server.
+
+If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX 
+record of recipent's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
+
+This way may fail if firewall blocks outgoing connections on port 25. 
+
+\section smapisend Sending Crash Report Using Simple MAPI
+
+CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. 
+An error report is sent as an E-mail multi-part message with attachments.
+This requires some user interaction.
+
+This way has the lowest priority by default.
+
+
+*/

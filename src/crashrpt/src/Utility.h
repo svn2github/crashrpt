@@ -11,12 +11,9 @@
 #ifndef _UTILITY_H_
 #define _UTILITY_H_
 
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
 
-#include "stdafx.h"
-#include <atlmisc.h> // CString
+#include <shlobj.h>
 
 
 ////////////////////////////// Class Definitions /////////////////////////////
@@ -97,6 +94,38 @@ public:
    static 
    CString 
    getTempFileName();
+
+   //-----------------------------------------------------------------------------
+   // getTempDirectory
+   //  Returns value of TEMP environment variable
+   //
+   //  Return value
+   //   0 if successful
+   //
+   static
+   int 
+   getTempDirectory(CString& strTemp);
+
+   // Returns path to directory where EXE or DLL module is located.
+   static CString GetModulePath(HMODULE hModule);
+
+   // Generates unique identifier (GUID)
+   static int GenerateGUID(CString& sGUID);  
+
+   // Returns current system time as string (uses UTC time format).
+   static int GetSystemTimeUTC(CString& sTime);  
+
+   // Returns friendly name of operating system (name, version, service pack)
+   static int GetOSFriendlyName(CString& sOSName);  
+
+   // Returns path to a special folder (for example %LOCAL_APP_DATA%)
+   static int GetSpecialFolder(int csidl, CString& sFolderPath);
+
+   // Replaces restricted characters in file name
+   static CString ReplaceInvalidCharsInFileName(CString sFileName);
+
+   // Moves a file to the Recycle Bin or removes the file permanently
+   static int RecycleFile(CString sFilePath, bool bPermanentDelete);
 };
 
 #endif	// #ifndef _UTILITY_H_

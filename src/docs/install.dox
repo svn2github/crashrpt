@@ -1,0 +1,158 @@
+/*!
+
+\page installation Installation
+
+CrashRpt library installation is a required step. The recommended way of CrashRpt 
+installation is described below. The installation typically
+consists of unzipping the CrashRpt archive, compiling the CrashRpt using your version
+of Visual Studio, adding include and lib paths to your Visual Studio IDE and 
+(optionally) building CrashRpt documentation using Doxygen.
+
+
+
+The following topics are covered in this page:
+
+- \ref license
+- \ref download
+- \ref chlog
+- \ref structure
+- \ref compilation
+- \ref link
+- \ref builddox
+- \ref faq
+- \ref bugrpt
+
+\section license License
+
+You can find the license text <a href="..\..\license.txt">here</a>
+
+\section download Download
+
+The latest stable version of CrashRpt is available at
+<a href="http://code.google.com/p/crashrpt">CrashRpt project page</a>
+
+\section chlog What's New in Current Version
+
+The change log is available
+<a href="..\..\changelog.txt">here</a>
+
+\section structure Solution Structure
+
+There are four projects in the CrashRpt solution.
+
+- \b CrashRpt is a dynamic link library project. It contains CrashRpt
+  API implementation and provides functionality to intercept exceptions
+  and generate an error report.
+
+- \b CrashSender is an executable project. It contains functionality 
+  to show GUI, send the error report and show error report sending progress.
+
+- \b CrashRptTest is a GUI application that helps to check that 
+   CrashRpt API functions work as expected.
+
+- \b crashcon is a console application that helps to test how CrashRpt
+  works with console applications.
+   
+
+\section compilation Compilation
+
+You can compile and use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005, 
+Visual C++ 2008 and Visual C++ Express.
+
+By default CrashRpt release package already contains binary files 
+compiled with Visual Studio 2005 in its \c bin directory. 
+However, it is strongly recommended that you compile
+CrashRpt yourself using your version of Visual Studio.
+
+To compile CrashRpt follow these steps:
+
+-# Download and unzip the source code of CrashRpt to any directory. 
+-# You also need to download the latest version of WTL from 
+<a href="http://sourceforge.net/projects/wtl">here</a>.
+Unzip the WTL archive to some folder. In Visual Studio, open Tools->
+Options->Projects and Solutions->VC++ Directories.
+In the 'Show directories for' combo select 'Include files', then add 
+the path to WTL\\include directory to the list of include directories.
+-# Open one of solution files available in the top level directory of 
+CrashRpt package, depending on your version of Visual Studio:
+ - CrashRpt_vs.NET.sln 
+ - CrashRpt_vs2005.sln
+ - CrashRpt_vs2008.sln
+-# Choose the Release build configuration and press F7 to build the solution.
+
+<b>Notes about compiling in Visual C++ Express</b>
+
+CrashRpt depends on WTL library. WTL is an open source 
+project that is constantly evolves and adapts to new versions of Visual Studio 
+(including VS Express). The latest version at the moment is WTL 8.1.
+
+WTL itself depends on Microsoft's library called ATL (Active Template Library). 
+ATL library is a part of Visual Studio SDKs. The latest version at the moment 
+is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform 
+SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows 
+SDK and the latest version (at the moment) of Windows SDK is v6.0. However, 
+Microsoft didn't include ATL into Windows SDK v6.0 to encourage using of 
+commercial Visual Studio having ATL. The dependency on ATL introduces a lot of 
+problems for WTL, so in the future WTL developers might remove this dependency 
+at all (if possible).
+
+To compile CrashRpt in Visual C++ Express, you need to have Platform SDK for 
+Windows Server 2003, since it is the only Platform SDK that supports ATL.
+Download and install Microsoft Platform SDK for Windows Server 2003, for example from here 
+http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
+
+In VC++ Express window, open Tools->Options...->Projects and Solutions->
+VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
+and then add [Platform_SDK_Folder]\\Include\\atl\\ path to the list of include 
+directories.
+
+For additional info on using WTL with VC++ Express, see 
+http://www.codeproject.com/KB/wtl/WTLExpress.aspx 
+
+\section link Include and Lib Directories
+
+It is recommened that you let the Viual C++ compiler know about CrashRpt 
+using the following steps:
+
+In Visual Studio window, open Tools->
+Options->Projects and Solutions->VC++ Directories.
+- In the 'Show directories for' combo select 'Include files', then add 
+  the path to [CRASHRPT_HOME]\\CrashRpt\\include directory to the list below.
+- In the 'Show directories for' combo select 'Library files', then add 
+  the path to [CRASHRPT_HOME]\\lib directory to the list below.
+- In the 'Show directories for' combo select 'Executable files', then add 
+  the path to [CRASHRPT_HOME]\\bin directory to the list below.
+
+Here [CRASHRPT_HOME] should be replaced with the actual path of the 
+directory you unzipped CrashRpt package to.
+
+\section builddox Generating Project Documentation
+
+By default project documentation is already generated and included into the CrashRpt release
+package. To open the documentation, click \c index.html file in the top-level directrory of 
+CrashRpt package.
+
+You can also build documentation yourself as described below: 
+
+The CrashRpt documentation can be generated using the Doxygen tool. You can download
+the tool from <a href="http://www.stack.nl/~dimitri/doxygen/">here</a>. 
+
+To build the documentation, go to the \c docs folder and type in the command line:
+
+\code
+doxygen doxyfile
+\endcode
+
+When doxygen finishes, go to the top level directory and open \c index.html.
+
+\section faq Frequently Asked Questions
+
+You can find a lot of information about CrashRpt in the 
+<a href="http://code.google.com/p/crashrpt/wiki/FAQ">online FAQ</a>
+
+\section bugrpt Report a Bug
+
+If you detect an issue please let us know <a href="http://code.google.com/p/crashrpt/issues/list">here</a>.
+We appreciate your feedback.
+
+*/

@@ -1,0 +1,40 @@
+/*!
+
+\page error_report About an Error Report
+
+When an error occurs, CrashRpt notifies a user and allows  
+to review the report contents. First the main dialog shown above is displayed. 
+
+\image html maindlg.png "Main Dialog"
+
+The user optionally can provide his/her E-mail address and provide a short problem 
+description. The E-mail address may be later used by software support staff to
+contact the user and ask for additional information about the problem.
+
+The 'What does this report contan?' link opens the details dialog, where 
+files contained in the report are presented. Double clicking on the 
+filename will open the file using its associated program, if an association exists 
+for the file type.
+
+\image html detaildlg.png "Crash Details Dialog"
+
+Once the user is satisfied, he may close the details dialog and click the 'Send report' 
+button on the main dialog. If the user doesn't want to send the report, he clicks the 
+'Close the program' button.
+
+
+The error report refers to a collection of files intended to help the developer 
+diagnose the cause of a crash. 
+
+The error report contains crash minidump file (crashdump.dmp), which has operating system 
+version, processor type, CPU registers state and local variables and stack trace for each 
+execution thread. The minidump in most cases can be used on developer's side to determine 
+the reason of the crash and try to fix the problem.
+
+In addition, CrashRpt generates an XML crash descriptor file. The file contains various
+information that might be useful for crash analysis.
+
+Custom files, for example, application log files, can be included into crash report via the 
+crash callback.
+
+*/

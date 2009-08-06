@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "atlres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -27,32 +27,19 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
-    "#include ""afxres.h""\r\n"
+    "#include ""atlres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
-    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
-    "#define _AFX_NO_OLE_RESOURCES\r\n"
-    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
-    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
-    "\r\n"
-    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
-    "#ifdef _WIN32\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
-    "#endif //_WIN32\r\n"
-    "#include ""res\\CrashRptTest.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
-    "#include ""afxres.rc""         // Standard components\r\n"
-    "#endif\r\n"
     "\0"
 END
 
@@ -66,82 +53,63 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "icon1.ico"
+IDR_MAINFRAME           ICON                    "res\\CrashRptTest.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About CrashRptTest"
-FONT 8, "MS Sans Serif"
+IDD_ABOUTBOX DIALOGEX 0, 0, 187, 70
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "CrashRptTest Version 1.1",IDC_STATIC,40,10,119,8,
-                    SS_NOPREFIX
-    LTEXT           "Copyright (C) 2003",IDC_STATIC,40,25,119,8
-    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+    DEFPUSHBUTTON   "OK",IDOK,68,49,50,14
+    ICON            IDR_MAINFRAME,IDC_STATIC,23,17,21,20
+    LTEXT           "Simple tests for CrashRpt library",IDC_STATIC,51,22,114,8
 END
 
-IDD_CRASHRPTTEST_DIALOG DIALOGEX 0, 0, 149, 55
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-EXSTYLE WS_EX_APPWINDOW
-CAPTION "Null Pointer Exception Generator"
-FONT 8, "MS Sans Serif"
+IDD_MAINDLG DIALOGEX 0, 0, 241, 314
+STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU
+CAPTION "CrashRptTest"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "Crash",IDOK,8,33,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,91,33,50,14
-    CTEXT           "Click the 'Crash' button to simulate an unhandled null pointer exception.",
-                    IDC_STATIC,8,8,133,18
+    PUSHBUTTON      "Win32 null pointer exception",IDC_MAIN_WIN32,14,42,95,14
+    PUSHBUTTON      "C++ terminate()",IDC_MAIN_TERM,14,58,95,14
+    PUSHBUTTON      "C++ unexpected()",IDC_MAIN_UNEXP,14,74,95,14
+    PUSHBUTTON      "C++ pure virtual call",IDC_MAIN_PURECALL,14,90,95,14
+    PUSHBUTTON      "C++ buffer overrun",IDC_MAIN_SECURITY,14,106,95,14
+    PUSHBUTTON      "C++ invalid param",IDC_MAIN_INVPAR,14,122,95,14
+    PUSHBUTTON      "C++ SIGABRT signal",IDC_MAIN_SIGABRT,14,138,95,14
+    PUSHBUTTON      "C++ SIGFPE signal",IDC_MAIN_SIGFPE,14,154,95,14
+    PUSHBUTTON      "C++ SIGILL signal",IDC_MAIN_SIGILL,14,170,95,14
+    PUSHBUTTON      "C++ SIGINT signal",IDC_MAIN_SIGINT,14,186,95,14
+    PUSHBUTTON      "C++ SIGSEGV signal",IDC_MAIN_SIGSEGV,14,201,95,14
+    PUSHBUTTON      "C++ SIGTERM signal",IDC_MAIN_SIGTERM,14,217,95,14
+    PUSHBUTTON      "C++ new operator error",IDC_MAIN_NEW,14,233,95,14
+    PUSHBUTTON      "Win32 null pointer exception",IDC_THREAD_WIN32,129,42,95,14
+    PUSHBUTTON      "C++ terminate()",IDC_THREAD_TERM,129,58,95,14
+    PUSHBUTTON      "C++ unexpected()",IDC_THREAD_UNEXP,129,74,95,14
+    PUSHBUTTON      "C++ pure virtual call",IDC_THREAD_PURECALL,129,90,95,14
+    PUSHBUTTON      "C++ buffer overrun",IDC_THREAD_SECURITY,129,106,95,14
+    PUSHBUTTON      "C++ invalid param",IDC_THREAD_INVPAR,129,122,95,14
+    PUSHBUTTON      "C++ SIGABRT signal",IDC_THREAD_SIGABRT,129,138,95,14
+    PUSHBUTTON      "C++ SIGFPE signal",IDC_THREAD_SIGFPE,129,154,95,14
+    PUSHBUTTON      "C++ SIGILL signal",IDC_THREAD_SIGILL,129,170,95,14
+    PUSHBUTTON      "C++ SIGINT signal",IDC_THREAD_SIGINT,129,186,95,14
+    PUSHBUTTON      "C++ SIGSEGV signal",IDC_THREAD_SIGSEGV,129,201,95,14
+    PUSHBUTTON      "C++ SIGTERM signal",IDC_THREAD_SIGTERM,129,217,95,14
+    PUSHBUTTON      "C++ new operator error",IDC_THREAD_NEW,130,233,95,14
+    DEFPUSHBUTTON   "Close",IDOK,96,293,50,14
+    GROUPBOX        "Main thread",IDC_STATIC,7,32,108,253
+    LTEXT           "Click any button below to generate exception in the main execution thread or in another (working) thread.",IDC_STATIC,7,7,227,20
+    GROUPBOX        "Working thread",IDC_STATIC,126,32,108,252
+    PUSHBUTTON      "Uncontinuable exception",IDC_MAIN_SEH,14,249,95,14
+    PUSHBUTTON      "Uncontinuable Exception",IDC_THREAD_SEH,130,249,95,14
+    PUSHBUTTON      "Manual Crash Report",IDC_MAIN_MANUALREPORT,14,267,95,14
+    PUSHBUTTON      "Manual Crash Report",IDC_THREAD_MANUALREPORT,130,267,95,14
 END
-
-
-#ifndef _MAC
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
-
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
- FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE 0x1L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040904b0"
-        BEGIN
-            VALUE "Comments", "\0"
-            VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "CrashRptTest MFC Application\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "CrashRptTest\0"
-            VALUE "LegalCopyright", "Copyright (C) 2003\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "CrashRptTest.EXE\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "CrashRptTest Application\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
-            VALUE "SpecialBuild", "\0"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x409, 1200
-    END
-END
-
-#endif    // !_MAC
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -150,22 +118,37 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 228
+        RIGHTMARGIN, 180
         TOPMARGIN, 7
-        BOTTOMMARGIN, 48
+        BOTTOMMARGIN, 63
     END
 
-    IDD_CRASHRPTTEST_DIALOG, DIALOG
+    IDD_MAINDLG, DIALOG
     BEGIN
-        LEFTMARGIN, 8
-        RIGHTMARGIN, 141
-        TOPMARGIN, 8
-        BOTTOMMARGIN, 47
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 234
+        VERTGUIDE, 14
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 307
+        HORZGUIDE, 32
+        HORZGUIDE, 49
+        HORZGUIDE, 65
+        HORZGUIDE, 81
+        HORZGUIDE, 97
+        HORZGUIDE, 113
+        HORZGUIDE, 129
+        HORZGUIDE, 145
+        HORZGUIDE, 161
+        HORZGUIDE, 177
+        HORZGUIDE, 193
+        HORZGUIDE, 208
+        HORZGUIDE, 224
+        HORZGUIDE, 240
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -173,12 +156,159 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,1,0,1
+ PRODUCTVERSION 1,1,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "CrashRptTest Module"
+            VALUE "FileVersion", "1, 1, 0, 1"
+            VALUE "InternalName", "CrashRptTest"
+            VALUE "LegalCopyright", "Copyright 2003-2009"
+            VALUE "OriginalFilename", "CrashRptTest.exe"
+            VALUE "ProductName", "CrashRptTest Module"
+            VALUE "ProductVersion", "1, 1, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+1                       RT_MANIFEST             "res\\CrashRptTest.exe.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
-    IDS_ABOUTBOX            "&About CrashRptTest..."
+    IDR_MAINFRAME           "CrashRptTest"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCSIZE          "Change the window size"
+    ATL_IDS_SCMOVE          "Change the window position"
+    ATL_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    ATL_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    ATL_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    ATL_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    ATL_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCRESTORE       "Restore the window to normal size"
+    ATL_IDS_SCTASKLIST      "Activate Task List"
+    ATL_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_MRU_FILE        "Open this document"
 END
 
 #endif    // English (U.S.) resources
@@ -191,19 +321,6 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-#define _AFX_NO_SPLITTER_RESOURCES
-#define _AFX_NO_OLE_RESOURCES
-#define _AFX_NO_TRACKER_RESOURCES
-#define _AFX_NO_PROPERTY_RESOURCES
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
-LANGUAGE 9, 1
-#pragma code_page(1252)
-#endif //_WIN32
-#include "res\CrashRptTest.rc2"  // non-Microsoft Visual C++ edited resources
-#include "afxres.rc"         // Standard components
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

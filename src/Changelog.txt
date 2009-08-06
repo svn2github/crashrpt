@@ -1,0 +1,90 @@
+======= Change History ========
+
+--- Ver. 1.1.2 ---
+
+- Improved documentation; Added info on compiling CrashRpt in VC++ Express
+
+- Fixed some compilation warnings in VC++ Express
+
+- Fixed wrong "unh" message box in unhandled exception handler
+
+--- Ver. 1.1.1 ---
+
+- Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
+
+- Improved documentation; New page About Exceptions and Exception Handling
+
+- New wrapper classes CrAutoInstallHelper and CrThreadAutoInstallHelper
+
+- MD5 hash for error report is calculated and attached to email 
+  when error report is sent over email
+
+- Error report is removed when sent successfuly
+
+- Refactored error report sending code
+
+- Extended E-mail message text generation for error reports being sent over email
+
+- 'Copy selected lines' and 'copy the whole log' from context menu of error report
+  sending log
+
+- Fixed many VS-version-specific bugs
+
+--- Ver. 1.1 ---
+
+
+Major Features:
+
+- Removed support of Visual Studio 6.0 and added support of VS.NET 2003,
+  VS 2005 and VS 2008
+
+- New API functions (crInstall(); crUninstall(); crInstallToCurrentThread();
+  crUninstallFromCurrentThread(); crGenerateErrorReport(); crExceptionFilter();
+  crEmulateCrash(); crGetLastErrorMsg())
+
+- Character set specific functions have A and w suffixes. Introduced macros for
+  defining character set indepandent function names mapping
+
+- Support of various C++ exception handlers (Visual Studio-specific)
+
+- Crash report generation and crash sending functionality are separeted into 
+  different modules (CrashRpt.dll and CrashSender.exe)
+
+- New ways of sending error reports: using HTTP connection, using SMTP embed client or
+  (as in 1.0) using Simple MAPI.
+
+- Each error report is now assigned a unique CrashGUID
+
+- Doxygen-based documentation system
+
+- Revamped GUI of Send Error Report dialog
+
+- New Error Report Sending Progress dialog
+
+- Improved crash descriptor XML format
+
+
+Minor features:
+
+- Using TinyXml framework instead of MSXML
+
+- Using the latest version (at the moment) of dbghelp 
+
+- Using the latest version (at the moment) of zlib
+
+
+--- Ver. 1.0 ---
+
+
+    * 03/17/2003
+          o Replaced MFC with WTL.
+          o Changed crashrpt interface.
+          o Major refactoring.
+          o Updated article.
+          o Details dialog preview window now uses system defined window color instead of white.
+          o Directory structure not saved in ZIP.
+          o Support for use by multiple apps.
+          o Buffer overrun error when previewing files > 32k.
+          o Main dialog now displays app icon. 
+    * 01/12/2003
+          o Initial release. 
