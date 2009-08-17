@@ -5,6 +5,7 @@
 #include "base64.h"
 #include "md5.h"
 #include <string>
+#include "Utility.h"
 
 BOOL CHttpSender::SendAssync(CString sUrl, CString sFileName, AssyncNotification* an)
 {
@@ -43,7 +44,7 @@ DWORD WINAPI CHttpSender::HttpSendThread(VOID* pParam)
 
 BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
 { 
-  USES_CONVERSION;
+  strconv_t strconv;
   BOOL bStatus = FALSE;
 	TCHAR* hdrs = _T("Content-Type: application/x-www-form-urlencoded");
 	LPCTSTR accept[2]={_T("*/*"), NULL};
@@ -63,7 +64,7 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   char* chPOSTRequest = NULL;
   CString sMD5Hash;
   CString sPOSTRequest;
-  LPSTR szPOSTRequest; // ASCII
+  LPCSTR szPOSTRequest; // ASCII
   char* szPrefix="crashrpt=\"";
   char* szSuffix="\"";
   CString sErrorMsg;
@@ -171,7 +172,7 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
 
   if(an->IsCancelled()){ goto exit; }
 
-  szPOSTRequest = T2A(sPOSTRequest.GetBuffer(0));
+  szPOSTRequest = strconv.t2a(sPOSTRequest.GetBuffer(0));
 
   an->SetProgress(_T("Sending HTTP request"), 50);
   bResult = HttpSendRequest(hRequest, hdrs, (int)_tcslen(hdrs), 

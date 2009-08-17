@@ -275,7 +275,7 @@ LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, B
 
 void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 { 
-  USES_CONVERSION;
+  strconv_t strconv;
 
   HZIP hz = CreateZip(m_sZipName, NULL);
   
@@ -302,7 +302,7 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* email = new TiXmlElement("UserEmail");
       root->LinkEndChild(email);
 
-      LPSTR lpszEmail = T2A(sEmail.GetBuffer(0));
+      LPCSTR lpszEmail = strconv.t2a(sEmail.GetBuffer(0));
       TiXmlText* email_text = new TiXmlText(lpszEmail);
       email->LinkEndChild(email_text);              
 
@@ -311,17 +311,17 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* desc = new TiXmlElement("ProblemDescription");
       root->LinkEndChild(desc);
 
-      LPSTR lpszDesc = T2A(sDesc.GetBuffer(0));
+      LPCSTR lpszDesc = strconv.t2a(sDesc.GetBuffer(0));
       TiXmlText* desc_text = new TiXmlText(lpszDesc);
       desc->LinkEndChild(desc_text);              
 
       doc.SaveFile();      
     }
 
-	LPTSTR lptszFilePath = A2T((char*)cur->first.c_str());
+	  LPCTSTR lptszFilePath = strconv.a2t((char*)cur->first.c_str());
     ZRESULT zr = ZipAdd(hz, sFileName, lptszFilePath);
     ATLASSERT(zr==ZR_OK); 
-	zr;
+	  zr;
   }  
 
   CloseZip(hz);
@@ -333,7 +333,6 @@ LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
     return 0;
 
   HDC hDC = (HDC)wParam;
-  //::SelectObject(hDC, GetStockObject(NULL_BRUSH));
   SetBkColor(hDC, RGB(0, 255, 255));
   SetTextColor(hDC, RGB(0, 255, 255));
   return (LRESULT)TRUE;

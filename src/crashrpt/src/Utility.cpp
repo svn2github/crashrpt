@@ -137,7 +137,7 @@ int CUtility::GenerateGUID(CString& sGUID)
   int status = 1;
   sGUID.Empty();
 
-  USES_CONVERSION;
+  strconv_t strconv;
 
   // Create GUID
 
@@ -154,7 +154,7 @@ int CUtility::GenerateGUID(CString& sGUID)
       if(SUCCEEDED(hr) && pszUuid!=NULL)
       { 
         status = 0;
-        sGUID = A2T((char*)pszUuid);
+        sGUID = strconv.a2t((char*)pszUuid);
         RpcStringFreeA(&pszUuid);
       }
     }

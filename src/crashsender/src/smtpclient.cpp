@@ -3,6 +3,7 @@
 #include <Windns.h>
 #include <sys/stat.h>
 #include "base64.h"
+#include "Utility.h"
 
 CSmtpClient::CSmtpClient()
 {
@@ -139,7 +140,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
 {
   int status = 1;
   
-  USES_CONVERSION;  
+  strconv_t strconv;  
 
   struct addrinfo *result = NULL;
   struct addrinfo *ptr = NULL;
@@ -157,7 +158,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   CString sMessageText = msg->m_sText;
   sMessageText.Replace(_T("\n"),_T("\r\n"));
   sMessageText.Replace(_T("\r\n.\r\n"), _T("\r\n*\r\n"));
-  LPWSTR lpwszMessageText = T2W(sMessageText.GetBuffer(0));
+  LPCWSTR lpwszMessageText = strconv.t2w(sMessageText.GetBuffer(0));
   std::string sUTF8Text = UTF16toUTF8(lpwszMessageText);
 
   // Check that all attachments exist
@@ -183,8 +184,8 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;  
 
-  LPSTR lpszSmtpServer = T2A(sSmtpServer);
-  LPSTR lpszServiceName = T2A(sServiceName);
+  LPCSTR lpszSmtpServer = strconv.t2a(sSmtpServer);
+  LPCSTR lpszServiceName = strconv.t2a(sServiceName);
   iResult = getaddrinfo(lpszSmtpServer, lpszServiceName, &hints, &result);
   if(iResult!=0)
     goto exit;
@@ -421,13 +422,13 @@ std::string CSmtpClient::UTF16toUTF8(LPCWSTR utf16)
 
 int CSmtpClient::SendMsg(AssyncNotification* scn, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce, UINT uResponceSize)
 {	
-  USES_CONVERSION;
+  strconv_t strconv;
 
   if(scn->IsCancelled()) {return -1;}
 
   int msg_len = (int)_tcslen(pszMessage);
 
-  LPSTR lpszMessageA = T2A((TCHAR*)pszMessage);
+  LPCSTR lpszMessageA = strconv.t2a((TCHAR*)pszMessage);
   
   int res = send(sock, lpszMessageA, msg_len, 0);	
 	if(pszResponce==NULL) 
@@ -445,10 +446,10 @@ int CSmtpClient::SendMsg(AssyncNotification* scn, SOCKET sock, LPCTSTR pszMessag
 
 int CSmtpClient::CheckAttachmentOK(CString sFileName)
 {
-  USES_CONVERSION;
+  strconv_t strconv;
 
   struct _stat st;
-  LPSTR lpszFileNameA = T2A(sFileName.GetBuffer(0));
+  LPCSTR lpszFileNameA = strconv.t2a(sFileName.GetBuffer(0));
 
   int nResult = _stat(lpszFileNameA, &st);
   if(nResult != 0)
@@ -460,12 +461,12 @@ int CSmtpClient::CheckAttachmentOK(CString sFileName)
 int CSmtpClient::Base64EncodeAttachment(CString sFileName, 
 										std::string& sEncodedFileData)
 {
-  USES_CONVERSION;
+  strconv_t strconv;
   
   int uFileSize = 0;
   BYTE* uchFileData = NULL;  
   struct _stat st;
-  LPSTR lpszFileNameA = T2A(sFileName.GetBuffer(0));
+  LPCSTR lpszFileNameA = strconv.t2a(sFileName.GetBuffer(0));
 
   int nResult = _stat(lpszFileNameA, &st);
   if(nResult != 0)

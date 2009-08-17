@@ -120,7 +120,7 @@ CString FormatEmailText(SenderThreadContext* pc)
 
 BOOL SendOverSMTP(SenderThreadContext* pc)
 {  
-  USES_CONVERSION;
+  strconv_t strconv;
 
   if(pc->m_sEmailTo.IsEmpty())
   {
@@ -150,7 +150,7 @@ BOOL SendOverSMTP(SenderThreadContext* pc)
   _TFOPEN_S(f, sTmpFileName, _T("wt"));
   if(f!=NULL)
   {   
-    LPSTR szErrorRptHash = T2A(sErrorRptHash.GetBuffer(0));
+    LPCSTR szErrorRptHash = strconv.t2a(sErrorRptHash.GetBuffer(0));
     fwrite(szErrorRptHash, strlen(szErrorRptHash), 1, f);
     fclose(f);
     msg.m_aAttachments.insert(sTmpFileName);  
@@ -162,7 +162,7 @@ BOOL SendOverSMTP(SenderThreadContext* pc)
 
 BOOL SendOverSMAPI(SenderThreadContext* pc)
 {  
-  USES_CONVERSION;
+  strconv_t strconv;
 
   if(pc->m_sEmailTo.IsEmpty())
   {
@@ -216,7 +216,7 @@ BOOL SendOverSMAPI(SenderThreadContext* pc)
   _TFOPEN_S(f, sTmpFileName, _T("wt"));
   if(f!=NULL)
   { 
-    LPSTR szErrorRptHash = T2A(sErrorRptHash.GetBuffer(0));
+    LPCSTR szErrorRptHash = strconv.t2a(sErrorRptHash.GetBuffer(0));
     fwrite(szErrorRptHash, strlen(szErrorRptHash), 1, f);
     fclose(f);
     mailmsg.AddAttachment(sTmpFileName, sFileTitle);  

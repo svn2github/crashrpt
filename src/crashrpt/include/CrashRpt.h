@@ -12,13 +12,13 @@
 
 // This is needed for exporting/importing functions from/to CrashRpt.dll
 #ifdef CRASHRPT_EXPORTS
- #define CRASHRPTAPI __declspec(dllexport) 
+ #define CRASHRPTAPI extern "C" __declspec(dllexport) 
 #else 
- #define CRASHRPTAPI __declspec(dllimport) 
+ #define CRASHRPTAPI extern "C" __declspec(dllimport) 
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1101
+#define CRASHRPT_VER 1102
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
@@ -198,8 +198,8 @@ CRASHRPTAPI
 void 
 AddFileA(
    IN LPVOID lpState,                         
-   IN LPCWSTR pszFile,                         
-   IN LPCWSTR pszDesc                          
+   IN LPCSTR pszFile,                         
+   IN LPCSTR pszDesc                          
    );
 
 /*! \brief Character set-independent mapping of AddFileW() and AddFileA() functions. 
@@ -904,7 +904,7 @@ crEmulateCrash(
 CRASHRPTAPI
 int
 crGetLastErrorMsgW(
-  LPTSTR pszBuffer, 
+  LPWSTR pszBuffer, 
   UINT uBuffSize);
 
 /*! \ingroup CrashRptAPI

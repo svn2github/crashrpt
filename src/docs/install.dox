@@ -56,8 +56,14 @@ There are four projects in the CrashRpt solution.
 
 \section compilation Compilation
 
-You can compile and use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005, 
-Visual C++ 2008 and Visual C++ Express.
+You can use CrashRpt in C++ programs created using Visual C++. You can't 
+use it in .NET or Visual Basic. CrashRpt is specific to Visual C++, other 
+languages have different error 
+handling mechanisms and CrashRpt can't intercept errors in other programming
+languages. 
+
+You can compile and use CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b>, 
+<b>Visual C++ 2008</b> and <b>Visual C++ Express</b>.
 
 By default CrashRpt release package already contains binary files 
 compiled with Visual Studio 2005 in its \c bin directory. 
@@ -67,7 +73,7 @@ CrashRpt yourself using your version of Visual Studio.
 To compile CrashRpt follow these steps:
 
 -# Download and unzip the source code of CrashRpt to any directory. 
--# You also need to download the latest version of WTL from 
+-# Download the latest version of WTL from 
 <a href="http://sourceforge.net/projects/wtl">here</a>.
 Unzip the WTL archive to some folder. In Visual Studio, open Tools->
 Options->Projects and Solutions->VC++ Directories.
@@ -75,9 +81,9 @@ In the 'Show directories for' combo select 'Include files', then add
 the path to WTL\\include directory to the list of include directories.
 -# Open one of solution files available in the top level directory of 
 CrashRpt package, depending on your version of Visual Studio:
- - CrashRpt_vs.NET.sln 
- - CrashRpt_vs2005.sln
- - CrashRpt_vs2008.sln
+ - <b>CrashRpt_vs.NET.sln</b> 
+ - <b>CrashRpt_vs2005.sln</b>
+ - <b>CrashRpt_vs2008.sln</b>
 -# Choose the Release build configuration and press F7 to build the solution.
 
 <b>Notes about compiling in Visual C++ Express</b>
@@ -111,7 +117,7 @@ http://www.codeproject.com/KB/wtl/WTLExpress.aspx
 
 \section link Include and Lib Directories
 
-It is recommened that you let the Viual C++ compiler know about CrashRpt 
+It is recommened that you let the Visual C++ compiler know about CrashRpt 
 using the following steps:
 
 In Visual Studio window, open Tools->

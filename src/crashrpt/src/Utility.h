@@ -128,4 +128,95 @@ public:
    static int RecycleFile(CString sFilePath, bool bPermanentDelete);
 };
 
+#include <vector>
+class strconv_t
+{
+public:
+  strconv_t(){}
+  ~strconv_t()
+  {
+    unsigned i;
+    for(i=0; i<m_ConvertedStrings.size(); i++)
+    {
+      delete [] m_ConvertedStrings[i];
+    }
+  }
+
+  LPCWSTR a2w(LPCSTR lpsz)
+  {
+    int count = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, NULL, 0);
+    if(count==0)
+      return NULL;
+
+    void* pBuffer = (void*) new wchar_t[count];
+    int result = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, (LPWSTR)pBuffer, count);
+    if(result==0)
+    {
+      delete [] pBuffer;
+      return NULL;
+    }    
+
+    m_ConvertedStrings.push_back(pBuffer);
+    return (LPCWSTR)pBuffer;
+  }
+
+  LPCSTR w2a(LPCWSTR lpsz)
+  {    
+    int count = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, NULL, 0, NULL, NULL);
+    if(count==0)
+      return NULL;
+
+    void* pBuffer = (void*) new char[count];
+    int result = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, (LPSTR)pBuffer, count, NULL, NULL);
+    if(result==0)
+    {
+      delete [] pBuffer;
+      return NULL;
+    }    
+
+    m_ConvertedStrings.push_back(pBuffer);
+    return (LPCSTR)pBuffer;
+  }
+
+  LPCSTR t2a(LPCTSTR lpsz)
+  {
+#ifdef UNICODE    
+    return w2a(lpsz);
+#else
+    return lpsz;
+#endif
+  }
+
+LPCWSTR t2w(LPCTSTR lpsz)
+  {
+#ifdef UNICODE    
+    return lpsz;
+#else
+    return a2w(lpsz);
+#endif
+  }
+
+  LPCTSTR a2t(LPCSTR lpsz)
+  {
+#ifdef UNICODE    
+    return a2w(lpsz);
+#else
+    return lpsz;
+#endif
+  }
+
+LPCTSTR w2t(LPCWSTR lpsz)
+  {
+#ifdef UNICODE    
+    return lpsz;
+#else
+    return w2a(lpsz);
+#endif
+  }
+
+private:
+  std::vector<void*> m_ConvertedStrings;  
+};
+
+
 #endif	// #ifndef _UTILITY_H_

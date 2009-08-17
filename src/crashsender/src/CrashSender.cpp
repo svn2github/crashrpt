@@ -78,7 +78,7 @@ int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sAppVersion, CString
 int 
 GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
 {
-  USES_CONVERSION;
+  strconv_t strconv;
 
   HZIP hz = OpenZip(sZipName, NULL);
   if(hz==NULL)
@@ -108,7 +108,7 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
   ATLASSERT(bCreateDir);
   bCreateDir;
   
-  LPSTR lpszTempFileName = T2A(sTempFileName.GetBuffer(0));
+  LPCSTR lpszTempFileName = strconv.t2a(sTempFileName.GetBuffer(0));
 
   TiXmlDocument doc;
   bool bLoad = doc.LoadFile(lpszTempFileName);
@@ -146,7 +146,7 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
       ZIPENTRY ze;	  
       ZRESULT zr = FindZipItem(hz, sFileName, false, &index, &ze);
       zr = UnzipItem(hz, index, sFilePathName);
-	    LPSTR pszFilePathName = T2A(sFilePathName.GetBuffer(0));
+	    LPCSTR pszFilePathName = strconv.t2a(sFilePathName.GetBuffer(0));
       file_list[pszFilePathName]=pszDesc;
     }
 

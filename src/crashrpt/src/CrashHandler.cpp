@@ -998,8 +998,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
 {
   crSetErrorMsg(_T("Unspecified error."));
 
-  USES_CONVERSION;
-
+  strconv_t strconv;
   TiXmlDocument doc;
   
   // Add root element
@@ -1009,41 +1008,41 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   // Write CrashRpt version
   CString sCrashRptVer;
   sCrashRptVer.Format(_T("%d"), CRASHRPT_VER);
-  LPSTR lpszCrashRptVer = T2A(sCrashRptVer.GetBuffer(0));
+  LPCSTR lpszCrashRptVer = strconv.t2a(sCrashRptVer.GetBuffer(0));
   root->SetAttribute("version", lpszCrashRptVer);
 
   // Write crash GUID
   TiXmlElement* crash_guid = new TiXmlElement("CrashGUID");
   root->LinkEndChild(crash_guid);
-  LPSTR lpszCrashGUID = T2A(m_sCrashGUID.GetBuffer(0));
+  LPCSTR lpszCrashGUID = strconv.t2a(m_sCrashGUID.GetBuffer(0));
   TiXmlText* crash_guid_text = new TiXmlText(lpszCrashGUID);
   crash_guid->LinkEndChild(crash_guid_text);
 
   // Write application name 
   TiXmlElement* app_name = new TiXmlElement("AppName");
   root->LinkEndChild(app_name);
-  LPSTR lpszAppName = T2A(m_sAppName.GetBuffer(0));
+  LPCSTR lpszAppName = strconv.t2a(m_sAppName.GetBuffer(0));
   TiXmlText* app_name_text = new TiXmlText(lpszAppName);
   app_name->LinkEndChild(app_name_text);
 
   // Write application version 
   TiXmlElement* app_ver = new TiXmlElement("AppVersion");
   root->LinkEndChild(app_ver);
-  LPSTR lpszAppVersion = T2A(m_sAppVersion.GetBuffer(0));
+  LPCSTR lpszAppVersion = strconv.t2a(m_sAppVersion.GetBuffer(0));
   TiXmlText* app_ver_text = new TiXmlText(lpszAppVersion);
   app_ver->LinkEndChild(app_ver_text);
 
   // Write EXE image name
   TiXmlElement* image_name = new TiXmlElement("ImageName");
   root->LinkEndChild(image_name);
-  LPSTR lpszImageName = T2A(m_sImageName.GetBuffer(0));  
+  LPCSTR lpszImageName = strconv.t2a(m_sImageName.GetBuffer(0));  
   TiXmlText* image_name_text = new TiXmlText(lpszImageName);
   image_name->LinkEndChild(image_name_text);
 
   // Write operating system friendly name  
   TiXmlElement* os_name = new TiXmlElement("OperatingSystem");
   root->LinkEndChild(os_name);
-  LPSTR lpszOSName = T2A(m_sOSName.GetBuffer(0));
+  LPCSTR lpszOSName = strconv.t2a(m_sOSName.GetBuffer(0));
   TiXmlText* os_name_text = new TiXmlText(lpszOSName);
   os_name->LinkEndChild(os_name_text);
   
@@ -1052,7 +1051,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   CUtility::GetSystemTimeUTC(sSystemTime);
   TiXmlElement* sys_time = new TiXmlElement("SystemTimeUTC");
   root->LinkEndChild(sys_time);
-  LPSTR lpszSystemTime = T2A(sSystemTime.GetBuffer(0));
+  LPCSTR lpszSystemTime = strconv.t2a(sSystemTime.GetBuffer(0));
   TiXmlText* sys_time_text = new TiXmlText(lpszSystemTime);
   sys_time->LinkEndChild(sys_time_text);
   
@@ -1061,7 +1060,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   sExcType.Format(_T("%d"), pExceptionInfo->exctype);  
   TiXmlElement* exc_type = new TiXmlElement("ExceptionType");
   root->LinkEndChild(exc_type);  
-  LPSTR lpszExcType = T2A(sExcType.GetBuffer(0));
+  LPCSTR lpszExcType = strconv.t2a(sExcType.GetBuffer(0));
   TiXmlText* exc_type_text = new TiXmlText(lpszExcType);
   exc_type->LinkEndChild(exc_type_text);
 
@@ -1072,7 +1071,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     sSECode.Format(_T("%d"), pExceptionInfo->code);    
     TiXmlElement* sehcode = new TiXmlElement("ExceptionCode");
     root->LinkEndChild(sehcode);  
-	  LPSTR lpszSEHCode = T2A(sSECode.GetBuffer(0));
+	  LPCSTR lpszSEHCode = strconv.t2a(sSECode.GetBuffer(0));
     TiXmlText* sehcode_text = new TiXmlText(lpszSEHCode);
     sehcode->LinkEndChild(sehcode_text);
   }
@@ -1084,7 +1083,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     sFpeSubcode.Format(_T("%d"), pExceptionInfo->fpe_subcode);    
     TiXmlElement* fpe_subcode = new TiXmlElement("FPESubcode");
     root->LinkEndChild(fpe_subcode);  
-	  LPSTR lpszFpeSubcode = T2A(sFpeSubcode.GetBuffer(0));
+	  LPCSTR lpszFpeSubcode = strconv.t2a(sFpeSubcode.GetBuffer(0));
     TiXmlText* fpe_subcode_text = new TiXmlText(lpszFpeSubcode);
     fpe_subcode->LinkEndChild(fpe_subcode_text);
   }
@@ -1097,7 +1096,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
       // Write expression      
       TiXmlElement* expr = new TiXmlElement("InvParamExpression");
       root->LinkEndChild(expr);  
-	    LPSTR lpszExpr = W2A(pExceptionInfo->expression);
+	    LPCSTR lpszExpr = strconv.w2a(pExceptionInfo->expression);
       TiXmlText* expr_text = new TiXmlText(lpszExpr);
       expr->LinkEndChild(expr_text);
     }
@@ -1107,7 +1106,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
       // Write function      
       TiXmlElement* func = new TiXmlElement("InvParamFunction");
       root->LinkEndChild(func);  
-	    LPSTR lpszFunc = W2A(pExceptionInfo->function);
+	    LPCSTR lpszFunc = strconv.w2a(pExceptionInfo->function);
       TiXmlText* func_text = new TiXmlText(lpszFunc);
       func->LinkEndChild(func_text);
     }
@@ -1117,7 +1116,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
       // Write file
       TiXmlElement* file = new TiXmlElement("InvParamFile");
       root->LinkEndChild(file);  
-	    LPSTR lpszFile = W2A(pExceptionInfo->file);
+	    LPCSTR lpszFile = strconv.w2a(pExceptionInfo->file);
       TiXmlText* file_text = new TiXmlText(lpszFile);
       file->LinkEndChild(file_text);
     }
@@ -1127,7 +1126,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     sLine.Format(_T("%d"), pExceptionInfo->line);    
     TiXmlElement* line = new TiXmlElement("InvParamLine");
     root->LinkEndChild(line);  
-	  LPSTR lpszLine = T2A(sLine.GetBuffer(0));
+	  LPCSTR lpszLine = strconv.t2a(sLine.GetBuffer(0));
     TiXmlText* line_text = new TiXmlText(lpszLine);
     line->LinkEndChild(line_text);
   }
@@ -1155,8 +1154,8 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     TiXmlElement* file_item = new TiXmlElement("FileItem");
     file_list->LinkEndChild(file_item);      
 
-	  LPSTR lpszFilePath = T2A(sFilePath.GetBuffer(0));
-	  LPSTR lpszFileDesc = T2A(sFileDesc.GetBuffer(0));
+	  LPCSTR lpszFilePath = strconv.t2a(sFilePath.GetBuffer(0));
+	  LPCSTR lpszFileDesc = strconv.t2a(sFileDesc.GetBuffer(0));
 
     file_item->SetAttribute("name", lpszFilePath);    
     file_item->SetAttribute("description", lpszFileDesc);    
@@ -1164,7 +1163,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
 
   // Save document to file
 
-  LPSTR lpszFileName = T2A(pszFileName);
+  LPCSTR lpszFileName = strconv.t2a(pszFileName);
   bool bSave = doc.SaveFile(lpszFileName);
   if(!bSave)
   {
@@ -1272,7 +1271,7 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
 {
   crSetErrorMsg(_T("Success."));
 
-  USES_CONVERSION;
+  strconv_t strconv;
 
   /* Create CrashSender process */
 
@@ -1332,7 +1331,7 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
     m_uPriorities[CR_SMTP],
     m_uPriorities[CR_SMAPI]);
 
-  LPSTR lpszCrashInfo =  T2A(sCrashInfo.GetBuffer(0));
+  LPCSTR lpszCrashInfo =  strconv.t2a(sCrashInfo.GetBuffer(0));
   
   DWORD dwBytesWritten = 0;
   DWORD dwLength = (DWORD)strlen(lpszCrashInfo);
