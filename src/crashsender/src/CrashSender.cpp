@@ -13,8 +13,18 @@
 
 CAppModule _Module;
 
-int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sAppVersion, CString& sImageName,
-  CString& sSubject, CString& sMailTo, CString& sUrl, UINT (*puPriorities)[3], CString& sZipName)
+int ParseCrashInfo(
+  LPCSTR text, 
+  CString& sAppName, 
+  CString& sAppVersion, 
+  CString& sImageName,
+  CString& sSubject, 
+  CString& sMailTo, 
+  CString& sUrl, 
+  UINT (*puPriorities)[3], 
+  CString& sZipName,
+  CString& sPrivacyPolicyURL
+  )
 {  
   TiXmlDocument doc;
   doc.Parse(text);
@@ -35,6 +45,7 @@ int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sAppVersion, CString
   const char* pszHttpPriority = hRoot.ToElement()->Attribute("http_priority");
   const char* pszSmtpPriority = hRoot.ToElement()->Attribute("smtp_priority");
   const char* pszMapiPriority = hRoot.ToElement()->Attribute("mapi_priority");
+  const char* pszPrivacyPolicyURL = hRoot.ToElement()->Attribute("privacy_policy_url");
 
   if(pszAppName)
     sAppName = pszAppName;
@@ -72,6 +83,9 @@ int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sAppVersion, CString
   else
     (*puPriorities)[CR_SMAPI] = 0;
   
+  if(pszPrivacyPolicyURL!=NULL)
+    sPrivacyPolicyURL = pszPrivacyPolicyURL;
+
   return 0;
 }
 
@@ -168,6 +182,7 @@ GetCrashInfoThroughPipe(
   CString& sUrl,
   UINT (*puPriorities)[3],
   CString& sZipName,
+  CString& sPrivacyPolicyURL,
   std::map<std::string, std::string> &file_list)
 {
   // Create named pipe to get crash information from client process.
@@ -232,7 +247,7 @@ GetCrashInfoThroughPipe(
 
   // Parse text  
   int nParseResult = ParseCrashInfo(sDataA.c_str(), sAppName, sAppVersion, sImageName, 
-    sSubject, sMailTo, sUrl, puPriorities, sZipName);
+    sSubject, sMailTo, sUrl, puPriorities, sZipName, sPrivacyPolicyURL);
   if(nParseResult!=0)
   {
     ATLASSERT(nParseResult==0);
@@ -270,6 +285,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     dlgMain.m_sUrl,
     &dlgMain.m_uPriorities,
     dlgMain.m_sZipName,    
+    dlgMain.m_sPrivacyPolicyURL,
     dlgMain.m_pUDFiles)!=0)
     return 1; 
   

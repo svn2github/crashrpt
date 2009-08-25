@@ -29,10 +29,13 @@ public:
   CString     m_sZipName;
   CString     m_sUrl;
   UINT        m_uPriorities[3];
+  CString     m_sPrivacyPolicyURL;
 
   TStrStrMap  m_pUDFiles;      // Files <name,desc>
 
   CStatic m_statIcon;  
+  CHyperLink  m_link;           
+  CHyperLink m_linkMoreInfo;
   CStatic m_statEmail;
   CEdit m_editEmail;
   CStatic m_statDesc;
@@ -41,8 +44,8 @@ public:
   CButton m_btnCancel;
   CStatic m_statHorzLine;
   CStatic m_statCrashRpt; 
-  CHyperLink  m_link;           
-  CHyperLink m_linkMoreInfo;
+  CStatic m_statBySending; 
+  CHyperLink  m_linkPrivacyPolicy;           
   int m_nDeltaY;
   CFont m_HeadingFont;
   CIcon m_HeadingIcon;
@@ -85,7 +88,7 @@ public:
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnLinkClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-  LRESULT OnMoreInfoClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnMoreInfoClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 

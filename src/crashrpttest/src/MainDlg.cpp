@@ -32,11 +32,6 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 		IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
 	SetIcon(hIconSmall, FALSE);
 
-#if (_MSC_VER>1300 )
-  ::EnableWindow(GetDlgItem(IDC_MAIN_SECURITY), 0);
-  ::EnableWindow(GetDlgItem(IDC_THREAD_SECURITY), 0);
-#endif
-
 #if ( _MSC_VER<1400 )
   ::EnableWindow(GetDlgItem(IDC_MAIN_INVPAR), 0);
   ::EnableWindow(GetDlgItem(IDC_THREAD_INVPAR), 0);
@@ -82,17 +77,12 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
   case IDC_MAIN_WIN32: type = CR_WIN32_STRUCTURED_EXCEPTION; break;                              
   case IDC_MAIN_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_MAIN_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
-#if _MSC_VER>=1300
   case IDC_MAIN_PURECALL: type = CR_CPP_PURE_CALL; break;
   case IDC_MAIN_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
-#endif
 #if _MSC_VER>=1400
   case IDC_MAIN_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;  
 #endif
-#if _MSC_VER>=1300 && _MSC_VER<1400
-  case IDC_MAIN_SECURITY: type = CR_CPP_SECURITY_ERROR; break;
-#endif
-  
+  case IDC_MAIN_SECURITY: type = CR_CPP_SECURITY_ERROR; break;  
   case IDC_MAIN_SIGABRT: type = CR_CPP_SIGABRT; break;
   case IDC_MAIN_SIGFPE: type = CR_CPP_SIGFPE; break;
   case IDC_MAIN_SIGILL: type = CR_CPP_SIGILL; break;
@@ -138,16 +128,12 @@ LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWN
   case IDC_THREAD_WIN32: type = CR_WIN32_STRUCTURED_EXCEPTION; break;                              
   case IDC_THREAD_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_THREAD_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
-#if _MSC_VER>=1300
   case IDC_THREAD_PURECALL: type = CR_CPP_PURE_CALL; break;
   case IDC_THREAD_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
-#endif
 #if _MSC_VER>=1400
   case IDC_THREAD_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
 #endif
-#if _MSC_VER>=1300 && _MSC_VER<1400
   case IDC_THREAD_SECURITY: type = CR_CPP_SECURITY_ERROR; break;
-#endif //_MSC_VER>=1300 && _MSC_VER<1400    
   case IDC_THREAD_SIGABRT: type = CR_CPP_SIGABRT; break;
   case IDC_THREAD_SIGFPE: type = CR_CPP_SIGFPE; break;
   case IDC_THREAD_SIGILL: type = CR_CPP_SIGILL; break;

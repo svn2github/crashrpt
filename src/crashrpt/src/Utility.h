@@ -75,9 +75,9 @@ public:
    // Remarks
    //    none
    //
-   static 
+  /* static 
    CString 
-   getSaveFileName();
+   getSaveFileName();*/
 	
    //-----------------------------------------------------------------------------
    // getTempFileName
@@ -126,6 +126,8 @@ public:
 
    // Moves a file to the Recycle Bin or removes the file permanently
    static int RecycleFile(CString sFilePath, bool bPermanentDelete);
+
+   /*static CString LoadString(UINT uID);*/
 };
 
 #include <vector>

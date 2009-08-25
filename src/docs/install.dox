@@ -2,14 +2,6 @@
 
 \page installation Installation
 
-CrashRpt library installation is a required step. The recommended way of CrashRpt 
-installation is described below. The installation typically
-consists of unzipping the CrashRpt archive, compiling the CrashRpt using your version
-of Visual Studio, adding include and lib paths to your Visual Studio IDE and 
-(optionally) building CrashRpt documentation using Doxygen.
-
-
-
 The following topics are covered in this page:
 
 - \ref license
@@ -24,7 +16,8 @@ The following topics are covered in this page:
 
 \section license License
 
-You can find the license text <a href="..\..\license.txt">here</a>
+This library is distributed under the New BSD license. You can find the 
+license text <a href="..\..\license.txt">here</a>.
 
 \section download Download
 
@@ -38,29 +31,30 @@ The change log is available
 
 \section structure Solution Structure
 
-There are four projects in the CrashRpt solution.
+There are four projects in CrashRpt solution.
 
-- \b CrashRpt is a dynamic link library project. It contains CrashRpt
+- \b CrashRpt project contains 
   API implementation and provides functionality to intercept exceptions
-  and generate an error report.
+  and generate error reports.
 
-- \b CrashSender is an executable project. It contains functionality 
-  to show GUI, send the error report and show error report sending progress.
+- \b CrashSender project contains functionality 
+  for displaying GUI, sending the error report and show error report sending progress.
 
 - \b CrashRptTest is a GUI application that helps to check that 
    CrashRpt API functions work as expected.
 
 - \b crashcon is a console application that helps to test how CrashRpt
   works with console applications.
+
+- \b zlib project contains file compression functionality.
    
 
 \section compilation Compilation
 
 You can use CrashRpt in C++ programs created using Visual C++. You can't 
-use it in .NET or Visual Basic. CrashRpt is specific to Visual C++, other 
-languages have different error 
-handling mechanisms and CrashRpt can't intercept errors in other programming
-languages. 
+use it in .NET or Visual Basic. Languages other than Visual C++ 
+have different error handling mechanisms and CrashRpt can't intercept 
+errors in other programming languages. 
 
 You can compile and use CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b>, 
 <b>Visual C++ 2008</b> and <b>Visual C++ Express</b>.
@@ -68,7 +62,9 @@ You can compile and use CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2
 By default CrashRpt release package already contains binary files 
 compiled with Visual Studio 2005 in its \c bin directory. 
 However, it is strongly recommended that you compile
-CrashRpt yourself using your version of Visual Studio.
+CrashRpt yourself using your version of Visual Studio. This is needed to
+ensure CrashRpt uses the same version of C run-time libraries (CRT) as 
+your application does.
 
 To compile CrashRpt follow these steps:
 
@@ -89,7 +85,7 @@ CrashRpt package, depending on your version of Visual Studio:
 <b>Notes about compiling in Visual C++ Express</b>
 
 CrashRpt depends on WTL library. WTL is an open source 
-project that is constantly evolves and adapts to new versions of Visual Studio 
+project. It constantly evolves and adapts to new versions of Visual Studio 
 (including VS Express). The latest version at the moment is WTL 8.1.
 
 WTL itself depends on Microsoft's library called ATL (Active Template Library). 
@@ -104,16 +100,14 @@ at all (if possible).
 
 To compile CrashRpt in Visual C++ Express, you need to have Platform SDK for 
 Windows Server 2003, since it is the only Platform SDK that supports ATL.
-Download and install Microsoft Platform SDK for Windows Server 2003, for example from here 
-http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
+Download and install Microsoft Platform SDK for Windows Server 2003, for example
+<a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en">
+from here </a>.
 
 In VC++ Express window, open Tools->Options...->Projects and Solutions->
 VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
 and then add [Platform_SDK_Folder]\\Include\\atl\\ path to the list of include 
 directories.
-
-For additional info on using WTL with VC++ Express, see 
-http://www.codeproject.com/KB/wtl/WTLExpress.aspx 
 
 \section link Include and Lib Directories
 
@@ -138,9 +132,8 @@ By default project documentation is already generated and included into the Cras
 package. To open the documentation, click \c index.html file in the top-level directrory of 
 CrashRpt package.
 
-You can also build documentation yourself as described below: 
-
-The CrashRpt documentation can be generated using the Doxygen tool. You can download
+You can also build documentation yourself. CrashRpt documentation can be 
+generated using the Doxygen tool. You can download
 the tool from <a href="http://www.stack.nl/~dimitri/doxygen/">here</a>. 
 
 To build the documentation, go to the \c docs folder and type in the command line:
@@ -153,7 +146,7 @@ When doxygen finishes, go to the top level directory and open \c index.html.
 
 \section faq Frequently Asked Questions
 
-You can find a lot of information about CrashRpt in the 
+You can find a lot of information about CrashRpt in 
 <a href="http://code.google.com/p/crashrpt/wiki/FAQ">online FAQ</a>
 
 \section bugrpt Report a Bug

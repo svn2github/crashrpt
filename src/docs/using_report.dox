@@ -57,7 +57,7 @@ A typical crash descriptor is presented below.
     <AppName>CrashRpt Tests</AppName>
     <AppVersion>1.0.0</AppVersion>
     <ImageName>d:\Projects\CrashRpt\src\bin\CrashRptTest.exe</ImageName>
-    <OperatingSystem>Windows 7 Ultimate</OperatingSystem>
+    <OperatingSystem>Windows 7 Ultimate Build 7100</OperatingSystem>
     <SystemTimeUTC>2009-06-28T04:47:32Z</SystemTimeUTC>
     <ExceptionType>11</ExceptionType>
     <FileList>
@@ -196,15 +196,15 @@ to the command window (ALT+1) and enter \c .sympath followed by a space followed
 semi-colon delimited list of directories to search.
 
 \code
-.sympath D:\\CrashRptSaved\\CrashRptTest_v1.1.0
+.sympath D:\CrashRptSaved\CrashRptTest_v1.1.0
 \endcode
 
 Similarly you need to set the executable and source search paths with the .exepath 
 and \c .srcpath commands.
 
 \code
-.exepath D:\\CrashRptSaved\\CrashRptTest_v1.1.0
-.srcpath D:\\Projects\\CrashRpt\\CrashRptTest\src
+.exepath D:\CrashRptSaved\CrashRptTest_v1.1.0
+.srcpath D:\Projects\CrashRpt\CrashRptTest\src
 \endcode
 
 The final step is to change the debugger context to the context record associated 

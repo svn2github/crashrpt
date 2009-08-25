@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
+				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
@@ -163,7 +163,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
+				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSender.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\zlib\lib"

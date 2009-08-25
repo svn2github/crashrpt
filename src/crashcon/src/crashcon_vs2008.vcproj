@@ -104,7 +104,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -201,7 +201,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

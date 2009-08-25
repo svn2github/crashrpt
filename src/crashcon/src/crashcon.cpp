@@ -33,7 +33,15 @@ int main(int argc, char* argv[])
 
   int nInstResult = crInstall(&info);
   assert(nInstResult==0);
-  nInstResult;
+  
+  if(nInstResult!=0)
+  {
+    TCHAR buff[256];
+    crGetLastErrorMsg(buff, 256);
+    _tprintf(_T("%s\n"), buff);
+    return FALSE;
+  }
+
 #endif //TEST_DEPRECATED_FUNCS
   
   printf("Press Enter to simulate a null pointer exception or any other key to exit...\n");

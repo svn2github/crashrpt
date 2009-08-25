@@ -66,27 +66,13 @@ void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
   m_attachments[lpszAttachment] = lpszTitle;  
 }
 
-BOOL CMailMsg::DetectMailClient()
+BOOL CMailMsg::DetectMailClient(CString& sMailClientName)
 {
   CRegKey regKey;
-  TCHAR buf[1024];
+  TCHAR buf[1024] = _T("");
   ULONG buf_size = 0;
   LONG lResult;
-
-  /*lResult = regKey.Open(HKEY_CURRENT_USER, _T("SOFTWARE\\Clients\\Mail"), KEY_READ);
-  if(lResult==ERROR_SUCCESS)
-  {    
-    buf_size = 1024;
-    LONG result = regKey.QueryStringValue(_T(""), buf, &buf_size);
-    if(result==ERROR_SUCCESS)
-    {
-      m_sEmailClientName = CString(buf, buf_size);      
-      return TRUE;  
-    }
-
-    regKey.Close();
-  }*/  
-
+  
   lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Clients\\Mail"), KEY_READ);
   if(lResult==ERROR_SUCCESS)
   {    
@@ -96,7 +82,7 @@ BOOL CMailMsg::DetectMailClient()
 #pragma warning(default:4996)
     if(result==ERROR_SUCCESS)
     {
-      m_sEmailClientName = CString(buf, buf_size);
+      sMailClientName = buf;
       return TRUE;  
     }
 
@@ -110,14 +96,15 @@ BOOL CMailMsg::MAPIInitialize()
 {   
    // Determine if there is default email program
 
-   if(!DetectMailClient())
+   CString sMailClientName;
+   if(!DetectMailClient(sMailClientName))
    {
      m_sErrorMsg = _T("Error detecting E-mail client");
      return FALSE;
    }
    else
    {
-     m_sErrorMsg = _T("Detected E-mail client ") + m_sEmailClientName;
+     m_sErrorMsg = _T("Detected E-mail client ") + sMailClientName;
    }
    
    

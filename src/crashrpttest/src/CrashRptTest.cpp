@@ -13,6 +13,8 @@ LPVOID g_pCrashRptState = NULL;
 HANDLE g_hWorkingThread = NULL;
 CrashThreadInfo g_CrashThreadInfo;
 
+volatile double d = 0.0f; 
+
 // Helper function that returns path to application directory
 CString GetAppDir()
 {
@@ -88,18 +90,27 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);  
   info.pszAppName = _T("CrashRpt Tests");
-  info.pszAppVersion = _T("1.0.1");
+  info.pszAppVersion = _T("1.0.2");
   info.pszEmailSubject = _T("Error from CrashRptTests v1.0.1");
   info.pszEmailTo = _T("test@hotmail.com");
   info.pszUrl = _T("http://test.com/test.php");
   info.pfnCrashCallback = CrashCallback;    
   info.uPriorities[CR_HTTP] = 3;
   info.uPriorities[CR_SMTP] = 2;
-  info.uPriorities[CR_SMAPI] = 1;  
+  info.uPriorities[CR_SMAPI] = 1; 
+  info.dwFlags = 0;
+  info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
-  int nInstResult = crInstall(&info);
-  ATLASSERT(nInstResult==0);
-  nInstResult;
+  CrAutoInstallHelper cr_install_helper(&info);
+  ATLASSERT(cr_install_helper.m_nInstallStatus==0); 
+
+  if(cr_install_helper.m_nInstallStatus!=0)
+  {
+    TCHAR buff[256];
+    crGetLastErrorMsg(buff, 256);
+    MessageBox(NULL, buff, _T("crInstall error"), MB_OK);
+    return FALSE;
+  }
 
 #endif //TEST_DEPRECATED_FUNCS
 
@@ -131,17 +142,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   // Wait until thread terminates
   WaitForSingleObject(g_hWorkingThread, INFINITE);
 
-  // Uninstall crash reporting
   
 #ifdef TEST_DEPRECATED_FUNCS
-
+  // Uninstall crash reporting
   Uninstall(g_pCrashRptState);
-
-#else
-  
-  int nUninstResult = crUninstall();
-  ATLASSERT(nUninstResult==0);
-  nUninstResult;
 
 #endif //TEST_DEPRECATED_FUNCS
 

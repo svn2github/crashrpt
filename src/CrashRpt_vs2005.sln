@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRpt", "crashrpt\src\CrashRpt.vcproj", "{9BE99719-AA32-4463-A011-B61D55F020D6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{00929DA3-31A1-4853-ABCE-145385A4AC63} = {00929DA3-31A1-4853-ABCE-145385A4AC63}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crashcon", "crashcon\src\crashcon.vcproj", "{26D45404-F202-438D-80D5-E1B57B7A22E1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -16,6 +19,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptTest", "crashrpttes
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashSender", "crashsender\src\CrashSender.vcproj", "{939312D6-690A-4103-92C5-4D89025BF10A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{00929DA3-31A1-4853-ABCE-145385A4AC63} = {00929DA3-31A1-4853-ABCE-145385A4AC63}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\src\zlib_vs2005.vcproj", "{00929DA3-31A1-4853-ABCE-145385A4AC63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +47,10 @@ Global
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Debug|Win32.Build.0 = Debug|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release|Win32.ActiveCfg = Release|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release|Win32.Build.0 = Release|Win32
+		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Debug|Win32.ActiveCfg = Debug|Win32
+		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Debug|Win32.Build.0 = Debug|Win32
+		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release|Win32.ActiveCfg = Release|Win32
+		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

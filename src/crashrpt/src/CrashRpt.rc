@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,1
- PRODUCTVERSION 1,1,0,1
+ FILEVERSION 1,1,0,2
+ PRODUCTVERSION 1,1,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x21L
@@ -70,12 +70,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "CrashRpt Module"
-            VALUE "FileVersion", "1.1.0.1"
+            VALUE "FileVersion", "1.1.0.2"
             VALUE "InternalName", "CrashRpt"
             VALUE "LegalCopyright", "Copyright 2003-2009"
             VALUE "OriginalFilename", "CrashRpt.dll"
             VALUE "ProductName", "CrashRpt Module"
-            VALUE "ProductVersion", "1.1.0.1"
+            VALUE "ProductVersion", "1.1.0.2"
             VALUE "SpecialBuild", "0"
         END
     END
@@ -85,120 +85,6 @@ BEGIN
     END
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// String Table
-//
-
-STRINGTABLE 
-BEGIN
-    IDR_MAINFRAME           "CrashRpt"
-END
-
-STRINGTABLE 
-BEGIN
-    ID_FILE_NEW             "Create a new document\nNew"
-    ID_FILE_OPEN            "Open an existing document\nOpen"
-    ID_FILE_CLOSE           "Close the active document\nClose"
-    ID_FILE_SAVE            "Save the active document\nSave"
-    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
-    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
-    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
-    ID_FILE_PRINT           "Print the active document\nPrint"
-    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
-    IDS_HEADER              "{\\bnsi\\bnsicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fswiss\\fcharset0 Microsoft Sans Serif;}}\n{\\*\\generator Msftedit 5.41.15.1503;}\\viewkind4\\uc1\\pard\\f0\\fs30 %s has has stopped working}\n "
-    IDS_INVALID_EMAIL       "Please enter a valid email address"
-    IDS_ZIP_FILTER          "Zip Files (*.zip)"
-    IDS_HTTP_HEADER_CONTENT_TYPE 
-                            "Content-Type: Multipart/form-data; boundary=%s"
-    IDS_HTTP_HEADER_BOUNDARY "-----------------7d31389b0426"
-END
-
-STRINGTABLE 
-BEGIN
-    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
-    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
-END
-
-STRINGTABLE 
-BEGIN
-    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
-    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
-END
-
-STRINGTABLE 
-BEGIN
-    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
-    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
-    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
-    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
-    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
-    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
-    IDS_ABOUTBOX            "About..."
-END
-
-STRINGTABLE 
-BEGIN
-    ID_EDIT_CLEAR           "Erase the selection\nErase"
-    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
-    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
-    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
-    ID_EDIT_FIND            "Find the specified text\nFind"
-    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
-    IDS_FORM_DATA           "module=%s&exception=%s&address=%s"
-    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
-    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
-    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
-    ID_EDIT_UNDO            "Undo the last action\nUndo"
-    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
-END
-
-STRINGTABLE 
-BEGIN
-    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
-    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
-END
-
-STRINGTABLE 
-BEGIN
-    ATL_IDS_SCSIZE          "Change the window size"
-    ATL_IDS_SCMOVE          "Change the window position"
-    ATL_IDS_SCMINIMIZE      "Reduce the window to an icon"
-    ATL_IDS_SCMAXIMIZE      "Enlarge the window to full size"
-    ATL_IDS_SCNEXTWINDOW    "Switch to the next document window"
-    ATL_IDS_SCPREVWINDOW    "Switch to the previous document window"
-    ATL_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
-END
-
-STRINGTABLE 
-BEGIN
-    ATL_IDS_SCRESTORE       "Restore the window to normal size"
-    ATL_IDS_SCTASKLIST      "Activate Task List"
-    ATL_IDS_MDICHILD        "Activate this window"
-END
-
-STRINGTABLE 
-BEGIN
-    ATL_IDS_IDLEMESSAGE     "Ready"
-    IDS_CONTENT_TYPE        "Content-Type: Multipart/form-data; boundary=""crash-report-boundary"""
-END
-
-STRINGTABLE 
-BEGIN
-    ATL_IDS_MRU_FILE        "Open this document"
-END
-
-STRINGTABLE 
-BEGIN
-    IDS_NAME                "Name"
-    IDS_DESC                "Description"
-    IDS_TYPE                "Type"
-    IDS_SIZE                "Size"
-    IDS_CRASH_DUMP          "Crash Dump"
-    IDS_CRASH_LOG           "Crash Log"
-    IDS_SYMBOL_FILE         "Symbol File"
-END
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

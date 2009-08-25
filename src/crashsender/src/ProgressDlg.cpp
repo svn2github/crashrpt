@@ -119,9 +119,16 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       
       if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
       {       
-        KillTimer(1);
+        KillTimer(1);        
         ShowWindow(SW_SHOW);
-        INT_PTR result = MessageBox(_T("Error report can be sent using your default E-mail program.\nPress OK to run the E-mail program or press Cancel to cancel."), 
+
+        CString sMailClientName;
+        
+        CMailMsg::DetectMailClient(sMailClientName);
+        CString msg;
+        msg.Format(_T("Error report can be sent using your default E-mail program (%s).\nPress OK to run the E-mail program or press Cancel to cancel."), sMailClientName);
+
+        INT_PTR result = MessageBox(msg, 
           _T("Send Error Report"), MB_OKCANCEL|MB_ICONQUESTION);
         FeedbackReady(result==IDOK?0:1);       
         ShowWindow(SW_HIDE);

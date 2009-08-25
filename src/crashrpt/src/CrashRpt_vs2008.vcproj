@@ -81,7 +81,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlib.lib version.lib"
 				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlibd.lib version.lib"
 				OutputFile="../../bin/CrashRptd.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -195,8 +195,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="../../bin/CrashRptd.pdb"
 				OptimizeForWindows98="0"
-				BaseAddress="0x20000000"
-				RandomizedBaseAddress="1"
+				BaseAddress=""
+				RandomizedBaseAddress="2"
 				DataExecutionPrevention="0"
 				ImportLibrary="..\..\lib\CrashRptd.lib"
 				TargetMachine="1"

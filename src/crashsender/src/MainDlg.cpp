@@ -49,12 +49,16 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
 
+  m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
+  m_linkPrivacyPolicy.SetHyperLink(m_sPrivacyPolicyURL);
+
   m_statEmail = GetDlgItem(IDC_STATMAIL);
   m_editEmail = GetDlgItem(IDC_EMAIL);
   m_statDesc = GetDlgItem(IDC_DESCRIBE);
   m_editDesc = GetDlgItem(IDC_DESCRIPTION);
   m_statCrashRpt = GetDlgItem(IDC_CRASHRPT);
   m_statHorzLine = GetDlgItem(IDC_HORZLINE);
+  m_statBySending = GetDlgItem(IDC_BYSENDING);
   m_btnOk = GetDlgItem(IDOK);
   m_btnCancel = GetDlgItem(IDCANCEL);
 
@@ -94,7 +98,11 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   m_editEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-  
+
+  BOOL bShowPrivacyPolicy = !m_sPrivacyPolicyURL.IsEmpty();
+  m_statBySending.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
+  m_linkPrivacyPolicy.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
+
   int k = bShow?-1:1;
 
   m_statHorzLine.GetWindowRect(&rc1);
@@ -106,6 +114,16 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   ScreenToClient(&rc1);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_statCrashRpt.MoveWindow(&rc1);
+
+  m_statBySending.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_statBySending.MoveWindow(&rc1);
+
+  m_linkPrivacyPolicy.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_linkPrivacyPolicy.MoveWindow(&rc1);
 
   m_btnOk.GetWindowRect(&rc1);
   ScreenToClient(&rc1);
@@ -191,6 +209,7 @@ LRESULT CMainDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 {  
   CDetailDlg dlg;
   dlg.m_pUDFiles = m_pUDFiles;
+  dlg.m_sPrivacyPolicyURL = m_sPrivacyPolicyURL;
   dlg.DoModal();
   return 0;
 }

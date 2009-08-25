@@ -3,6 +3,14 @@
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+  m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
+  m_linkPrivacyPolicy.SetHyperLink(m_sPrivacyPolicyURL);
+
+  if(!m_sPrivacyPolicyURL.IsEmpty())
+    m_linkPrivacyPolicy.ShowWindow(SW_SHOW);
+  else
+    m_linkPrivacyPolicy.ShowWindow(SW_HIDE);
+
   m_list = GetDlgItem(IDC_FILE_LIST);
   m_list.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
 
@@ -36,8 +44,8 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     }
 
     int nItem = m_list.InsertItem(i, sfi.szDisplayName, iImage);
-	CString sFileDesc = p->second.c_str();
-	CString sFileType = sfi.szTypeName;
+	  CString sFileDesc = p->second.c_str();
+	  CString sFileType = sfi.szTypeName;
     m_list.SetItemText(nItem, 1, sFileDesc);
     m_list.SetItemText(nItem, 2, sFileType);
 
@@ -53,8 +61,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
 
   // center the dialog on the screen
-	CenterWindow();
-  FlashWindow(TRUE);
+	CenterWindow();  
 
   return TRUE;
 }

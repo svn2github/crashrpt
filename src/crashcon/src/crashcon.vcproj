@@ -46,6 +46,7 @@
 				AdditionalIncludeDirectories="..\..\crashrpt\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_"
 				RuntimeLibrary="2"
+				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Release/crashcon.pch"
@@ -104,7 +105,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -202,7 +203,103 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release LIB|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="true"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/crashcon.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;CRASHRPT_LIB"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Release/crashcon.pch"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile=".\Release/"
+				ProgramDataBaseFileName=".\Release/"
+				WarningLevel="4"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="CrashRptLIB.lib"
+				OutputFile="..\..\bin\crashconLIB.exe"
+				LinkIncremental="0"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\crashcon.pdb"
+				SubSystem="1"
+				OptimizeReferences="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\Release/crashcon.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -227,6 +324,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

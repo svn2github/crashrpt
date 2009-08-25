@@ -53,35 +53,38 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // Dialog
 //
 
-IDD_DETAILDLG DIALOGEX 0, 0, 267, 196
+IDD_DETAILDLG DIALOGEX 0, 0, 267, 209
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Error Report Details"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Close",IDOK,108,175,50,14
+    DEFPUSHBUTTON   "Close",IDOK,109,188,50,14
     CONTROL         "",IDC_FILE_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,19,253,61
     EDITTEXT        IDC_FILE_EDIT,14,96,237,64,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL
     LTEXT           "Double-click an item to open it with appropriate program.",IDC_STATIC,7,7,182,8
     GROUPBOX        "Preview",IDC_STATIC,7,85,253,84,0,WS_EX_TRANSPARENT
+    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,14,172,44,8
 END
 
-IDD_MAINDLG DIALOGEX 0, 0, 325, 184
+IDD_MAINDLG DIALOGEX 0, 0, 325, 194
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Error Report"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Send report",IDOK,10,161,75,16
-    PUSHBUTTON      "Close the program",IDCANCEL,95,161,75,16
+    DEFPUSHBUTTON   "Send report",IDOK,10,170,75,16
+    PUSHBUTTON      "Close the program",IDCANCEL,95,170,75,16
     LTEXT           "What does this report contain?",IDC_LINK,12,66,100,8
     LTEXT           "Provide additional info about the problem (recommended)",IDC_MOREINFO,12,81,184,8
     EDITTEXT        IDC_EMAIL,62,98,245,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_DESCRIPTION,16,128,291,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_HORZLINE,"Static",SS_ETCHEDHORZ,0,152,326,1
-    LTEXT           "CrashRpt",IDC_CRASHRPT,286,148,31,8,WS_DISABLED
+    CONTROL         "",IDC_HORZLINE,"Static",SS_ETCHEDHORZ,0,161,326,1
+    LTEXT           "CrashRpt",IDC_CRASHRPT,286,157,31,8,WS_DISABLED
     CONTROL         "",IDC_UPPERHORZ,"Static",SS_ETCHEDHORZ,0,37,326,1
     LTEXT           "Please send us this error report to help fix the problem and improve this software.",IDC_STATIC,12,47,264,8
     LTEXT           "Your E-mail:",IDC_STATMAIL,16,101,39,8
     LTEXT           "Describe in few words what did you do when the error occurred:",IDC_DESCRIBE,16,118,207,8
+    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,176,148,44,8
+    LTEXT           "By sending this report I agree to the terms of the",IDC_BYSENDING,16,148,159,8
 END
 
 IDD_PROGRESSDLG DIALOGEX 0, 0, 266, 112
@@ -109,13 +112,13 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 260
         TOPMARGIN, 7
-        BOTTOMMARGIN, 189
+        BOTTOMMARGIN, 202
     END
 
     IDD_MAINDLG, DIALOG
     BEGIN
         VERTGUIDE, 16
-        BOTTOMMARGIN, 177
+        BOTTOMMARGIN, 186
         HORZGUIDE, 105
     END
 
@@ -206,8 +209,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,1
- PRODUCTVERSION 1,1,0,1
+ FILEVERSION 1,1,0,2
+ PRODUCTVERSION 1,1,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -223,12 +226,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "CrashSender Module"
-            VALUE "FileVersion", "1, 1, 0, 1"
+            VALUE "FileVersion", "1, 1, 0, 2"
             VALUE "InternalName", "CrashSender"
             VALUE "LegalCopyright", "Copyright 2009"
             VALUE "OriginalFilename", "CrashSender.exe"
             VALUE "ProductName", "CrashSender Module"
-            VALUE "ProductVersion", "1, 1, 0, 1"
+            VALUE "ProductVersion", "1, 1, 0, 2"
         END
     END
     BLOCK "VarFileInfo"

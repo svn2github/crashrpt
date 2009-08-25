@@ -36,7 +36,6 @@ EXTERNC void * _ReturnAddress(void);
 
 #endif 
 
-
 // This internal structure contains the list of processes 
 // that had called crInstall().
 struct _crash_handlers
@@ -53,7 +52,6 @@ struct _crash_handlers
   BOOL m_bCrashHappened; // This flag is set by exception handler when crash happens
 }
 g_CrashHandlers;
-
 
 LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
 {  
@@ -393,7 +391,9 @@ int CCrashHandler::Init(
   LPCTSTR lpcszTo, 
   LPCTSTR lpcszSubject,
   LPCTSTR lpcszUrl,
-  UINT (*puPriorities)[3])
+  UINT (*puPriorities)[5],
+  DWORD dwFlags,
+  LPCTSTR lpcszPrivacyPolicyURL)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -487,17 +487,24 @@ int CCrashHandler::Init(
   else
     memset(&m_uPriorities, 0, 3*sizeof(UINT));
 
-  // Get crashrpt library name
-  CString sCrashRptName;
+  // Save privacy policy URL (if exists)
+  if(lpcszPrivacyPolicyURL!=NULL)
+    m_sPrivacyPolicyURL = lpcszPrivacyPolicyURL;
 
-#ifdef _DEBUG
-  sCrashRptName = _T("CrashRptd.dll");
-#else
-  sCrashRptName = _T("CrashRpt.dll");
-#endif //_DEBUG
+  LPTSTR pszCrashRptModule = NULL;
+
+#ifndef CRASHRPT_LIB
+  #ifdef _DEBUG
+    pszCrashRptModule = _T("CrashRptd.dll");
+  #else
+    pszCrashRptModule = _T("CrashRpt.dll");
+  #endif //_DEBUG
+#else //!CRASHRPT_LIB
+  pszCrashRptModule = NULL;
+#endif
 
   // Get handle to the CrashRpt module that is loaded by current process
-  HMODULE hCrashRptModule = GetModuleHandle(sCrashRptName);
+  HMODULE hCrashRptModule = GetModuleHandle(pszCrashRptModule);
   if(hCrashRptModule==NULL)
   {
     ATLASSERT(hCrashRptModule!=NULL);
@@ -589,14 +596,11 @@ int CCrashHandler::Init(
   }
 
   m_sUnsentCrashReportsFolder = sUnsentCrashReportsFolderAppName;
-   
-  // add this filter in the exception callback chain
-  m_oldFilter = SetUnhandledExceptionFilter(Win32UnhandledExceptionFilter);
-
+    
   // Set C++ exception handlers
   InitPrevCPPExceptionHandlerPointers();
    
-  int nSetProcessHandlers = SetProcessCPPExceptionHandlers();   
+  int nSetProcessHandlers = SetProcessExceptionHandlers(dwFlags);   
   if(nSetProcessHandlers!=0)
   {
     ATLASSERT(nSetProcessHandlers==0);
@@ -604,7 +608,7 @@ int CCrashHandler::Init(
     return 1;
   }
 
-  int nSetThreadHandlers = SetThreadCPPExceptionHandlers();
+  int nSetThreadHandlers = SetThreadExceptionHandlers(dwFlags);
   if(nSetThreadHandlers!=0)
   {
     ATLASSERT(nSetThreadHandlers==0);
@@ -693,56 +697,89 @@ CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
   return it->second;
 }
 
-int CCrashHandler::SetProcessCPPExceptionHandlers()
+int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
+
+  // If 0 is specified as dwFlags, assume all handlers should be
+  // installed
+  if(dwFlags==0)
+    dwFlags = 0x1FFF;
+  
+  if(dwFlags&CR_INST_STRUCTURED_EXCEPTION_HANDLER)
+  {
+    // Install structured exception handler
+    m_oldFilter = SetUnhandledExceptionFilter(Win32UnhandledExceptionFilter);
+  }
 
   _set_error_mode(_OUT_TO_STDERR);
 
 #if _MSC_VER>=1300
-  // Catch pure virtual function calls.
-  // Because there is one _purecall_handler for the whole process, 
-  // calling this function immediately impacts all threads. The last 
-  // caller on any thread sets the handler. 
-  // http://msdn.microsoft.com/en-us/library/t296ys27.aspx
-  m_prevPurec = _set_purecall_handler(cpp_purecall_handler);    
+  if(dwFlags&CR_INST_PURE_CALL_HANDLER)
+  {
+    // Catch pure virtual function calls.
+    // Because there is one _purecall_handler for the whole process, 
+    // calling this function immediately impacts all threads. The last 
+    // caller on any thread sets the handler. 
+    // http://msdn.microsoft.com/en-us/library/t296ys27.aspx
+    m_prevPurec = _set_purecall_handler(cpp_purecall_handler);    
+  }
 
-  // Catch new operator memory allocation exceptions
-  _set_new_mode(1); // Force malloc() to call new handler too
-  m_prevNewHandler = _set_new_handler(cpp_new_handler);
+  if(dwFlags&CR_INST_NEW_OPERATOR_ERROR_HANDLER)
+  {
+    // Catch new operator memory allocation exceptions
+    _set_new_mode(1); // Force malloc() to call new handler too
+    m_prevNewHandler = _set_new_handler(cpp_new_handler);
+  }
 #endif
 
 #if _MSC_VER>=1400
-  // Catch invalid parameter exceptions.
-  m_prevInvpar = _set_invalid_parameter_handler(cpp_invalid_parameter_handler); 
+  if(dwFlags&CR_INST_INVALID_PARAMETER_HANDLER)
+  {
+    // Catch invalid parameter exceptions.
+    m_prevInvpar = _set_invalid_parameter_handler(cpp_invalid_parameter_handler); 
+  }
 #endif
 
-  
-  // Catch buffer overrun exceptions
-  // The _set_security_error_handler is deprecated in VC8 C++ run time library
+
 #if _MSC_VER>=1300 && _MSC_VER<1400    
-   m_prevSec = _set_security_error_handler(cpp_security_handler);
+  if(dwFlags&CR_INST_SECURITY_ERROR_HANDLER)
+  {
+    // Catch buffer overrun exceptions
+    // The _set_security_error_handler is deprecated in VC8 C++ run time library
+    m_prevSec = _set_security_error_handler(cpp_security_handler);
+  }
 #endif
 
    // Set up C++ signal handlers
   
-   // Catch an abnormal program termination
-#if _MSC_VER>=1400
-   _set_abort_behavior(_CALL_REPORTFAULT, _CALL_REPORTFAULT);
+  
+  if(dwFlags&CR_INST_SIGABRT_HANDLER)
+  {
+#if _MSC_VER>=1400  
+  _set_abort_behavior(_CALL_REPORTFAULT, _CALL_REPORTFAULT);
 #endif
-   m_prevSigABRT = signal(SIGABRT, cpp_sigabrt_handler);  
+  // Catch an abnormal program termination
+  m_prevSigABRT = signal(SIGABRT, cpp_sigabrt_handler);  
+  }
    
-   // Catch illegal instruction handler
-   m_prevSigINT = signal(SIGINT, cpp_sigint_handler);     
-   
-   // Catch a termination request
-   m_prevSigTERM = signal(SIGTERM, cpp_sigterm_handler);      
+  if(dwFlags&CR_INST_SIGILL_HANDLER)
+  {
+    // Catch illegal instruction handler
+    m_prevSigINT = signal(SIGINT, cpp_sigint_handler);     
+  }
+  
+  if(dwFlags&CR_INST_TERMINATE_HANDLER)
+  {
+    // Catch a termination request
+    m_prevSigTERM = signal(SIGTERM, cpp_sigterm_handler);          
+  }
 
-   crSetErrorMsg(_T("Success."));
-   return 0;
+  crSetErrorMsg(_T("Success."));
+  return 0;
 }
 
-int CCrashHandler::UnSetProcessCPPExceptionHandlers()
+int CCrashHandler::UnSetProcessExceptionHandlers()
 {
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -780,9 +817,14 @@ int CCrashHandler::UnSetProcessCPPExceptionHandlers()
 }
 
 // Installs C++ exception handlers that function on per-thread basis
-int CCrashHandler::SetThreadCPPExceptionHandlers()
+int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
+
+  // If 0 is specified as dwFlags, assume all handlers should be
+  // installed  
+  if(dwFlags==0)
+    dwFlags = 0x1FFF;
 
   DWORD dwThreadId = GetCurrentThreadId();
 
@@ -799,40 +841,55 @@ int CCrashHandler::SetThreadCPPExceptionHandlers()
   
   _cpp_thread_exception_handlers handlers;
 
-  // Catch terminate() calls. 
-  // In a multithreaded environment, terminate functions are maintained 
-  // separately for each thread. Each new thread needs to install its own 
-  // terminate function. Thus, each thread is in charge of its own termination handling.
-  // http://msdn.microsoft.com/en-us/library/t6fk7h29.aspx
-  handlers.m_prevTerm = set_terminate(cpp_terminate_handler);       
+  if(dwFlags&CR_INST_TERMINATE_HANDLER)
+  {
+    // Catch terminate() calls. 
+    // In a multithreaded environment, terminate functions are maintained 
+    // separately for each thread. Each new thread needs to install its own 
+    // terminate function. Thus, each thread is in charge of its own termination handling.
+    // http://msdn.microsoft.com/en-us/library/t6fk7h29.aspx
+    handlers.m_prevTerm = set_terminate(cpp_terminate_handler);       
+  }
 
-  // Catch unexpected() calls.
-  // In a multithreaded environment, unexpected functions are maintained 
-  // separately for each thread. Each new thread needs to install its own 
-  // unexpected function. Thus, each thread is in charge of its own unexpected handling.
-  // http://msdn.microsoft.com/en-us/library/h46t5b69.aspx  
-  handlers.m_prevUnexp = set_unexpected(cpp_unexp_handler);    
+  if(dwFlags&CR_INST_UNEXPECTED_HANDLER)
+  {
+    // Catch unexpected() calls.
+    // In a multithreaded environment, unexpected functions are maintained 
+    // separately for each thread. Each new thread needs to install its own 
+    // unexpected function. Thus, each thread is in charge of its own unexpected handling.
+    // http://msdn.microsoft.com/en-us/library/h46t5b69.aspx  
+    handlers.m_prevUnexp = set_unexpected(cpp_unexp_handler);    
+  }
 
-  // Catch a floating point error
-  typedef void (*sigh)(int);
-  handlers.m_prevSigFPE = signal(SIGFPE, (sigh)cpp_sigfpe_handler);     
+  if(dwFlags&CR_INST_SIGFPE_HANDLER)
+  {
+    // Catch a floating point error
+    typedef void (*sigh)(int);
+    handlers.m_prevSigFPE = signal(SIGFPE, (sigh)cpp_sigfpe_handler);     
+  }
 
-  // Catch an illegal instruction
-  handlers.m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
+  
+  if(dwFlags&CR_INST_SIGILL_HANDLER)
+  {
+    // Catch an illegal instruction
+    handlers.m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
+  }
 
-  // Catch illegal storage access errors
-  handlers.m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
+  if(dwFlags&CR_INST_SIGSEGV_HANDLER)
+  {
+    // Catch illegal storage access errors
+    handlers.m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
+  }
 
-  // Insert the structure to the list of handlers
-  std::pair<DWORD, _cpp_thread_exception_handlers> _pair(dwThreadId, handlers);
-  m_ThreadExceptionHandlers.insert(_pair);
+  // Insert the structure to the list of handlers  
+  m_ThreadExceptionHandlers[dwThreadId] = handlers;
 
   // OK.
   crSetErrorMsg(_T("Success."));
   return 0;
 }
 
-int CCrashHandler::UnSetThreadCPPExceptionHandlers()
+int CCrashHandler::UnSetThreadExceptionHandlers()
 {
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -903,6 +960,13 @@ int CCrashHandler::GenerateErrorReport(
 {  
   crSetErrorMsg(_T("Unspecified error."));
 
+  /* Validate input parameters */
+  if(pExceptionInfo==NULL)
+  {
+    crSetErrorMsg(_T("Exception info is NULL."));
+    return 1;
+  }
+
   /* Let client add application-specific files to report via crash callback. */
 
   if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
@@ -934,17 +998,15 @@ int CCrashHandler::GenerateErrorReport(
 
     if(result==0)
     {
-      CString sDesc;
-      sDesc.LoadString(IDS_CRASH_DUMP);
-      m_files[sFileName] = sDesc;
+      //CString sDesc = CUtility::LoadString(IDS_CRASH_DUMP);
+      m_files[sFileName] = _T("Crash Dump");
     }
     
     /* Create crash report descriptor file in XML format. */
   
     sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, CUtility::getAppName());
-    CString sDesc;
-    sDesc.LoadString(IDS_CRASH_LOG);
-    m_files[sFileName] = sDesc;
+    //CString sDesc = CUtility::LoadString(IDS_CRASH_LOG);
+    m_files[sFileName] = _T("Crash Log");
     result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
     ATLASSERT(result==0);
     result;
@@ -1068,7 +1130,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   {
     // Write exception code
     CString sSECode;
-    sSECode.Format(_T("%d"), pExceptionInfo->code);    
+    sSECode.Format(_T("0x%X"), pExceptionInfo->pexcptrs->ExceptionRecord->ExceptionCode);    
     TiXmlElement* sehcode = new TiXmlElement("ExceptionCode");
     root->LinkEndChild(sehcode);  
 	  LPCSTR lpszSEHCode = strconv.t2a(sSECode.GetBuffer(0));
@@ -1319,7 +1381,9 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
 
   CString sCrashInfo;
   sCrashInfo.Format(
-    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\" appver=\"%s\" imagename=\"%s\" zipname=\"%s\" http_priority=\"%d\" smtp_priority=\"%d\" mapi_priority=\"%d\" />"), 
+    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\"\
+appver=\"%s\" imagename=\"%s\" zipname=\"%s\" http_priority=\"%d\"\
+smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\"/>"), 
     _ReplaceRestrictedXMLCharacters(m_sSubject), 
     _ReplaceRestrictedXMLCharacters(m_sTo),
     _ReplaceRestrictedXMLCharacters(m_sUrl),
@@ -1329,7 +1393,8 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
     _ReplaceRestrictedXMLCharacters(sZipName),
     m_uPriorities[CR_HTTP],
     m_uPriorities[CR_SMTP],
-    m_uPriorities[CR_SMAPI]);
+    m_uPriorities[CR_SMAPI],
+    _ReplaceRestrictedXMLCharacters(m_sPrivacyPolicyURL));
 
   LPCSTR lpszCrashInfo =  strconv.t2a(sCrashInfo.GetBuffer(0));
   

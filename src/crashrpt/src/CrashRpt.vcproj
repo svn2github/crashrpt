@@ -55,6 +55,7 @@
 				RuntimeLibrary="2"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
+				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Release/CrashRpt.pch"
@@ -65,7 +66,7 @@
 				WarnAsError="false"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -80,7 +81,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib shell32.lib Comdlg32.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlib.lib version.lib shell32.lib Comdlg32.lib"
 				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -88,8 +89,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\Bin\CrashRpt.pdb"
 				OptimizeReferences="2"
-				OptimizeForWindows98="1"
-				BaseAddress="0x2000000"
+				OptimizeForWindows98="0"
 				ImportLibrary="..\..\lib\CrashRpt.lib"
 				TargetMachine="1"
 			/>
@@ -188,7 +188,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib shell32.lib Comdlg32.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlibd.lib version.lib shell32.lib Comdlg32.lib"
 				OutputFile="../../bin/CrashRptd.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -228,6 +228,98 @@
 				CommandLine=""
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release LIB|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/CrashRpt.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\include;..\..\tinyxml;..\..\zlib;..\..\zip_utils"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_LIB"
+				StringPooling="true"
+				RuntimeLibrary="0"
+				BufferSecurityCheck="true"
+				EnableFunctionLevelLinking="false"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="stdafx.h"
+				PrecompiledHeaderFile=".\Release/CrashRpt.pch"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile=".\Release/"
+				ProgramDataBaseFileName=".\Release/"
+				WarningLevel="4"
+				WarnAsError="false"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+				OmitDefaultLibName="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlib.lib version.lib shell32.lib Comdlg32.lib"
+				OutputFile="..\..\lib\CrashRptLIB.lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib"
+				IgnoreAllDefaultLibraries="true"
+				IgnoreDefaultLibraryNames=""
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\Release/CrashRpt.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -255,6 +347,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="CrashRpt.cpp"
@@ -275,6 +375,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="CrashRpt.rc"
@@ -289,6 +397,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
@@ -317,6 +433,15 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="Utility.cpp"
@@ -331,6 +456,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -360,6 +493,14 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxml.cpp"
@@ -374,6 +515,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -400,6 +549,14 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxmlparser.cpp"
@@ -414,6 +571,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -448,6 +613,16 @@
 							DisableSpecificWarnings="4996"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\zip_utils\zip.cpp"
@@ -464,6 +639,16 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4311;4996"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"

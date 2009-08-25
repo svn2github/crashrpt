@@ -16,21 +16,6 @@
 #include <shellapi.h>
 
 
-FILETIME CUtility::getLastWriteFileTime(CString sFile)
-{
-   FILETIME          ftLocal = {0};
-   HANDLE            hFind;
-   WIN32_FIND_DATA   ff32;
-   hFind = FindFirstFile(sFile, &ff32);
-   if (INVALID_HANDLE_VALUE != hFind)
-   {
-      FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftLocal);
-      FindClose(hFind);        
-   }
-   return ftLocal;
-}
-
-
 CString CUtility::getAppName()
 {
    TCHAR szFileName[_MAX_PATH];
@@ -77,26 +62,6 @@ CString CUtility::getTempFileName()
    return szTempFile;
 }
 
-
-CString CUtility::getSaveFileName()
-{
-   CString sFilter((LPCTSTR)IDS_ZIP_FILTER);
-
-   CFileDialog fd(
-      FALSE, 
-      _T("zip"), 
-      getAppName(), 
-      OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, 
-      sFilter);
-
-	if (IDOK == fd.DoModal())
-   {
-      DeleteFile(fd.m_szFileName);  // Just in-case it already exist
-      return fd.m_szFileName;
-   }
-
-   return _T("");
-}
 
 CString CUtility::GetModulePath(HMODULE hModule)
 {
@@ -167,7 +132,6 @@ int CUtility::GenerateGUID(CString& sGUID)
 int CUtility::GetOSFriendlyName(CString& sOSName)
 {
   sOSName.Empty();
-
   CRegKey regKey;
   LONG lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), KEY_READ);
   if(lResult==ERROR_SUCCESS)
@@ -183,19 +147,27 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
 
     buf_size = 1023;
     if(ERROR_SUCCESS == regKey.QueryValue(buf, PRODUCT_NAME, &buf_size))
-      sOSName = CString(buf, buf_size);
+    {
+      sOSName += buf;
+    }
     
     buf_size = 1023;
     if(ERROR_SUCCESS == regKey.QueryValue(buf, CURRENT_BUILD_NUMBER, &buf_size))
-      sOSName += _T(" Build ") + CString(buf, buf_size);
+    {
+      sOSName += _T(" Build ");
+      sOSName += buf;
+    }
 
     buf_size = 1023;
     if(ERROR_SUCCESS == regKey.QueryValue(buf, CSD_VERSION, &buf_size))
-      sOSName += _T(" ") + CString(buf, buf_size);
+    {
+      sOSName += _T(" ");
+      sOSName += buf;
+    }
 
 #pragma warning(default:4996)
 
-    regKey.Close();
+    regKey.Close();    
     return 0;
   }
 
@@ -250,4 +222,11 @@ int CUtility::RecycleFile(CString sFilePath, bool bPermanentDelete)
   return SHFileOperation(&fop); // do it!  
 }
 
-
+//CString CUtility::LoadString(UINT uID)
+//{
+//  CString str;
+//	TCHAR buf[1024]=_T("");
+//  ::LoadString(GetModuleHandle(NULL), uID, buf, 1024);
+//	str = buf;
+//	return str;
+//}

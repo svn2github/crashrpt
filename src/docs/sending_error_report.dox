@@ -21,7 +21,7 @@ If one of these ways fails, CrashRpt tries others in turn.
 \section httpsend Sending Crash Report Using HTTP Connection
 
 Many software products have web sites on the Internet. Such web servers typically have some 
-scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish an HTTP connection
+scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish HTTP connection
 to a server-side script and send the error report as a script parameter.
 
 The crash report ZIP file data are converted to base64 encoding to replace all restricted characters with a set
@@ -32,7 +32,7 @@ The encoded data are passed to the script by POST as parameter named "crashrpt".
 Before encoding, an MD5 hash for the file data is calculated. The server-side script can extract the MD5 hash
 from "md5" parameter.
 
-The script should return the status of the request completion as server responce content. In HTTP/1.0 and since, 
+The script should return status of request completion as server responce content. In HTTP/1.0 and since, 
 the first line of the HTTP response is called the status line and includes a numeric status code (such as "404") 
 and a textual reason phrase (such as "Not Found").
 

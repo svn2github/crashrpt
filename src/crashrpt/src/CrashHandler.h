@@ -105,7 +105,9 @@ public:
       LPCTSTR lpcszTo = NULL,             
       LPCTSTR lpcszSubject = NULL,
       LPCTSTR lpcszUrl = NULL,
-      UINT (*puPriorities)[3] = NULL);
+      UINT (*puPriorities)[5] = NULL,
+      DWORD dwFlags = 0,
+      LPCTSTR lpcszPrivacyPolicyURL = NULL);
 
    //-----------------------------------------------------------------------------
    // Destroy
@@ -148,75 +150,18 @@ public:
    // Remarks
    //    Call this function to manually generate a crash report.
    //
-   int 
-   GenerateErrorReport(
-      PCR_EXCEPTION_INFO pExceptionInfo = NULL
-      );
-
-
-   //-----------------------------------------------------------------------------
-   //
-   //
-
-   int GenerateCrashDescriptorXML(
-     LPTSTR pszFileName, 
+   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
+  
+   int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
-   //-----------------------------------------------------------------------------
-   // SetProcessCPPExceptionHandlers
-   //   Installs C++ exception handlers for the current process
-   //
-   // Parameters
-   //   none   
-   //
-   // Return value
-   //   none
-   int 
-   SetProcessCPPExceptionHandlers();
+   int SetProcessExceptionHandlers(DWORD dwFlags);
+   int UnSetProcessExceptionHandlers();
 
-   //-----------------------------------------------------------------------------
-   // UnSetProcessCPPExceptionHandlers
-   //   Uninstalls C++ exception handlers that were previously installed with 
-   //   SetProcessCPPExceptionHandlers() function call.
-   //
-   // Parameters 
-   //   none
-   //
-   // Return value
-   //   none
-   int 
-   UnSetProcessCPPExceptionHandlers();
-
-   //-----------------------------------------------------------------------------
-   // SetThreadCPPExceptionHandlers
-   //  Installs C++ exception handlers that are functioning on per-thread basis.
-   //  This call will install such handlers for the current thread only.
-   //
-   // Parameters 
-   //   none
-   //
-   // Return value
-   //   none
-
-   int 
-   SetThreadCPPExceptionHandlers();
-
-   //-----------------------------------------------------------------------------
-   // UnSetThreadCPPExceptionHandlers
-   //  Uninstalls C++ exception handlers that were installed for the current
-   //  thread using SetThreadCPPExceptionHandlers() function call.
-   //
-   // Parameters 
-   //   none
-   //
-   // Return value
-   //   none
-
-   int 
-   UnSetThreadCPPExceptionHandlers();
+   int SetThreadExceptionHandlers(DWORD dwFlags);   
+   int UnSetThreadExceptionHandlers();
   
-   static CCrashHandler* 
-   GetCurrentProcessCrashHandler();
+   static CCrashHandler* GetCurrentProcessCrashHandler();
 
 protected:
   
@@ -266,6 +211,7 @@ protected:
   CString m_sCrashGUID;          // Unique ID of the crash report.
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
+  CString m_sPrivacyPolicyURL;   // Privacy policy URL
 
   BOOL m_bInitialized;
 };

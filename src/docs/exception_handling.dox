@@ -2,10 +2,12 @@
 
 \page exception_handling About Exceptions and Exception Handling
 
+Reading this page is not necessary for using CrashRpt. You may skip this page 
+and proceed to \ref configure_prj. However, read this page if you need extended 
+knowledge of exception handling.
+
 This page describes techniques of handling exceptions in Visual C++ programs under Windows. 
-CrashRpt uses the techniques described below internally. Reading this page is not 
-necessary for using CrashRpt. Read this page if you need extended knowledge of 
-exception handling. 
+CrashRpt uses the techniques described below internally.   
 
 The page covers the following topics:
 
@@ -31,15 +33,12 @@ For example, an exception may occur because of the following:
 - a pure virtual method of a C++ class is called
 - memory buffer can't be allocated (out of memory)
 - invalid parameter is passed to a C++ system function
-- C++ run time libraries detect an error and request program termination
+- C run-time libraries detect an error and request program termination
 
-An exception may be raised by CPU or by a software program. These two kinds of
-exceptions are called hardware and software exceptions, respectively. From point of developer's
-view there is no difference between software and hardware exceptions.
+There are two kinds of exceptions that have different nature: structured 
+C exceptions and typed C++ exceptions.
 
-You should differ structured C exceptions and typed C++ exceptions.
-
-Structured exceptions were designed for C language, however they can be used in C++, too. 
+Structured exceptions were designed for C language, but they can be used in C++, too. 
 They are handled using __try{}__except(){} 
 construction. Structured exceptions are Visual C++ compiler-specific. 
 You shouldn't use structured exception handling if you write portable code. 
@@ -222,7 +221,7 @@ in the beginning of your \b main() function.
 
 \section crt_errors CRT Error Handling
 
-In addition to WIN32 structured exceptions, C++ runtime libraries (CRT) provide their own
+In addition to WIN32 structured exceptions and C++ typed exceptions, C runtime libraries (CRT) provide their own
 error handling mechanism that should be taken into account in your program.
 
 When CRT encounters an unhandled C++ typed exception, 
@@ -390,9 +389,11 @@ In Visual C++, there are 6 types of signals:
  - \c SIGTERM Termination request
 
 MSDN says that the \c SIGILL, \c SIGSEGV, and \c SIGTERM signals are not generated under Windows NT and 
-included for ANSI compatiblity. However, if you set the SIGSEGV signal handler, it is called by CRT 
+included for ANSI compatiblity. However, if you set the SIGSEGV signal handler in the main thread, it is called by CRT 
 instead of structured exception handler set with \b SetUnhandledExceptionFilter() function and the global
-variable \b _pxcptinfoptrs contains a pointer to the exception information. 
+variable \b _pxcptinfoptrs contains a pointer to the exception information. In other threads the exception filter set 
+with \b SetUnhandledExceptionFilter() function is called instead of SIGSEGV handler.
+
 The \b _pxcptinfoptrs can be also used in the SIGFPE handler. In all other signal handlers it seems to be NULL.
 
 The SIGFPE signal handler is called by CRT when a floating point error occurs, such as division by zero. 
@@ -428,12 +429,12 @@ void main()
 Although it is not well documented in MSDN, it seems that you should install SIGFPE, SIGILL and SIGSEGV 
 signal handlers for each new thread in your program. The SIGABRT, SIGINT and SIGTERM signal handlers
 seems to work for all threads of the caller process, so you should install them once in your \b main()
-program.
+function.
 
 \section getting_exception_context Retrieving Exception Information
 
-When an exception occurs you typically want to get the CPU state just before 
-the exception had occurred. You use the information to debug the problem. 
+When an exception occurs you typically want to get the CPU state to determine the place in your code that
+caused the problem. You use the information to debug the problem. 
 The way you retrieve the exception information differs
 depending on the exception handler you use.
 
@@ -581,20 +582,22 @@ For additional info please see these links:
 
 \section crt_version_and_dll Exception Handling and CRT Linkage
 
-Each module (EXE, DLL) in your project is linked to CRT (C run-time libraries). 
+Each module (EXE, DLL) in your application is linked to CRT (C run-time libraries). 
 You may link CRT as multithreaded static library or as multithreaded dynamic link library. 
-When you set CRT error handlers, such as pure call handler or invalid parameter handler, 
-they will work for the CRT the caller module is linked to and won't intercept exceptions 
-in different CRT modules (if exist). 
+When you set CRT error handlers, such as terminate handler, unexpected handler, 
+pure call handler, invalid parameter handler, new operator error handler or a signal handler, they will work for 
+the CRT the caller module is linked to and won't intercept exceptions 
+in different CRT modules (if exist), because each CRT module has its own internal state. 
 
 Several project modules may share single CRT DLL. This reduces to minimum the overall size 
 of linked CRT code. And all exceptions within that CRT DLL can be handled 
 at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
 
-If you plan to use CRT as a static link library (which is not recommended to do), you have to add 
-exception handling functionality in EACH project module in your solution in form of .cpp files. 
-This makes impossible the way when you implement exception handling code inside of a dynamic link library 
-(such way CrashRpt is implemented).  
+If you plan to use CRT as a static link library (which is not recommended to do) and want to use some crash
+reporting functionality, you have to build the functionality as a static library with /NODEFAULTLIB linker 
+flag and then link this functionality to each EXE and DLL module of your application. You would also have to 
+install the CRT error handlers for each module of your application, while the structured exception handler 
+would still be installed once.
 
 For additional info about C run-time libraries (CRT), see the <i>C Run-time Libraries (CRT)</i> 
 link in the Reference section below.

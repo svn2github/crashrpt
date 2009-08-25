@@ -29,6 +29,7 @@ void test_generate_report()
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);
   ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.code = 0x1234;
   ei.pexcptrs = NULL;
 
   int nResult = crGenerateErrorReport(&ei);
@@ -46,8 +47,8 @@ DWORD WINAPI CrashThread(LPVOID pParam)
 {
   CrashThreadInfo* pInfo = (CrashThreadInfo*)pParam;
 
-  // Install per-thread C++ exception handlers
-  crInstallToCurrentThread();
+  // Install per-thread exception handlers
+  CrThreadAutoInstallHelper cr_install_helper(0);
 
   for(;;)
   {
@@ -78,9 +79,6 @@ DWORD WINAPI CrashThread(LPVOID pParam)
     }
   }
 
-  // Uninstall handlers from current thread
-  crUninstallFromCurrentThread();
-  
   // Exit this thread
   return 0;
 }

@@ -13,17 +13,18 @@ This page is organized in the following sections:
 
 \section useapi Using CrashRpt API
 
-Do not forget to include \c CrashRpt.h header file in the beginning of your code. 
+Before you start using CrashRpt functions in your program, do not forget to include 
+\c CrashRpt.h header file in the beginning of your code: 
 
 \code
 // Include CrashRpt header
 #include "CrashRpt.h"
 \endcode
 
-You also need to add \b CrashRpt.lib to the list of input libraries for your project.
+You also need to add CrashRpt LIB file to the list of input libraries for your project.
 In the Solution Explorer window, right-click your project and choose Properties item in the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
-and then add \b CrashRpt.lib to the list of libraries.
+and then add \b CrashRpt.lib to the list of libraries. 
 
 CrashRpt library provides several API functions, structures and classes that can be used in your 
 project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). 
@@ -44,7 +45,7 @@ expands into crInstallW() if you use wide character set or into crInstallA() if 
 character set.
 
 To enable crash reporting support in your C++ application you use crInstall()
-and crInstallToCurrentThread() functions. There are two functions because of difference in work of
+and crInstallToCurrentThread2() functions. There are two functions because of difference in work of
 exception handlers. Some of them work for entire process and others work for caller thread
 only.
 
@@ -54,12 +55,12 @@ create a crash callback function LPGETLOGFILE() and pass its pointer to crInstal
 The crash callback is called on crash and allows to add custom files to the error report or perform
 another action.
 
-The function crInstallToCurrentThread() installs exception handlers that work on per-thread basis. 
-In a multithread program you call the crInstallToCurrentThread() for all 
+On application exit, you should use the crUninstall() function to unset exception handlers. 
+
+The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
+In a multithread program you call the crInstallToCurrentThread2() for all 
 threads except the main one. Typically you call this function in the beginning of the thread
 procedure.
-
-On application exit, you should use the crUninstall() function to unset exception handlers. 
 
 If you have several worker threads, just before the return of a thread procedure call the
 crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
@@ -111,7 +112,8 @@ void main()
   info.uPriorities[CR_HTTP] = 3;  // try HTTP first
   info.uPriorities[CR_SMTP] = 2;  // try SMTP second
   info.uPriorities[CR_SMAPI] = 1; // try Simple MAPI last  
-
+  info.dwFlags = 0; // Install all available exception handlers
+  info.pszPrivacyPolicyURL = _T("http://myapp.com/privacypolicy.html"); // URL for the Privacy Policy link
   
   int nInstResult = crInstall(&info);
   if(nInstResult!=0)
@@ -142,7 +144,7 @@ void main()
 \endcode
 
 Typically an application creates and maintains a log file where operations and errors are
-written. Such log file can be helpful for crash analysis and should be added to an error
+written. Such log file can be helpful for crash analysis and should be added to your application's error
 report. You add application-specific files to the error report using crAddFile() function.
 
 Sometimes it is required to remotely debug some application logics error. Such an error,
@@ -157,7 +159,8 @@ construction to catch a structured exception in a block of code in your program.
 generate an error report when structured exception occurs.
 
 When you install crash reporting support to your program, it is important to test if CrashRpt
-intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation.
+intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation. 
+You may call this function in each thread of your program to ensure all exceptions will be catched.
 
 Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
 text error message of the last called function, use crGetLastErrorMsg().
@@ -171,10 +174,9 @@ CrashRpt API Reference:
 
 \section crtdll Using CRT as Multi-Threaded DLL (/MD) in Release Configuration
 
-It is important that you configure your project to use C++ runtime libraries (CRT)
+It is important that you configure your project to use C runtime libraries (CRT)
 as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN.
-And CrashRpt won't work properly if CRT is used in different way. See the \ref crt_version_and_dll
-for more information.
+See the \ref crt_version_and_dll for more information.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
 Then choose Configuration Properties->C/C++->Code Generation. In the <b>Runtime Library</b> field,
@@ -182,11 +184,12 @@ choose <b>Multi-threaded DLL (/MD)</b>.
 
 This should be done for all projects in your solution to share single CRT DLL.
 
-\note In Debug configuration it is not important what CRT linkage you use. Typically  
+\note 
+
+In Debug configuration it is not important what CRT linkage you use. Typically  
 your default debugger intercepts exceptions instead of CrashRpt in Debug configuration.
 
 \image html crtdll.png "Multi-threaded DLL (/MD)"    
-
 
 \section crtver Using the Same Version of CRT for All Application Modules
 
@@ -196,8 +199,8 @@ to ensure the single version or CRT DLL is used.
 
 For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your 
 application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. 
-In such situation a C++ exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will 
-intercept exceptions in CRT 8.0 only. 
+In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because error handlers 
+are installed by you program for CRT 8.0 only. 
 
 
 \section prgdb Enabling Program Database (/Zi, /DEBUG) in Release Configuration
@@ -246,8 +249,10 @@ intercepted (use the crEmulateCrash() function),
 that error reports are properly received by your support team and that you can properly read
 received error reports.
 
-\note The files copied to CrashRptSaved directory should be stored locally during the software 
-life time. The saved files should NOT be included in the software release package and should NOT be sent to 
+\note 
+
+Files copied to CrashRptSaved directory should be stored locally during the software 
+life time. These saved files should NOT be included in the software release package and should NOT be sent to 
 end users. You should never ship debug builds or debug symbols (PDB files) as they will 
 not only take up more 
 space on your CD/download/client's machine, but they will also make reverse engineering 
@@ -255,17 +260,21 @@ your code a trivial exercise.
 
 \section rlsfiles Distributing CrashRpt Files with Your Software Release Package
 
-You must always distribute the following files with your software release.
-
-- \b bin\CrashRpt.dll (113 KB in size)
-- \b bin\CrashSender.exe (220 KB in size)
-- \b dbghelp\bin\dbghelp.dll (1056 KB in size)
-- \b zlib\bin\zlib1.dll (59 KB in size)
-
-It is recommended that you place these files to the directory where your application executable
-file is located.
+You must always distribute the following files with your software release. It is recommended 
+that you place these files to the directory where your application executable file is located.
+                                                                              
+- \b bin\CrashRpt.dll 
+- \b bin\CrashSender.exe
+- \b dbghelp\bin\dbghelp.dll
 
 The \b CrashRpt.dll and \b CrashSender.exe are core CrashRpt modules. \b dbghelp.dll (Microsoft Debug Help Library) 
-and \b zlib1.dll (ZLib) are dependent modules.
+is a dependent module.
+
+\note It is recommended that you distribute dbghelp.dll with your software, because 
+some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may 
+be different on different user machines. dbghelp.dll is shipped with Windows XP and later, 
+so most user machines have this library installed. If your target OS is Windows XP and later, 
+you may ignore distribution of dbghelp.dll at your own risk.                  
+
 
 */

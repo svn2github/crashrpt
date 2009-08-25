@@ -113,7 +113,7 @@ CString FormatEmailText(SenderThreadContext* pc)
 
   sText += sFileTitle + _T(".md5 file contains MD5 hash for the ZIP archive. You might want to use this file to check integrity of the error report.\n\n");
   
-  sText += _T("For additional information about using error reports, see FAQ http://code.google.com/p/crashrpt/wiki/FAQ\n");
+  sText += _T("For additional information about using error reports, see FAQ http://code.google.com/p/crashrpt/wiki/FAQ#Using_Error_Reports\n");
 
   return sText;
 }
@@ -192,8 +192,13 @@ BOOL SendOverSMAPI(SenderThreadContext* pc)
     }
   }
 
-  an.SetProgress(_T("Launching the default email client"), 10);
+  CString msg;
+  CString sMailClientName;
+  mailmsg.DetectMailClient(sMailClientName);
   
+  msg.Format(_T("Launching the default email client (%s)"), sMailClientName);
+  an.SetProgress(msg, 10);
+
   mailmsg.SetFrom(pc->m_sEmailFrom);
   mailmsg.SetTo(pc->m_sEmailTo);
   mailmsg.SetSubject(pc->m_sEmailSubject);
