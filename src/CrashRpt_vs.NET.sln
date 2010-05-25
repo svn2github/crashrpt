@@ -1,11 +1,13 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRpt", "crashrpt\src\CrashRpt_vs.NET.vcproj", "{759A0834-D412-4B85-9E1B-8EE191FF68DF}"
 	ProjectSection(ProjectDependencies) = postProject
+		{71DADA6A-5801-4188-8793-A4A48BAC164B} = {71DADA6A-5801-4188-8793-A4A48BAC164B}
 		{00929DA3-31A1-4853-ABCE-145385A4AC63} = {00929DA3-31A1-4853-ABCE-145385A4AC63}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashSender", "crashsender\src\CrashSender_vs.NET.vcproj", "{939312D6-690A-4103-92C5-4D89025BF10A}"
 	ProjectSection(ProjectDependencies) = postProject
+		{C610F50E-1013-46F0-AE20-4E918654B40F} = {C610F50E-1013-46F0-AE20-4E918654B40F}
 		{00929DA3-31A1-4853-ABCE-145385A4AC63} = {00929DA3-31A1-4853-ABCE-145385A4AC63}
 	EndProjectSection
 EndProject
@@ -25,32 +27,85 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\src\zlib_vs.NE
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptProbe", "crashrptprobe\src\CrashRptProbe_vs2003.vcproj", "{42B7465D-C7ED-42D3-9DE6-D966721A6F86}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C610F50E-1013-46F0-AE20-4E918654B40F} = {C610F50E-1013-46F0-AE20-4E918654B40F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crprober", "crprober\src\crprober_vs2003.vcproj", "{485ADA7C-BF7C-4EDC-AA56-212BF0160351}"
+	ProjectSection(ProjectDependencies) = postProject
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86} = {42B7465D-C7ED-42D3-9DE6-D966721A6F86}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libpng\src\libpng_vs.NET.vcproj", "{71DADA6A-5801-4188-8793-A4A48BAC164B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minizip", "minizip\src\minizip_vs.NET.vcproj", "{C610F50E-1013-46F0-AE20-4E918654B40F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
+		Release LIB = Release LIB
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{759A0834-D412-4B85-9E1B-8EE191FF68DF}.Debug.ActiveCfg = Debug|Win32
 		{759A0834-D412-4B85-9E1B-8EE191FF68DF}.Debug.Build.0 = Debug|Win32
 		{759A0834-D412-4B85-9E1B-8EE191FF68DF}.Release.ActiveCfg = Release|Win32
 		{759A0834-D412-4B85-9E1B-8EE191FF68DF}.Release.Build.0 = Release|Win32
+		{759A0834-D412-4B85-9E1B-8EE191FF68DF}.Release LIB.ActiveCfg = Release LIB|Win32
+		{759A0834-D412-4B85-9E1B-8EE191FF68DF}.Release LIB.Build.0 = Release LIB|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Debug.ActiveCfg = Debug|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Debug.Build.0 = Debug|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release.ActiveCfg = Release|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release.Build.0 = Release|Win32
+		{939312D6-690A-4103-92C5-4D89025BF10A}.Release LIB.ActiveCfg = Release LIB|Win32
+		{939312D6-690A-4103-92C5-4D89025BF10A}.Release LIB.Build.0 = Release LIB|Win32
 		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Debug.ActiveCfg = Debug|Win32
 		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Debug.Build.0 = Debug|Win32
 		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Release.ActiveCfg = Release|Win32
 		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Release.Build.0 = Release|Win32
+		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Release LIB.ActiveCfg = Release LIB|Win32
+		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Release LIB.Build.0 = Release LIB|Win32
 		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Debug.ActiveCfg = Debug|Win32
 		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Debug.Build.0 = Debug|Win32
 		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Release.ActiveCfg = Release|Win32
 		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Release.Build.0 = Release|Win32
+		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Release LIB.ActiveCfg = Release LIB|Win32
+		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Release LIB.Build.0 = Release LIB|Win32
 		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Debug.ActiveCfg = Debug|Win32
 		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Debug.Build.0 = Debug|Win32
 		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release.ActiveCfg = Release|Win32
 		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release.Build.0 = Release|Win32
+		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release LIB.ActiveCfg = Release LIB|Win32
+		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release LIB.Build.0 = Release LIB|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Debug.ActiveCfg = Debug|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Debug.Build.0 = Debug|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release.ActiveCfg = Release|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release.Build.0 = Release|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release LIB.ActiveCfg = Release LIB|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release LIB.Build.0 = Release LIB|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Debug.ActiveCfg = Debug|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Debug.Build.0 = Debug|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release.ActiveCfg = Release|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release.Build.0 = Release|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release LIB.ActiveCfg = Release LIB|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release LIB.Build.0 = Release LIB|Win32
+		{71DADA6A-5801-4188-8793-A4A48BAC164B}.Debug.ActiveCfg = Debug|Win32
+		{71DADA6A-5801-4188-8793-A4A48BAC164B}.Debug.Build.0 = Debug|Win32
+		{71DADA6A-5801-4188-8793-A4A48BAC164B}.Release.ActiveCfg = Release|Win32
+		{71DADA6A-5801-4188-8793-A4A48BAC164B}.Release.Build.0 = Release|Win32
+		{71DADA6A-5801-4188-8793-A4A48BAC164B}.Release LIB.ActiveCfg = Release LIB|Win32
+		{71DADA6A-5801-4188-8793-A4A48BAC164B}.Release LIB.Build.0 = Release LIB|Win32
+		{C610F50E-1013-46F0-AE20-4E918654B40F}.Debug.ActiveCfg = Debug|Win32
+		{C610F50E-1013-46F0-AE20-4E918654B40F}.Debug.Build.0 = Debug|Win32
+		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release.ActiveCfg = Release|Win32
+		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release.Build.0 = Release|Win32
+		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release LIB.ActiveCfg = Release LIB|Win32
+		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release LIB.Build.0 = Release LIB|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

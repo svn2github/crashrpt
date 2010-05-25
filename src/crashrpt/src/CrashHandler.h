@@ -1,37 +1,54 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Module: CrashHandler.h
-//
-//    Desc: CCrashHandler is the main class used by crashrpt to manage all
-//          of the details associated with handling the exception, generating
-//          the report, gathering client input, and sending the report.
-//
-// Copyright (c) 2003 Michael Carruth
-//
-///////////////////////////////////////////////////////////////////////////////
+/************************************************************************************* 
+  This file is a part of CrashRpt library.
+
+  CrashRpt is Copyright (c) 2003, Michael Carruth
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+ 
+   * Redistributions of source code must retain the above copyright notice, this 
+     list of conditions and the following disclaimer.
+ 
+   * Redistributions in binary form must reproduce the above copyright notice, 
+     this list of conditions and the following disclaimer in the documentation 
+     and/or other materials provided with the distribution.
+ 
+   * Neither the name of the author nor the names of its contributors 
+     may be used to endorse or promote products derived from this software without 
+     specific prior written permission.
+ 
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***************************************************************************************/
+
+// File: CrashHandler.h
+// Description: Exception handling and report generation functionality.
+// Authors: mikecarruth, zexspectrum
+// Date: 
 
 #ifndef _CRASHHANDLER_H_
 #define _CRASHHANDLER_H_
 
-#if _MSC_VER >= 1000
-#pragma once
-#endif // _MSC_VER >= 1000
-
-#include "crashrpt.h"      
-#include <new.h>
-#include <map>
-#include <stdlib.h>
+#include "stdafx.h"
 #include <signal.h>
 #include <exception>
-#include <string>
-#include <dbghelp.h>
-
-typedef std::map<CString, CString> TStrStrMap;
+#include "CrashRpt.h"      
+#include "Utility.h"
+#include "CritSec.h"
 
 /* This structure contains pointer to the exception handlers for a thread.*/
-struct _cpp_thread_exception_handlers
+struct ThreadExceptionHandlers
 {
-  _cpp_thread_exception_handlers()
+  ThreadExceptionHandlers()
   {
     m_prevTerm = NULL;
     m_prevUnexp = NULL;
@@ -47,15 +64,16 @@ struct _cpp_thread_exception_handlers
   void (__cdecl *m_prevSigSEGV)(int);  // Previous illegal storage access handler
 };
 
+// Sets the last error message (for the caller thread).
 int crSetErrorMsg(PTSTR pszErrorMsg);
 
-////////////////////////////// Class Definitions /////////////////////////////
+struct FileItem
+{
+  CString m_sFileName;    // Path to the original file 
+  CString m_sDescription; // Description
+  BOOL m_bMakeCopy;       // Should we make a copy of this file on crash?
+};
 
-// ===========================================================================
-// CCrashHandler
-// 
-// See the module comment at top of file.
-//
 class CCrashHandler  
 {
 public:
@@ -63,119 +81,116 @@ public:
   // Default constructor.
   CCrashHandler();
 
-  //-----------------------------------------------------------------------------
-   // ~CCrashHandler
-   //    Uninitializes the crashrpt library.
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    none
-   //
-   // Remarks
-   //    none
-   //
-   virtual 
-   ~CCrashHandler();
+  virtual ~CCrashHandler();
 
-   //-----------------------------------------------------------------------------
-   // Init
-   //    Initializes the library and optionally set the client crash callback and
-   //    sets up the email details.
-   //
-   // Parameters
-   //    lpcszAppName Application name 
-   //    lpfn        Client crash callback
-   //    lpcszTo     Email address to send crash report
-   //    lpcszSubject Subject line to be used with email
-   //
-   // Return Values
-   //    Zero if initialization was successful
-   //
-   // Remarks
-   //    Passing NULL for lpTo will disable the email feature and cause the crash 
-   //    report to be saved to disk.
-   //
-   int Init(
+  int Init(
       LPCTSTR lpcszAppName = NULL,
       LPCTSTR lpcszAppVersion = NULL,
       LPCTSTR lpcszCrashSenderPath = NULL,
-      LPGETLOGFILE lpfn = NULL,           
+      LPGETLOGFILE lpfnCallback = NULL,           
       LPCTSTR lpcszTo = NULL,             
       LPCTSTR lpcszSubject = NULL,
       LPCTSTR lpcszUrl = NULL,
       UINT (*puPriorities)[5] = NULL,
       DWORD dwFlags = 0,
-      LPCTSTR lpcszPrivacyPolicyURL = NULL);
+      LPCTSTR lpcszPrivacyPolicyURL = NULL,
+      LPCTSTR lpcszDebugHelpDLLPath = NULL,
+      MINIDUMP_TYPE MiniDumpType = MiniDumpNormal,
+      LPCTSTR lpcszErrorReportSaveDir = NULL,
+      LPCTSTR lpcszRestartCmdLine = NULL,
+      LPCTSTR lpcszLangFilePath = NULL,
+      LPCTSTR lpcszEmailText = NULL,
+      LPCTSTR lpcszSmtpProxy = NULL);
 
-   //-----------------------------------------------------------------------------
-   // Destroy
-   //
-
-   int 
-   Destroy();
+  int Destroy();
    
-   //-----------------------------------------------------------------------------
-   // AddFile
-   //    Adds a file to the crash report.
-   //
-   // Parameters
-   //    lpFile      Fully qualified file name
-   //    lpDesc      File description
-   //
-   // Return Values
-   //    none
-   //
-   // Remarks
-   //    Call this function to include application specific file(s) in the crash
-   //    report.  For example, applicatoin logs, initialization files, etc.
-   //
-   int 
-   AddFile(
-      LPCTSTR lpFile,                     // File nae
-      LPCTSTR lpDesc                      // File description
-      );
+  // Adds a file to the crash report
+  int AddFile(LPCTSTR lpFile, LPCTSTR lpDestFile, LPCTSTR lpDesc, DWORD dwFlags);
 
-   //-----------------------------------------------------------------------------
-   // GenerateErrorReport
-   //    Produces a crash report.
-   //
-   // Parameters
-   //    pExInfo     Pointer to an EXCEPTION_POINTERS structure
-   //
-   // Return Values
-   //    none
-   //
-   // Remarks
-   //    Call this function to manually generate a crash report.
-   //
-   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
+  // Adds a named text property to the report
+  int AddProperty(CString sPropName, CString sPropValue);
+
+  // Adds desktop screenshot on crash
+  int AddScreenshot(DWORD dwFlags);
+
+  // Generates error report
+  int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
+     
+  // Sets/unsets exception handlers for the current process
+  int SetProcessExceptionHandlers(DWORD dwFlags);
+  int UnSetProcessExceptionHandlers();
+
+  // Sets/unsets exception handlers for the caller thread
+  int SetThreadExceptionHandlers(DWORD dwFlags);   
+  int UnSetThreadExceptionHandlers();
   
-   int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
+  // Returns the crash handler object if such object was 
+  // created for the current process
+  static CCrashHandler* GetCurrentProcessCrashHandler();
+
+private:
+
+  /* Exception handler functions. */
+
+  static LONG WINAPI SehHandler(PEXCEPTION_POINTERS pExceptionPtrs);
+  static void __cdecl TerminateHandler();
+  static void __cdecl UnexpectedHandler();
+
+#if _MSC_VER>=1300
+  static void __cdecl PureCallHandler();
+#endif 
+
+#if _MSC_VER>=1300 && _MSC_VER<1400
+  static void __cdecl SecurityHandler(int code, void *x);
+#endif
+
+#if _MSC_VER>=1400
+  static void __cdecl InvalidParameterHandler(const wchar_t* expression, 
+    const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved);
+#endif
+
+#if _MSC_VER>=1300
+  static int __cdecl NewHandler(size_t);
+#endif
+
+  static void SigabrtHandler(int);
+  static void SigfpeHandler(int /*code*/, int subcode);
+  static void SigintHandler(int);
+  static void SigillHandler(int);
+  static void SigsegvHandler(int);
+  static void SigtermHandler(int);
+
+  /* Crash report generation methods */
+
+  // Collects current process state
+  void GetExceptionPointers(DWORD dwExceptionCode, 
+    EXCEPTION_POINTERS** pExceptionPointers);
+  
+  // Collects various information useful for crash analyzis
+  void CollectMiscCrashInfo();
+    
+  // Creates crash description XML file
+  int CreateCrashDescriptionXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
-   int SetProcessExceptionHandlers(DWORD dwFlags);
-   int UnSetProcessExceptionHandlers();
-
-   int SetThreadExceptionHandlers(DWORD dwFlags);   
-   int UnSetThreadExceptionHandlers();
+  // Creates internally used crash description file
+  int CreateInternalCrashInfoFile(CString sFileName, 
+    EXCEPTION_POINTERS* pExInfo);
   
-   static CCrashHandler* GetCurrentProcessCrashHandler();
+  // Launches the CrashSender.exe process
+  int LaunchCrashSender(CString sCmdLineParams, BOOL bWait);  
 
-protected:
-  
-  void GetExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS** pExceptionPointers);
-  int CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
-  int ZipErrorReport(CString sFileName);  
-  int LaunchCrashSender(CString sZipName);  
-
-  CString _ReplaceRestrictedXMLCharacters(CString sText);
+  // Replaces characters that are restricted in XML.
+  std::string XmlEncodeStr(CString sText);
   
   // Sets internal pointers to exception handlers to NULL
-  void InitPrevCPPExceptionHandlerPointers();
+  void InitPrevExceptionHandlerPointers();
 
-  LPTOP_LEVEL_EXCEPTION_FILTER  m_oldFilter;      // previous exception filter
+  /* Private member variables. */
+
+  static CCrashHandler* m_pProcessCrashHandler; // Singleton of the CCrashHandler class
+  
+  LPTOP_LEVEL_EXCEPTION_FILTER  m_oldSehHandler;  // previous SEH exception filter
       
 #if _MSC_VER>=1300
   _purecall_handler m_prevPurec;   // Previous pure virtual call exception filter
@@ -194,14 +209,19 @@ protected:
   void (__cdecl *m_prevSigINT)(int);  // Previous SIGINT handler
   void (__cdecl *m_prevSigTERM)(int); // Previous SIGTERM handler
 
-  // List of exception handlers installed for threads of current process
-  std::map<DWORD, _cpp_thread_exception_handlers> m_ThreadExceptionHandlers;
+  // List of exception handlers installed for worker threads of current process
+  std::map<DWORD, ThreadExceptionHandlers> m_ThreadExceptionHandlers;
+  CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers
 
+  std::map<CString, FileItem> m_files;  // Files to add.
+  std::map<CString, CString> m_props;   // User-defined properties
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
-  int m_pid;                     // Process id.
-  TStrStrMap m_files;            // Custom files to add.
-  CString m_sTo;                 // Email:To.
-  CString m_sSubject;            // Email:Subject.
+  CString m_sEmailTo;            // Email recipient address.
+  int m_nSmtpPort;               // Port for SMTP connection.
+  CString m_sEmailSubject;       // Email subject.
+  CString m_sEmailText;          // Email message text.
+  CString m_sSmtpProxyServer;    // SMTP proxy server address.
+  int m_nSmtpProxyPort;          // SMTP proxy server port.
   CString m_sUrl;                // URL for sending reports via HTTP.
   UINT m_uPriorities[3];         // Which way to prefer when sending crash report?
   CString m_sAppName;            // Application name.
@@ -209,11 +229,36 @@ protected:
   CString m_sImageName;          // Path to client executable file.
   CString m_sPathToCrashSender;  // Path to crash sender exectuable file.  
   CString m_sCrashGUID;          // Unique ID of the crash report.
-  CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
-  CString m_sPrivacyPolicyURL;   // Privacy policy URL
+  CString m_sReportFolderName;   // Folder where current crash report will be saved.
+  CString m_sPrivacyPolicyURL;   // Privacy policy URL  
+  HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
+  CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
+  BOOL m_bGenerateMinidump;      // Should we generate minidump file?
+  BOOL m_bSendRecentReports;     // Should we send recently generated and unsent reports again?
+  MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
+  BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
+  BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
+  BOOL m_bSendErrorReport;       // Should we send error report or just save it  
+  CString m_sLangFileName;       // Language file to use.
+  SYSTEMTIME m_AppStartTime;     // The time this application was started.
+  CString m_sCrashTime;          // Crash time in UTC format
+  CString m_sOSName;             // Operating system name.
+  DWORD m_dwGuiResources;        // Count of GUI resources in use
+  DWORD m_dwProcessHandleCount;  // Count of opened handles
+  CString m_sMemUsage;           // Memory usage
 
-  BOOL m_bInitialized;
+  BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
+  DWORD m_dwScreenshotFlags;     // Screenshot flags
+  CRect m_rcAppWnd;              // Rectangle of the main app window (used for screenshot generation).
+  CPoint m_ptCursorPos;          // Mouse cursor position at the moment of crash
+
+  BOOL m_bAppRestart;            // Should we restart the crashed app or not?
+  CString m_sRestartCmdLine;     // Command line for app restart.
+
+  HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe
+
+  BOOL m_bInitialized;           // Flag telling if this object was are initialized.
 };
 
 #endif	// !_CRASHHANDLER_H_

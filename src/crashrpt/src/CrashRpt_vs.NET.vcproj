@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\zip_utils;..\..\zlib;..\..\tinyxml"
+				AdditionalIncludeDirectories="..\..\include;..\..\zlib\src;..\..\tinyxml;..\..\libpng\src;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPT_VSNET_EXPORTS;CRASHRPT_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib zlibd.lib"
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib zlibd.lib libpngd.lib psapi.lib"
 				OutputFile="..\..\bin\CrashRptd.dll"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="..\..\bin\CrashRptd.pdb"
 				SubSystem="2"
@@ -51,7 +51,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -72,7 +73,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\zip_utils;..\..\zlib;..\..\tinyxml"
+				AdditionalIncludeDirectories="..\..\include;..\..\zlib\src;..\..\tinyxml;..\..\libpng\src;..\..\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
@@ -84,9 +85,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib"
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib libpng.lib psapi.lib"
 				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -102,7 +104,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -123,7 +126,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\zip_utils;..\..\zlib;..\..\tinyxml"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPT_LIB"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -134,7 +137,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib"
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib psapi.lib"
 				OutputFile="..\..\lib\CrashRptLIB.lib"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
@@ -146,7 +149,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -179,50 +183,6 @@
 			<File
 				RelativePath=".\Utility.cpp">
 			</File>
-			<Filter
-				Name="zip_utils"
-				Filter="">
-				<File
-					RelativePath="..\..\zip_utils\unzip.cpp">
-				</File>
-				<File
-					RelativePath="..\..\zip_utils\zip.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							DisableSpecificWarnings="4311"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							DisableSpecificWarnings="4311"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							DisableSpecificWarnings="4311"/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="tinyxml"
-				Filter="">
-				<File
-					RelativePath="..\..\tinyxml\tinystr.cpp">
-				</File>
-				<File
-					RelativePath="..\..\tinyxml\tinyxml.cpp">
-				</File>
-				<File
-					RelativePath="..\..\tinyxml\tinyxmlerror.cpp">
-				</File>
-				<File
-					RelativePath="..\..\tinyxml\tinyxmlparser.cpp">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -232,7 +192,10 @@
 				RelativePath=".\CrashHandler.h">
 			</File>
 			<File
-				RelativePath="..\include\CrashRpt.h">
+				RelativePath="..\..\include\CrashRpt.h">
+			</File>
+			<File
+				RelativePath=".\CritSec.h">
 			</File>
 			<File
 				RelativePath=".\resource.h">
@@ -243,36 +206,6 @@
 			<File
 				RelativePath=".\Utility.h">
 			</File>
-			<Filter
-				Name="zip_utils"
-				Filter="">
-				<File
-					RelativePath="..\..\zip_utils\unzip.h">
-				</File>
-				<File
-					RelativePath="..\..\zip_utils\zip.h">
-				</File>
-			</Filter>
-			<Filter
-				Name="zlib"
-				Filter="">
-				<File
-					RelativePath="..\..\zlib\include\zconf.h">
-				</File>
-				<File
-					RelativePath="..\..\zlib\include\zlib.h">
-				</File>
-			</Filter>
-			<Filter
-				Name="tinyxml"
-				Filter="">
-				<File
-					RelativePath="..\..\tinyxml\tinystr.h">
-				</File>
-				<File
-					RelativePath="..\..\tinyxml\tinyxml.h">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

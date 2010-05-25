@@ -2,35 +2,40 @@
 
 \mainpage CrashRpt Documentation
 
-\section about_crashrpt About CrashRpt
+If you have ever tried to determine the reason of a your program's crash on user's machine, 
+you might know how difficult it is. Some users won't contact you while others 
+might not have technical knowledge. These factors make debugging remote crashes 
+almost impossible. That's why it is important to use special tools to report 
+errors automatically. 
 
-If you've ever been tasked with debugging a fatal exception, you probably know 
-how difficult it can be given only the user's steps to reproduce. Many factors 
-such as the application's version, user's operating system, and dependent modules 
-may contribute to the eventual crash. This makes duplicating the user's environment 
-and thereby the crash, nearly impossible for all but the most obvious bugs.
+CrashRpt library is an open source error handling, reporting and 
+post-processing tool for applications created in Microsoft Visual C++ and running 
+in Windows. 
 
-CrashRpt library is a light-weight error handling framework. 
-The library will intercept a Win32 structured exception, an unhandled C++ exception or C run-time error
-occurred in your user-mode application. CrashRpt DLL works like  
-<a href="http://en.wikipedia.org/wiki/Dr._Watson_%28debugger%29">Dr. Watson</a> 
-utility that ships with Windows XP, or like <a href="http://en.wikipedia.org/wiki/Windows_Error_Reporting">
-Windows Error Reporting</a> in Windows Vista. 
-CrashRpt intercepts an unhandled exception, creates a minidump, builds a crash descriptor in XML format, 
-presents an interface to allow user to review 
-the crash report, and finally it compresses and sends the crash report to the
-software support team.
+\section toc Table of Contents
 
-
-The documentation is organized in the following topics:
-
-- \subpage installation
-- \subpage demos
-- \subpage error_report
-- \subpage exception_handling
-- \subpage configure_prj
-- \subpage send_report
-- \subpage using_error_report
+- \subpage introduction_to_crashrpt
+  - \ref getting_started
+  - \ref demos
+  - \ref error_report
+  - \ref architecture_overview
+  - \ref exception_handling
+- \subpage using_crashrpt
+  - \ref compiling_crashrpt
+  - \ref configuring_project
+  - \ref internationalization_support
+  - \ref using_crashrpt_api
+  - \ref simple_example
+  - \ref sending_error_reports
+  - \ref preparing_to_software_release
+- \subpage using_error_reports
+  - \ref analyzing_error_reports
+  - \ref using_crash_descriptor
+  - \ref using_minidump
+  - \ref automating_crash_report_processing
+    - \ref crprober_tool
+    - \ref using_crashrptprobe_api
+    - \ref crashrptprobe_api_examples
 
 
 */

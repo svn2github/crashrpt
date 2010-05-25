@@ -1,36 +1,176 @@
 /*!
 
-\page send_report Sending Error Reports
+\page sending_error_reports Sending Error Reports
 
-When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. 
-The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
+When crash occurs, CrashRpt runs the \b CrashSender.exe process that collects crash information (desktop screenshot, minidump, application-defined files). 
+The parent process is then terminated, except in the case when you generate error report manually.
 
-\note CrashRpt saves an error report as a ZIP archive to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
-CrashRpt moves the crash report file to the Recycle Bin after it was sent to the recipient successfuly. If an error occurs
-during error report sending procedure, CrashRpt doesn't remove the report.          
+By default, \b CrashSender.exe saves error report files to <i>%%LOCAL_APP_DATA%\\CrashRpt\\UnsentErrorReports\\%%AppName%%_%%AppVersion%</i> folder. 
+Optionally, you can specify another location where to store files using CR_INSTALL_INFO::pszErrorReportSaveDir structure member.
 
-The CrashSender.exe displays GUI and when user confirms error report submission, 
-it attempts to send the error report to the software support team
-using one of the following ways: 
+\b CrashSender.exe moves crash report files to the Recycle Bin after the report is sent to the recipient successfuly. 
+If error report sending procedure fails, \b CrashSender.exe doesn't delete the report files.          
+
+\b CrashSender.exe displays GUI as described in \ref error_report and when user confirms error report submission, 
+\b CrashSender.exe compresses the report files and attempts to send the error report to the recipient over HTTP or over E-mail 
+using the following ways in turn:
  - via HTTP request to a server-side script
- - via connection to an SMTP server
- - via Simple MAPI programming interface (the user's default E-mail client application)
+ - via direct connection to an SMTP server
+ - via Simple MAPI programming interface (user's default E-mail client application)
 
-If one of these ways fails, CrashRpt tries others in turn. 
+You can specify the order of trials by using CR_INSTALL_INFO::uPriorities structure member.
+
+\section error_report_size_limitations Error Report Size Limitations
+
+<b>Since v.1.2.2</b>, CrashRpt provides better support of large error reports being sent using HTTP connection.
+You can send error reports having arbitrary size, however check your web-server settings to ensure it won't
+reject reports larger than some limit. For example, if you use PHP, check the <i>upload_max_filesize</i>
+configuration parameter (the default in 2 megabytes), <i>post_max_size</i> parameter and possibly others (see PHP documentation 
+for details).
+
+In case you plan to deliver error reports over E-mail, than error reports should be as small as possible. 
+This is because of limitations of email attachment size. If the error report is larger than the 
+limit (which may be different for different mail server), it is possible that the error report 
+will be rejected. 
 
 \section httpsend Sending Crash Report Using HTTP Connection
 
 Many software products have web sites on the Internet. Such web servers typically have some 
-scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish HTTP connection
+scripting engine enabled, for example, PHP, ASP and so on. CrashRpt can establish HTTP connection
 to a server-side script and send the error report as a script parameter.
 
-The crash report ZIP file data are converted to base64 encoding to replace all restricted characters with a set
-of 64 predefined characters. The server-side script should base64-decode the ZIP file data.
+Older versions of CrashRpt used "application/x-www-form-urlencoded" form encoding type in conjunction 
+with Base-64 encoding for file attachment. 
+The legacy way is enabled by default for backwards compatibility, however it is not recommended to use.
+The encoding type "application/x-www-form-urlencoded" is inefficient for sending large quantities of 
+binary data or text containing non-ASCII characters.
 
-The encoded data are passed to the script by POST as parameter named "crashrpt".
+The equivalent HTML form is presented below:
 
-Before encoding, an MD5 hash for the file data is calculated. The server-side script can extract the MD5 hash
-from "md5" parameter.
+\code 
+<html>
+<form action="http://someserver.net/crashrpt.php" method="POST" enctype="application/x-www-form-urlencoded">
+ MD5:<input type="text" name="md5">
+ Base64-encoded ZIP file data:<input type="text" name="crashrpt">
+ <input type="submit" name="Submit">
+</form>
+</html>
+\endcode
+
+
+<b>Since v.1.2.2</b>, CrashRpt supports HTTP file uploads as described in 
+<a href="http://www.ietf.org/rfc/rfc1867.txt">RFC-1867.</a> 
+This mechanism allows to upload large files by using binary content transfer encoding. 
+The "multipart/form-data" encoding type is utilized for this purpose. 
+
+The equivalent HTML form is presented below:
+
+\code 
+<html>
+<form action="http://someserver.net/crashrpt.php" method="POST" enctype="multipart/form-data">
+ Application name:<input type="text" name="appname">
+ Application version:<input type="text" name="appversion">
+ Email from:<input type="text" name="emailfrom">
+ Email subject:<input type="text" name="emailsubject">
+ Crash GUID:<input type="text" name="crashguid">
+ MD5:<input type="text" name="md5">
+ Attach ZIP file:<input type="file" name="crashrpt">
+ <input type="submit" name="Submit">
+</form>
+</html>
+\endcode
+
+This transfer type is disabled by default to ensure backwards compatibility. To opt this in, 
+specify \ref CR_INST_HTTP_BINARY_ENCODING flag in CR_INSTALL_INFO::dwFlags 
+structure member.
+
+\subsection script_params Script Parameters
+
+Below is the summary of parameters the server-side script may receive. The parameters actually received
+may depend on what version of CrashRpt sent the report.
+
+The server-side script may receive the following POST parameters. In PHP, these parameters are part of 
+<b>$_POST</b> global array.
+
+<table>
+
+<tr>
+<td> <b>Parameter Name</b>
+<td> <b>Example value</b>
+<td> <b>Remarks</b>
+
+<tr>
+<td> md5
+<td> "af89e902b42cd301092bb34530984e59"
+<td> This parameter contains the MD5 hash of error report data. This can be used to check error report integrity.
+
+<tr>
+<td> crashrpt
+<td> This will be a Base-64 encoded character sequence.
+<td> This parameter contains error report data encoded with Base-64 encoding. This legacy parameter is have to be used 
+     if you need to receive reports being sent by an older (pre-v.1.2.2) version of CrashRpt. 
+
+     The crash report ZIP file data are converted to base64 encoding to replace all restricted characters with a set
+     of 64 predefined characters. The server-side script should base64-decode the ZIP file data.
+
+     Since v.1.2.2, error reports are recommended to send using binary encoding (see CR_INSTALL_INFO::dwFlags member
+     for more information). 
+
+<tr>
+<td> appname
+<td> "MyApp"
+<td> Application name (as passed to \b CR_INSTALL_INFO::pszAppName structure member).
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> appversion
+<td> "1.0.0"
+<td> Application version (as passed to \b CR_INSTALL_INFO::pszAppVersion structure member).
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> crashguid
+<td> "37b4d6da-1211-4e62-adc6-174acb53ddf5"
+<td> Crash GUID (globally unique identifier). 
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> emailsubject
+<td> "MyApp 1.0.0 Error Report"
+<td> E-mail subject (as passed to \b CR_INSTALL_INFO::pszEmailSubject structure member).
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> emailfrom
+<td> "user@example.com"
+<td> E-mail of the user who sent this report. 
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> description
+<td> "I just started the app and then it crashed. Help!"
+<td> User-provided problem description.
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+</table>
+
+The server side script may receive the following file attachments. In PHP, these parameters are part
+of <b>$_FILES</b> global array.
+
+<table>
+
+<tr>
+<td> <b>Attachment Name</b>
+<td> <b>Remarks</b>
+
+<tr>
+<td> crashrpt
+<td> This file attachment contains the error report file data.
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+</table>
+
+\subsection script_return Return Value
 
 The script should return status of request completion as server responce content. In HTTP/1.0 and since, 
 the first line of the HTTP response is called the status line and includes a numeric status code (such as "404") 
@@ -48,80 +188,144 @@ saving error report it should return '200 Success'. If crash sending process
 encounters another error code, it attempts sending the error report using another way. In such situation
 you may receive the same error report several times through different transport.
 
+\subsection script_example Sample PHP Script
+
 Below is an example server-side PHP script that can receive a crash report and write it to a file.
+The script can receive error reports from any version of CrashRpt.
 
 \code
+
 <?php
 
-$fileroot = "/home/username/crash_reports/";
+$file_root = "/home/username/crash_reports/";
 
+date_default_timezone_set('UTC');
 
-// Checks if field is correct
+function done($return_status, $message)
+{
+  echo $return_status." ".$message; 
+  exit(0);
+}
+
 function checkOK($field)
 {
-  if (eregi("\r",$field) || eregi("\n",$field))
+  if (eregi("\\r",$field) || eregi("\\n",$field)) 
   {
-    echo "450 Invalid parameter";
-    exit(1);
+    done(450, "Invalid input parameter.");
   }
 }
 
-/*** Begin ***/
+$md5_hash = "";
+$file_name = "";
+$crash_guid = "";
 
-checkOK($_POST["crashrpt"]);
-checkOK($_POST["md5"]);
+if(!isset($_POST['md5']))
+{
+  done(450, "MD5 hash is missing.");
+}
 
-// Decode file data
-$filedata = base64_decode( $_POST["crashrpt"] );
+// Get MD5 hash
+$md5_hash = $_POST['md5'];
+checkOK($md5_hash);
+if(strlen($md5_hash)!=32)
+{
+  done(450, "MD5 hash value has wrong length.");
+}
 
-// Check that decoded data have valid MD5 hash
-$my_md5_hash = strtolower(md5($filedata));
-$their_md5_hash = strtolower($_POST["md5"]);
+if(array_key_exists("crashrpt", $_FILES))
+{
+  $tmp_file_name = $_FILES["crashrpt"]["name"];
+  checkOK($tmp_file_name);
+
+  $base_name = basename($tmp_file_name);
+  if(empty($base_name))
+  {
+    done(450, "Missing filename");
+  }
+
+  $file_name = $file_root.$base_name;
+
+  if(!move_uploaded_file($tmp_file_name, $file_name))
+  {
+    done(452, "Couldn't save data to local storage"); 
+  }
+}
+else
+{
+  // Assume legacy way is used
+  if(!isset($_POST["crashrpt"]))  
+  {
+    done(450, "Error report data is missing.");
+  }
+
+  $encoded_data = $_POST["crashrpt"];
+
+  // Decode file data
+  $file_data = base64_decode($encoded_data);
+
+  if(array_key_exists("crashguid", $_POST))
+  {
+    $crash_guid = $_POST["crashguid"];
+    checkOK($crash_guid);
+    if(strlen($crash_guid)!=36)
+    {
+      done(450, "Crash GUID has wrong length.");
+    }
+    
+    $file_name = $file_root.$crash_guid.".zip";
+  }
+  else
+  {
+    // Generate ZIP file name
+    $date_time = date(DATE_RFC822);
+    $file_name = $file_root.md5($file_data.$date_time).".zip";
+  }
+
+  // Write decoded data to file
+  $f = fopen($file_name, "w");
+  if($f==FALSE)
+  {
+    done(452, "Couldn't save data to local storage"); 
+  }
+         
+  fwrite($f, $file_data);
+  fclose($f);
+}
+
+// Check that decoded data have correct MD5 hash
+$my_md5_hash = strtolower(md5_file($file_name));
+$their_md5_hash = strtolower($md5_hash);
 if($my_md5_hash!=$their_md5_hash)
 {
-  echo "451 MD5 hash is invalid (yours is ".$their_md5_hash.",but mine is ".$my_md5_hash.")";
-  exit(1);
+  done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
 }
-
-// Generate ZIP file name
-$datetime = date(DATE_RFC822);
-$filename = $fileroot.md5($filedata.$datetime).".zip";
-
-// Write decoded data to file
-$file = fopen($filename, "w");
-if($file==FALSE)
-{
-  echo "452 Couldn't save data to local storage"; 
-  exit(1);
-}
-
-fwrite($file, $filedata);
-fclose($file);
 
 // OK.
-echo "200 Success";
-exit(0);
+done(200, "Success.");
+
 ?>
 \endcode
 
 \section smtpsend Sending Crash Report Using SMTP Connection
 
 CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP
-connection without any user interaction. An error report is sent as an E-mail multi-part message with 
+connection without any user interaction. The error report is sent as an E-mail multi-part message with 
 attachments.
 
 If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP
 server name and relay the email message to that server.
 
 If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX 
-record of recipent's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
+record of recipent's domain. Another way to specify the recipient server address and port is by using 
+\ref CR_INSTALL_INFO::pszSmtpProxy member.
 
-This way may fail if firewall blocks outgoing connections on port 25. 
+Many SMTP servers may block direct access to them to avoid spam (for example Google does so). 
+This way may alsp fail if firewall blocks outgoing connections on port 25. 
 
 \section smapisend Sending Crash Report Using Simple MAPI
 
 CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. 
-An error report is sent as an E-mail multi-part message with attachments.
+The error report is sent as an E-mail multi-part message with attachments.
 This requires some user interaction.
 
 This way has the lowest priority by default.

@@ -10,6 +10,9 @@
 		<Platform
 			Name="Win32"
 		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -49,7 +52,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -58,7 +61,6 @@
 				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -68,7 +70,102 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="..\..\wtl"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="CrashRptd.lib shell32.lib"
+				OutputFile="..\..\bin\CrashRptTestd.exe"
+				LinkIncremental="0"
+				AdditionalLibraryDirectories="..\..\lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\CrashRptTestd.pdb"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="false"
+				TargetEnvironment="3"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/CrashRptTest.tlb"
+				HeaderFileName="CrashRptTest.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="CrashRptTest_i.c"
+				ProxyFileName="CrashRptTest_p.c"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
+				PreprocessorDefinitions="WIN64;_WINDOWS;STRICT;_DEBUG"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				FloatingPointModel="0"
+				FloatingPointExceptions="true"
+				UsePrecompiledHeader="2"
+				WarningLevel="4"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="..\..\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -82,7 +179,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashRptTestd.pdb"
 				SubSystem="2"
-				TargetMachine="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -144,14 +241,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -161,7 +257,99 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="..\..\wtl"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="CrashRpt.lib shell32.lib"
+				OutputFile="..\..\bin\CrashRptTest.exe"
+				LinkIncremental="0"
+				AdditionalLibraryDirectories="..\..\lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="false"
+				TargetEnvironment="3"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/CrashRptTest.tlb"
+				HeaderFileName="CrashRptTest.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="CrashRptTest_i.c"
+				ProxyFileName="CrashRptTest_p.c"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
+				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
+				ExceptionHandling="1"
+				RuntimeLibrary="2"
+				FloatingPointExceptions="true"
+				UsePrecompiledHeader="2"
+				WarningLevel="4"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="..\..\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -175,7 +363,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
 				SubSystem="2"
-				TargetMachine="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -237,6 +425,99 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
+				ExceptionHandling="1"
+				RuntimeLibrary="0"
+				FloatingPointExceptions="true"
+				UsePrecompiledHeader="2"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="..\..\wtl"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="CrashRptLIB.lib shell32.lib"
+				OutputFile="..\..\bin\CrashRptTestLIB.exe"
+				LinkIncremental="0"
+				AdditionalLibraryDirectories="..\..\lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
+				SubSystem="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release LIB|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="false"
+				TargetEnvironment="3"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/CrashRptTest.tlb"
+				HeaderFileName="CrashRptTest.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="CrashRptTest_i.c"
+				ProxyFileName="CrashRptTest_p.c"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\crashrpt\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="1"
@@ -268,7 +549,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
 				SubSystem="2"
-				TargetMachine="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -332,6 +613,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -340,7 +629,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release LIB|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

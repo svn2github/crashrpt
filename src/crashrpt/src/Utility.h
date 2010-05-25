@@ -1,224 +1,113 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Module: Utility.h
-//
-//    Desc: Misc static helper methods
-//
-// Copyright (c) 2003 Michael Carruth
-//
-///////////////////////////////////////////////////////////////////////////////
+/************************************************************************************* 
+  This file is a part of CrashRpt library.
+
+  CrashRpt is Copyright (c) 2003, Michael Carruth
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+ 
+   * Redistributions of source code must retain the above copyright notice, this 
+     list of conditions and the following disclaimer.
+ 
+   * Redistributions in binary form must reproduce the above copyright notice, 
+     this list of conditions and the following disclaimer in the documentation 
+     and/or other materials provided with the distribution.
+ 
+   * Neither the name of the author nor the names of its contributors 
+     may be used to endorse or promote products derived from this software without 
+     specific prior written permission.
+ 
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***************************************************************************************/
+
+// File: Utility.h
+// Description: Miscellaneous helper functions
+// Authors: mikecarruth, zexspectrum
+// Date: 
 
 #ifndef _UTILITY_H_
 #define _UTILITY_H_
 
-#pragma once
-
 #include <shlobj.h>
 
-
-////////////////////////////// Class Definitions /////////////////////////////
-
-// ===========================================================================
-// CUtility
-// 
-// See the module comment at top of file.
-//
-class CUtility  
+namespace Utility  
 {
-public:
-
-   //-----------------------------------------------------------------------------
-   // getLastWriteFileTime
-   //    Returns the time the file was last modified in a FILETIME structure.
-   //
-   // Parameters
-   //    sFile       Fully qualified file name
-   //
-   // Return Values
-   //    FILETIME structure
-   //
-   // Remarks
-   //
-   static 
-   FILETIME 
-   getLastWriteFileTime(
-      CString sFile
-      );
+  // Returns base name of the EXE file that launched current process.
+  CString getAppName();
    
-   //-----------------------------------------------------------------------------
-   // getAppName
-   //    Returns the application module's file name
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    File name of the executable
-   //
-   // Remarks
-   //    none
-   //
-   static 
-   CString 
-   getAppName();
+  // Returns the unique tmp file name.
+  CString getTempFileName();
 
-   //-----------------------------------------------------------------------------
-   // getSaveFileName
-   //    Presents the user with a save as dialog and returns the name selected.
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    Name of the file to save to, or "" if the user cancels.
-   //
-   // Remarks
-   //    none
-   //
-  /* static 
-   CString 
-   getSaveFileName();*/
-	
-   //-----------------------------------------------------------------------------
-   // getTempFileName
-   //    Returns a generated temporary file name
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    Temporary file name
-   //
-   // Remarks
-   //
-   static 
-   CString 
-   getTempFileName();
+  // Returns the path to the temporary directory.
+  int getTempDirectory(CString& strTemp);
 
-   //-----------------------------------------------------------------------------
-   // getTempDirectory
-   //  Returns value of TEMP environment variable
-   //
-   //  Return value
-   //   0 if successful
-   //
-   static
-   int 
-   getTempDirectory(CString& strTemp);
+  // Returns path to directory where EXE or DLL module is located.
+  CString GetModulePath(HMODULE hModule);
 
-   // Returns path to directory where EXE or DLL module is located.
-   static CString GetModulePath(HMODULE hModule);
+  // Returns the absolute path and name of the module
+  CString GetModuleName(HMODULE hModule);
 
-   // Generates unique identifier (GUID)
-   static int GenerateGUID(CString& sGUID);  
+  // Generates unique identifier (GUID)
+  int GenerateGUID(CString& sGUID);  
 
-   // Returns current system time as string (uses UTC time format).
-   static int GetSystemTimeUTC(CString& sTime);  
+  // Returns current system time as string (uses UTC time format).
+  int GetSystemTimeUTC(CString& sTime);  
 
-   // Returns friendly name of operating system (name, version, service pack)
-   static int GetOSFriendlyName(CString& sOSName);  
+  // Returns friendly name of operating system (name, version, service pack)
+  int GetOSFriendlyName(CString& sOSName);  
 
-   // Returns path to a special folder (for example %LOCAL_APP_DATA%)
-   static int GetSpecialFolder(int csidl, CString& sFolderPath);
+  // Returns path to a special folder (for example %LOCAL_APP_DATA%)
+  int GetSpecialFolder(int csidl, CString& sFolderPath);
 
-   // Replaces restricted characters in file name
-   static CString ReplaceInvalidCharsInFileName(CString sFileName);
+  // Replaces restricted characters in file name
+  CString ReplaceInvalidCharsInFileName(CString sFileName);
 
-   // Moves a file to the Recycle Bin or removes the file permanently
-   static int RecycleFile(CString sFilePath, bool bPermanentDelete);
+  // Moves a file to the Recycle Bin or removes the file permanently
+  int RecycleFile(CString sFilePath, bool bPermanentDelete);
+
+  // Retrieves a string from INI file.
+  CString GetINIString(LPCTSTR pszFileName, LPCTSTR pszSection, LPCTSTR pszName);
+  //CString GetINIString(LPCTSTR pszSection, LPCTSTR pszName);
+
+  // Mirrors the content of a window.
+  void SetLayoutRTL(HWND hWnd);
+
+  // Formats the error message.
+  CString FormatErrorMsg(DWORD dwErrorCode);
+
+  // Parses file path and returns file name.
+  CString GetFileName(CString sPath);
+
+  // Parses file path and returns file name without extension.
+  CString GetBaseFileName(CString sFileName);
+
+  // Parses file path and returns file extension.
+  CString GetFileExtension(CString sFileName);
+
+  // This helper function looks for the app's main window.
+  HWND FindAppWindow();
+
+  // Retrieves product version info from resources embedded into EXE or DLL
+  CString GetProductVersion(CString sModuleName);
+  
+  // Creates a folder. If some intermediate folders in the path do not exist,
+  // it creates them.
+  BOOL CreateFolder(CString sFolderName);
+
+  // Converts system time to UINT64
+  ULONG64 SystemTimeToULONG64( const SYSTEMTIME& st );
 
    /*static CString LoadString(UINT uID);*/
 };
 
-#include <vector>
-class strconv_t
-{
-public:
-  strconv_t(){}
-  ~strconv_t()
-  {
-    unsigned i;
-    for(i=0; i<m_ConvertedStrings.size(); i++)
-    {
-      delete [] m_ConvertedStrings[i];
-    }
-  }
-
-  LPCWSTR a2w(LPCSTR lpsz)
-  {
-    int count = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, NULL, 0);
-    if(count==0)
-      return NULL;
-
-    void* pBuffer = (void*) new wchar_t[count];
-    int result = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, (LPWSTR)pBuffer, count);
-    if(result==0)
-    {
-      delete [] pBuffer;
-      return NULL;
-    }    
-
-    m_ConvertedStrings.push_back(pBuffer);
-    return (LPCWSTR)pBuffer;
-  }
-
-  LPCSTR w2a(LPCWSTR lpsz)
-  {    
-    int count = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, NULL, 0, NULL, NULL);
-    if(count==0)
-      return NULL;
-
-    void* pBuffer = (void*) new char[count];
-    int result = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, (LPSTR)pBuffer, count, NULL, NULL);
-    if(result==0)
-    {
-      delete [] pBuffer;
-      return NULL;
-    }    
-
-    m_ConvertedStrings.push_back(pBuffer);
-    return (LPCSTR)pBuffer;
-  }
-
-  LPCSTR t2a(LPCTSTR lpsz)
-  {
-#ifdef UNICODE    
-    return w2a(lpsz);
-#else
-    return lpsz;
-#endif
-  }
-
-LPCWSTR t2w(LPCTSTR lpsz)
-  {
-#ifdef UNICODE    
-    return lpsz;
-#else
-    return a2w(lpsz);
-#endif
-  }
-
-  LPCTSTR a2t(LPCSTR lpsz)
-  {
-#ifdef UNICODE    
-    return a2w(lpsz);
-#else
-    return lpsz;
-#endif
-  }
-
-LPCTSTR w2t(LPCWSTR lpsz)
-  {
-#ifdef UNICODE    
-    return lpsz;
-#else
-    return w2a(lpsz);
-#endif
-  }
-
-private:
-  std::vector<void*> m_ConvertedStrings;  
-};
-
-
-#endif	// #ifndef _UTILITY_H_
+#endif	// _UTILITY_H_

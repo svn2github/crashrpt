@@ -2,8 +2,7 @@
 
 \page exception_handling About Exceptions and Exception Handling
 
-Reading this page is not necessary for using CrashRpt. You may skip this page 
-and proceed to \ref configure_prj. However, read this page if you need extended 
+Reading this page is not necessary for using CrashRpt. However read this page if you need extended 
 knowledge of exception handling.
 
 This page describes techniques of handling exceptions in Visual C++ programs under Windows. 
@@ -13,6 +12,7 @@ The page covers the following topics:
 
 - \ref about_exceptions
 - \ref structured_exc
+- \ref vectored_exc
 - \ref crt_errors
 - \ref cpp_signals
 - \ref getting_exception_context
@@ -35,12 +35,12 @@ For example, an exception may occur because of the following:
 - invalid parameter is passed to a C++ system function
 - C run-time libraries detect an error and request program termination
 
-There are two kinds of exceptions that have different nature: structured 
-C exceptions and typed C++ exceptions.
+There are two kinds of exceptions that have different nature: SEH exceptions (Structured Exception Handling, SEH) 
+and typed C++ exceptions.
 
-Structured exceptions were designed for C language, but they can be used in C++, too. 
+SEH exceptions were designed for C language, but they can be used in C++, too. 
 They are handled using __try{}__except(){} 
-construction. Structured exceptions are Visual C++ compiler-specific. 
+construction. SEH exceptions are Visual C++ compiler-specific. 
 You shouldn't use structured exception handling if you write portable code. 
 
 C++ typed exceptions are handled using try{}catch{} construction.
@@ -64,16 +64,16 @@ int main () {
 }
 \endcode
 
-\section structured_exc Structured Exceptions 
+\section structured_exc Structured Exception Handling
 
-When a structured exception occurs, you typically see a popup window (DrWatson) that 
+When a SEH exception occurs, you typically see a pop-up window (Dr.Watson) that 
 offers to send error report to Microsoft. 
 
-You can generate a structured exception yourself using \b RaiseException() function.
+You can generate a SEH exception yourself using \b RaiseException() function.
 
-You can catch a structured exception in your code using __try{}__except(Expression){} construction.
+You can catch a SEH exception in your code using __try{}__except(Expression){} construction.
 The \b main() function of your program is guarded with such construction, so by default all unhandled
-structured exceptions are cougth and DrWatson is invoked.
+SEH exceptions are caught and Dr.Watson is invoked.
 
 Example:
 
@@ -94,12 +94,12 @@ Example:
   }
 \endcode 
 
-Each structured exception has an exception code. You can extract the exception code inside of __except statement 
+Each SEH exception has an associated exception code. You can extract the exception code inside of __except statement 
 using \b GetExceptionCode() intrinsic function. You can extract exception information inside of __except 
 statement using \b GetExceptionInformation() intrinsic function. To use these intrinsic functions you usually
 create your custom exception filter as shown in the example below.
 
-The following example shows how to use a structured exception filter.
+The following example shows how to use a SEH exception filter.
 
 \code 
 
@@ -115,7 +115,7 @@ void main()
 {
   __try
   {
-    // .. some unsafe code here
+    // .. some buggy code here
   }
   __except(seh_filter(GetExceptionCode(), GetExceptionInformation()))
   {    
@@ -126,7 +126,7 @@ void main()
 
 \endcode
 
-The __try{}__except(){} construction is mostly C oriented. However, you can redirect a structured exceptions to a C++
+The __try{}__except(){} construction is mostly C oriented. However, you can redirect a SEH exception to a C++
 typed exception and handle it as you do with C++ typed exceptions. This can be done using the \b _set_se_translator() 
 function provided by C++ runtime libraries (CRT).
 
@@ -186,11 +186,11 @@ void trans_func( unsigned int u, EXCEPTION_POINTERS* pExp )
 \endcode
 
 
-The disadvantage of the __try-__catch construction is that you may forget to guard a potentially buggy or unsafe 
-code that may cause an exception that won't be handled by your program. However, such an unhandled structured exception
-can be catched using the unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
+The disadvantage of the __try{}__catch(Expression){} construction is that you may forget to guard a potentially buggy
+code that may cause an exception that won't be handled by your program. However, such an unhandled SEH exception
+can be caught using the top-level unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
 
-The exception information (CPU state before the exception occured) is passed to the unhandled exception handler
+The exception information (CPU state before the exception occurred) is passed to the exception handler
 through \b EXCEPTION_POINTERS structure.
 
 Example:
@@ -216,12 +216,40 @@ void main()
 
 \endcode
 
-The unhandled exception handler works for all threads of the caller process, so its enough to call it once
+The exception handler works for all threads of the caller process, so its enough to call it once
 in the beginning of your \b main() function.
+
+\section vectored_exc Vectored Exception Handling
+
+Vectored exception handling (VEH) is an extension to structured exception handling. 
+It was introduced in Windows XP.
+
+To add a vectored exception handler, you can use the \b AddVectoredExceptionHandler() function. 
+The disadvantage is that VEH is available in WinXP and later, so the presence of
+\b AddVectoredExceptionHandler() function should be checked at run-time.
+
+To remove the previously installed handler, use the \b RemoveVectoredExceptionHandler()  function.
+
+VEH allows to watch or handle <i>all</i> exceptions for the application. To preserve backward compatibility, 
+when a SEH exception occurs in some part of the program, the system calls installed VEH handlers in turn, 
+after that it searches for the usual SEH handlers.
+
+An advantage of VEH is an ability to chain exception handlers, so if somebody
+installs vectored exception handler above yours, you still can intercept the exception.
+
+Vectored exception handling is suitable when you need to monitor _ALL_ exceptions,
+like a debugger does. But the problem is you have to decide which exception to handle and
+which to skip. In program's code, some exceptions may be intentionally guarded by
+__try{}__except(){} construction, and handling such exceptions in VEH and not passing it to
+frame-based SEH handler, you may introduce bugs into application logics.
+
+VEH is currently not used by CrashRpt. \b SetUnhandledExceptionFilter() is more suitable, because it is the top-level SEH
+handler. If nobody handles the exception, top-level SEH handler is called and you
+don't need to decide if you should skip the exception or not.
 
 \section crt_errors CRT Error Handling
 
-In addition to WIN32 structured exceptions and C++ typed exceptions, C runtime libraries (CRT) provide their own
+In addition to SEH exceptions and C++ typed exceptions, C runtime libraries (CRT) provide their own
 error handling mechanism that should be taken into account in your program.
 
 When CRT encounters an unhandled C++ typed exception, 
@@ -256,7 +284,7 @@ of Visual C++ exception handling. However, consider using the \b set_unexpected(
 to set handler for the \b unexpected() function, too.
 
 \note
-In a multithreaded environment, unexpected and terminate functions are maintained 
+In a multi-threaded environment, unexpected and terminate functions are maintained 
 separately for each thread. Each new thread needs to install its own 
 unexpected and terminate function. Thus, each thread is in charge of its own unexpected and
 terminate handling.
@@ -390,7 +418,7 @@ In Visual C++, there are 6 types of signals:
 
 MSDN says that the \c SIGILL, \c SIGSEGV, and \c SIGTERM signals are not generated under Windows NT and 
 included for ANSI compatiblity. However, if you set the SIGSEGV signal handler in the main thread, it is called by CRT 
-instead of structured exception handler set with \b SetUnhandledExceptionFilter() function and the global
+instead of SEH exception handler set with \b SetUnhandledExceptionFilter() function and the global
 variable \b _pxcptinfoptrs contains a pointer to the exception information. In other threads the exception filter set 
 with \b SetUnhandledExceptionFilter() function is called instead of SIGSEGV handler.
 
@@ -419,7 +447,7 @@ void main()
 {
   signal(SIGABRT, sigabrt_handler);
      
-  // Cause abourt
+  // Cause abort
   abort();       
 }                
 
@@ -438,18 +466,18 @@ caused the problem. You use the information to debug the problem.
 The way you retrieve the exception information differs
 depending on the exception handler you use.
 
-In the unhandled structured exception handler set with the \b SetUnhandledExceptionFilter() function, 
+In the SEH exception handler set with the \b SetUnhandledExceptionFilter() function, 
 the exception information is retrieved from \b EXCEPTION_POINTERS structure passed as 
 function parameter.
 
 In __try{}__catch(Expression){} construction you retrieve exception information using \b GetExceptionInformation()
-instrinsic function and pass it to the structured exception filter function as parameter.
+intrinsic function and pass it to the SEH exception filter function as parameter.
 
 In the SIGFPE and SIGSEGV signal handlers you can retrieve the exception information from the \b _pxcptinfoptrs
 global CRT variable that is declared in <signal.h>. This variable is not documented well in MSDN.
 
 In other signal handlers and in CRT error handlers you have no ability to easily extract the exception information.
-In CrashRpt a workaround is used that was found in CRT source files (see CRT 8.0 source files, invarg.c, line 104).
+I found a workaround used in CRT code (see CRT 8.0 source files, invarg.c, line 104).
 
 The following code shows how to get current CPU state used as exception information.
 
@@ -550,7 +578,7 @@ the switches if open project Properties->Configuration Properties->C/C++->Code G
 <b>Exception Handling Model</b>
 
 You set an exception handling model for your Visual C++ compiler with \b /EHs (or \b EHsc) to specify  
-synchronious exception handling model or \b /EHa to specify assynchronious exception 
+synchronous exception handling model or \b /EHa to specify asynchronous exception 
 handling model. See the <i>/EH (Exception Handling Model)</i> in the Reference section below
 for more information.
 
@@ -583,7 +611,7 @@ For additional info please see these links:
 \section crt_version_and_dll Exception Handling and CRT Linkage
 
 Each module (EXE, DLL) in your application is linked to CRT (C run-time libraries). 
-You may link CRT as multithreaded static library or as multithreaded dynamic link library. 
+You may link CRT as multi-threaded static library or as multi-threaded dynamic link library. 
 When you set CRT error handlers, such as terminate handler, unexpected handler, 
 pure call handler, invalid parameter handler, new operator error handler or a signal handler, they will work for 
 the CRT the caller module is linked to and won't intercept exceptions 
@@ -591,12 +619,12 @@ in different CRT modules (if exist), because each CRT module has its own interna
 
 Several project modules may share single CRT DLL. This reduces to minimum the overall size 
 of linked CRT code. And all exceptions within that CRT DLL can be handled 
-at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
+at once. That's why multi-threaded CRT DLL is the recommended way of CRT linkage.
 
 If you plan to use CRT as a static link library (which is not recommended to do) and want to use some crash
 reporting functionality, you have to build the functionality as a static library with /NODEFAULTLIB linker 
 flag and then link this functionality to each EXE and DLL module of your application. You would also have to 
-install the CRT error handlers for each module of your application, while the structured exception handler 
+install the CRT error handlers for each module of your application, while the SEH exception handler 
 would still be installed once.
 
 For additional info about C run-time libraries (CRT), see the <i>C Run-time Libraries (CRT)</i> 
@@ -626,6 +654,8 @@ See also:
 - <a href="http://msdn.microsoft.com/en-us/library/e7s85ffb%28VS.80%29.aspx">/fp (Specify Floating-Point Behavior)</a>
 - <a href="http://msdn.microsoft.com/en-us/library/8dbf701c%28VS.80%29.aspx">/GS (Buffer Security Check)</a>
 - <a href="http://msdn.microsoft.com/en-us/library/abx4dbyh%28VS.80%29.aspx">C Run-time Libraries (CRT)</a>
-
-
+- <a href="http://msdn.microsoft.com/en-us/magazine/cc301714.aspx">Under the Hood: New Vectored Exception Handling in Windows XP</a>
+- <a href="http://msdn.microsoft.com/en-us/library/ms681420%28VS.85%29.aspx">Vectored Exception Handling</a>
+- <a href="http://msdn.microsoft.com/en-us/library/ms679274%28VS.85%29.aspx">AddVectoredExceptionHandler Function</a>
+- <a href="http://msdn.microsoft.com/en-us/library/ms680571%28VS.85%29.aspx">RemoveVectoredExceptionHandler Function</a>
 */

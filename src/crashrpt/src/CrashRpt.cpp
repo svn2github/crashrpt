@@ -1,7 +1,45 @@
+/************************************************************************************* 
+  This file is a part of CrashRpt library.
+
+  CrashRpt is Copyright (c) 2003, Michael Carruth
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+ 
+   * Redistributions of source code must retain the above copyright notice, this 
+     list of conditions and the following disclaimer.
+ 
+   * Redistributions in binary form must reproduce the above copyright notice, 
+     this list of conditions and the following disclaimer in the documentation 
+     and/or other materials provided with the distribution.
+ 
+   * Neither the name of the author nor the names of its contributors 
+     may be used to endorse or promote products derived from this software without 
+     specific prior written permission.
+ 
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***************************************************************************************/
+
+// File: CrashRpt.cpp
+// Description: CrashRpt API implementation.
+// Authors: mikecarruth, zexspectrum
+// Date: 
+
 #include "stdafx.h"
 #include "CrashRpt.h"
 #include "CrashHandler.h"
 #include "Utility.h"
+#include "strconv.h"
 
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
@@ -56,7 +94,7 @@ void CRASHRPTAPI GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);
-  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.exctype = CR_SEH_EXCEPTION;
   ei.pexcptrs = pExInfo;
   
   crGenerateErrorReport(&ei);
@@ -103,6 +141,13 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
   LPCTSTR ptszEmailSubject = strconv.w2t((LPWSTR)pInfo->pszEmailSubject);
   LPCTSTR ptszUrl = strconv.w2t((LPWSTR)pInfo->pszUrl);
   LPCTSTR ptszPrivacyPolicyURL = strconv.w2t((LPWSTR)pInfo->pszPrivacyPolicyURL);
+  LPCTSTR ptszDebugHelpDLL_file = strconv.w2t((LPWSTR)pInfo->pszDebugHelpDLL);
+  MINIDUMP_TYPE miniDumpType = pInfo->uMiniDumpType;
+  LPCTSTR ptszErrorReportSaveDir = strconv.w2t((LPWSTR)pInfo->pszErrorReportSaveDir);
+  LPCTSTR ptszRestartCmdLine = strconv.w2t((LPWSTR)pInfo->pszRestartCmdLine);
+  LPCTSTR ptszLangFilePath = strconv.w2t((LPWSTR)pInfo->pszLangFilePath);
+  LPCTSTR ptszEmailText = strconv.w2t((LPWSTR)pInfo->pszEmailText);
+  LPCTSTR ptszSmtpProxy = strconv.w2t((LPWSTR)pInfo->pszSmtpProxy);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -114,7 +159,15 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
     ptszUrl,
     &pInfo->uPriorities,
     pInfo->dwFlags,
-    ptszPrivacyPolicyURL);
+    ptszPrivacyPolicyURL,
+    ptszDebugHelpDLL_file,
+    miniDumpType,
+    ptszErrorReportSaveDir,
+    ptszRestartCmdLine,
+    ptszLangFilePath,
+    ptszEmailText,
+    ptszSmtpProxy
+    );
   
   if(nInitResult!=0)
   {
@@ -134,64 +187,27 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
   // Convert pInfo members to wide char
 
   strconv_t strconv;
-  LPCWSTR lpwszAppName = NULL;
-  LPCWSTR lpwszAppVersion = NULL;
-  LPCWSTR lpwszCrashSenderPath = NULL;
-  LPCWSTR lpwszEmailSubject = NULL;
-  LPCWSTR lpwszEmailTo = NULL;
-  LPCWSTR lpwszUrl = NULL;
-  LPCWSTR lpwszPrivacyPolicyURL = NULL;
-
+  
   CR_INSTALL_INFOW ii;
   memset(&ii, 0, sizeof(CR_INSTALL_INFOW));
   ii.cb = sizeof(CR_INSTALL_INFOW);
   ii.pfnCrashCallback = pInfo->pfnCrashCallback;
-
-  if(pInfo->pszAppName!=NULL)
-  {
-    lpwszAppName = strconv.a2w(pInfo->pszAppName);
-    ii.pszAppName = lpwszAppName;
-  }
-
-  if(pInfo->pszAppVersion!=NULL)
-  {
-    lpwszAppVersion = strconv.a2w(pInfo->pszAppVersion);
-    ii.pszAppVersion = lpwszAppVersion;
-  }
-
-  if(pInfo->pszCrashSenderPath!=NULL)
-  {
-    lpwszCrashSenderPath = strconv.a2w(pInfo->pszCrashSenderPath);
-    ii.pszCrashSenderPath = lpwszCrashSenderPath;
-  }
-
-  if(pInfo->pszEmailSubject!=NULL)
-  {
-    lpwszEmailSubject = strconv.a2w(pInfo->pszEmailSubject);
-    ii.pszEmailSubject = lpwszEmailSubject;
-  }
-
-  if(pInfo->pszEmailTo!=NULL)
-  {
-    lpwszEmailTo = strconv.a2w(pInfo->pszEmailTo);
-    ii.pszEmailTo = lpwszEmailTo;
-  }
-
-  if(pInfo->pszUrl!=NULL)
-  {
-    lpwszUrl = strconv.a2w(pInfo->pszUrl);
-    ii.pszUrl = lpwszUrl;
-  }
-
+  ii.pszAppName = strconv.a2w(pInfo->pszAppName);
+  ii.pszAppVersion = strconv.a2w(pInfo->pszAppVersion);
+  ii.pszCrashSenderPath = strconv.a2w(pInfo->pszCrashSenderPath);
+  ii.pszEmailSubject = strconv.a2w(pInfo->pszEmailSubject);
+  ii.pszEmailTo = strconv.a2w(pInfo->pszEmailTo);
+  ii.pszUrl = strconv.a2w(pInfo->pszUrl);
   memcpy(&ii.uPriorities, pInfo->uPriorities, 3*sizeof(UINT));
-
   ii.dwFlags = pInfo->dwFlags;
-
-  if(pInfo->pszPrivacyPolicyURL!=NULL)
-  {
-    lpwszPrivacyPolicyURL = strconv.a2w(pInfo->pszPrivacyPolicyURL);
-    ii.pszPrivacyPolicyURL = lpwszPrivacyPolicyURL;
-  }
+  ii.pszPrivacyPolicyURL = strconv.a2w(pInfo->pszPrivacyPolicyURL);
+  ii.pszDebugHelpDLL = strconv.a2w(pInfo->pszDebugHelpDLL);
+  ii.uMiniDumpType = pInfo->uMiniDumpType;
+  ii.pszErrorReportSaveDir = strconv.a2w(pInfo->pszErrorReportSaveDir);
+  ii.pszRestartCmdLine = strconv.a2w(pInfo->pszRestartCmdLine);
+  ii.pszLangFilePath = strconv.a2w(pInfo->pszLangFilePath);
+  ii.pszEmailText = strconv.a2w(pInfo->pszEmailText);
+  ii.pszSmtpProxy = strconv.a2w(pInfo->pszSmtpProxy);
 
   return crInstallW(&ii);
 }
@@ -282,6 +298,20 @@ int
 CRASHRPTAPI 
 crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 {
+  return crAddFile2W(pszFile, NULL, pszDesc, 0);
+}
+
+int
+CRASHRPTAPI 
+crAddFileA(PCSTR pszFile, PCSTR pszDesc)
+{
+  return crAddFile2A(pszFile, NULL, pszDesc, 0);
+}
+
+int 
+CRASHRPTAPI 
+crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc, DWORD dwFlags)
+{
   crSetErrorMsg(_T("Success."));
 
   strconv_t strconv;
@@ -297,9 +327,10 @@ crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
   }
   
   LPCTSTR lptszFile = strconv.w2t((LPWSTR)pszFile);
+  LPCTSTR lptszDestFile = strconv.w2t((LPWSTR)pszDestFile);
   LPCTSTR lptszDesc = strconv.w2t((LPWSTR)pszDesc);
 
-  int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDesc);
+  int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDestFile, lptszDesc, dwFlags);
   if(nAddResult!=0)
   {
     ATLASSERT(nAddResult==0);
@@ -312,26 +343,93 @@ crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 
 int
 CRASHRPTAPI 
-crAddFileA(PCSTR pszFile, PCSTR pszDesc)
+crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc, DWORD dwFlags)
 {
   // Convert parameters to wide char
 
   strconv_t strconv;
 
   LPCWSTR pwszFile = NULL;
+  LPCWSTR pwszDestFile = NULL;
   LPCWSTR pwszDesc = NULL;
   
   if(pszFile)
-  {
     pwszFile = strconv.a2w(pszFile);
-  }
-
+  
+  if(pszDestFile)
+    pwszDestFile = strconv.a2w(pszDestFile);
+  
   if(pszDesc)
-  {
     pwszDesc = strconv.a2w(pszDesc);    
+  
+  return crAddFile2W(pwszFile, pwszDestFile, pwszDesc, dwFlags);
+}
+
+int
+CRASHRPTAPI 
+crAddScreenshot(
+   DWORD dwFlags
+   )
+{
+  crSetErrorMsg(_T("Unspecified error."));
+  
+  CCrashHandler *pCrashHandler = 
+    CCrashHandler::GetCurrentProcessCrashHandler();
+
+  if(pCrashHandler==NULL)
+  {
+    ATLASSERT(pCrashHandler!=NULL);
+    crSetErrorMsg(_T("Crash handler wasn't previously installed for current thread."));
+    return 1; // Invalid parameter?
   }
 
-  return crAddFileW(pwszFile, pwszDesc);
+  return pCrashHandler->AddScreenshot(dwFlags);
+}
+
+int
+CRASHRPTAPI
+crAddPropertyW(
+   LPCWSTR pszPropName,
+   LPCWSTR pszPropValue
+   )
+{
+  crSetErrorMsg(_T("Unspecified error."));
+
+  strconv_t strconv;
+  LPCTSTR pszPropNameT = strconv.w2t(pszPropName);
+  LPCTSTR pszPropValueT = strconv.w2t(pszPropValue);
+
+  CCrashHandler *pCrashHandler = 
+    CCrashHandler::GetCurrentProcessCrashHandler();
+
+  if(pCrashHandler==NULL)
+  {
+    ATLASSERT(pCrashHandler!=NULL);
+    crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
+    return 1; // No handler installed for current process?
+  }
+
+  int nResult = pCrashHandler->AddProperty(CString(pszPropNameT), CString(pszPropValueT));
+  if(nResult!=0)
+  {    
+    crSetErrorMsg(_T("Invalid property name specified."));
+    return 2; // Failed to add the property
+  }
+  
+  crSetErrorMsg(_T("Success."));
+  return 0;
+}
+
+int
+CRASHRPTAPI
+crAddPropertyA(
+   LPCSTR pszPropName,
+   LPCSTR pszPropValue
+   )
+{
+  // This is just a wrapper for wide-char function version
+  strconv_t strconv;
+  return crAddPropertyW(strconv.a2w(pszPropName), strconv.a2w(pszPropValue));
 }
 
 int 
@@ -445,7 +543,7 @@ crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);  
-  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.exctype = CR_SEH_EXCEPTION;
   ei.pexcptrs = ep;
   ei.code = code;
 
@@ -563,7 +661,7 @@ crEmulateCrash(unsigned ExceptionType)
 
   switch(ExceptionType)
   {
-  case CR_WIN32_STRUCTURED_EXCEPTION:
+  case CR_SEH_EXCEPTION:
     {
       // Access violation
       int *p = 0;

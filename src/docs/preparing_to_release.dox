@@ -1,0 +1,73 @@
+/*!
+
+\page preparing_to_software_release Preparing to Software Release
+
+
+\section savefiles Saving the Debugging Information Locally Before Software Release
+
+When you are ready for a software release, the following steps must be
+performed to be able to properly read end user error reports later.
+  
+- Create a directory, for example name it 'CrashRptSaved'.
+- In that directory create a subdirectory for your software release,
+  for example 'MyApp v.1.3.5'.
+- Copy all binary files (*.EXE, *.DLL) from your project output. 
+- Copy all program database files (*.PDB) from your project output. 
+- Save the source code that you used for compiling the application. If you use a
+  source control system (e.g., SVN), mark the current revision of the code with tag 
+  to be able to restore its state later.
+
+These steps should be performed for exactly the same software build that you plan 
+to release. If you rebuild the project 
+after files are copied, you must copy the files again.
+
+When a crash report comes in, you use the release build, source code and symbols you copied, 
+along with the minidump included in the crash report, to debug the crash.
+
+Before release is made, it is recommended that you check if exceptions are properly 
+intercepted (use the crEmulateCrash() function),
+that error reports are properly received by your support team and that you can properly read
+received error reports.
+
+\note 
+
+Files copied to CrashRptSaved directory should be stored locally during the software 
+life time. These saved files should NOT be included in the software release package and should NOT be sent to 
+end users. You should never ship debug builds or debug symbols (PDB files) as they will 
+not only take up more 
+space on your CD/download/client's machine, but they will also make reverse engineering 
+your code a trivial exercise. 
+
+\section rlsfiles Distributing CrashRpt Files with Your Software Release Package
+
+You must always distribute the following files with your software release. It is recommended 
+that you place these files to the directory where your application executable file is located.
+                                                                              
+- \b bin\CrashRpt.dll 
+- \b bin\CrashSender.exe
+- \b bin\dbghelp.dll
+
+The \b CrashRpt.dll and \b CrashSender.exe are core CrashRpt modules. \b dbghelp.dll (Microsoft Debug Help Library) 
+is a dependent module.
+
+\note 
+
+It is recommended that you distribute dbghelp.dll with your software, because 
+some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may 
+be different on different user machines. dbghelp.dll is shipped with Windows XP and later, 
+so most user machines have this library installed. If your target OS is Windows XP and later, 
+you may ignore distribution of dbghelp.dll at your own risk.                  
+
+<b>Since v.1.1.3</b> it is also required that you copy a language INI file \b crashrpt_lang.ini to the folder 
+where \b CrashSender.exe is located. 
+
+You can distribute several INI files with your software. On install, rename an appropriate 
+file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
+
+<b>I do not like that I should distribute all these DLLs. Can I compile them all as static libs?</b>
+
+No, this is impossible. You may ignore distribution of dbghelp.dll, but a end user's 
+operating system may not have dbghelp.dll installed. In addition, architecture of CrashRpt 
+requires two modules: CrashRpt.dll and CrashSender.exe. So, you have to distribute all these binaries. 
+
+*/

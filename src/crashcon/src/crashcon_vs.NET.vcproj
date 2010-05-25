@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_X86_"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -152,7 +152,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;CRASHRPT_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"

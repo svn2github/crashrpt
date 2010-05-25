@@ -1,5 +1,131 @@
 ======= Change History ========
 
+--- Ver. 1.2.4 ---
+
+- Introduced an ability to restart an application automatically on crash. The application is
+  restarted only if at least 60 seconds have elapsed since its start. This is done to avoid cyclic
+  restarts of an unstable application which crashes on start up. This is the enhancement requested 
+  in issue 11.
+
+- Introduced an ability to preview graphics files (BMP, PNG) in Details dialog. This is useful if a user
+  would like to preview the desktop screenshot image attached to the error report.
+
+- An ability to not include minidump file into error report. This implements the enhancement requested in
+  issue 33.
+
+- An ability to specify custom email text by using CR_INSTALL_INFO::pszEmailText member.
+
+- An ability to specify custom directory and file name for the language file. This will be useful for applications
+  that need to modify UI language on the fly. This is requested in issue 34.
+
+- An ability to disable particular error report sending transport by specifying a negative priority in 
+  CR_INSTALL_INFO::uPriorities array.
+
+- An ability to specify SMTP proxy for built-in SMTP client. This may be useful for server-side software that
+  would need to configure SMTP transport without querying DNS MX (mail exchange) record.
+
+--- Ver. 1.2.3 ---
+
+- Improved file preview in DetailDlg. Now a file can be previewed in HEX or in text mode.
+
+- Ability to customize the port for SMTP connection.
+
+- Fixed: CrashSender Crash (issue 24)
+
+- Fixed: dbghelp.dll cannot be found (issue 26)
+
+- Fixed: Certain fields cannot be omitted (issue 27).
+
+- Fixed: Release LIB configuration is obsolete (issue 28).
+  There may be some people using Release LIB configuration, so the configuration was made up-to-date.
+
+
+--- Ver. 1.2.2 ---
+
+- WTL files are now included into CrashRpt distribution.
+
+- Completely removed dependency on zip_utils (it is better to use minizip).
+
+- Removed vs.2008 project files. If you need to compile in VS 2008 and higher, use VS project convertor.
+
+- Modifyed communication between CrashRpt.dll and CrashSender.exe. Now XML file is used for this purpose instead of named pipe.
+
+- Refactored code. After crash, all complex actions are done outside of the crashed process (inside of CrashSender.exe).
+  This includes taking desktop screenshot, minidump generation, file copying, file compression and sending.
+
+- Introduced silent mode (CrashRpt sends report silently without showing GUI). 
+  This is useful for services and server processes.
+
+- Improved documentation (restyling).
+
+- Introduced multi-part HTTP uploads. This will help to send large error reports more effectively.
+
+- Fixed: Doesn't work in Windows 2000 (issue 17)
+- Fixed: CrashSender doesn't work on Windows 2000 (issue 21)
+
+- Fixed: mistyping? (issue 18)
+- Fixed: inconsistency in xml Crash Log (issue 20)
+- Fixed some problems with UTF-8 encoded strings written by tinixml.
+
+- Fixed: crprober.exe does not work well (issue 19)
+
+- New: Introcuded an ability to specify the folder where crash reports are created (issue 22)
+
+- New: Introduced an ability to export error report through "Export..." button on Error Report Details dialog.
+
+--- Ver. 1.2.1 ---
+
+- Refactored crash report generation and sending functionality. Now report files are stored 
+  in unzipped state, compression is performed during sending procedure. This will be required for
+  huge reports (that will be fully supported in the future).
+
+- Added support of x64 platform (issue 7).
+
+- Added an ability to make screenshots of the screen or the main app window on crash 
+  through crAddScreenshot() function (issue 8).
+
+- More information is collected on crash (memory usage, open handles count and GUI resources)
+
+- Ability to add custom text properties to the crash descriptor through crAddProperty() function    (issue 9).
+
+- New function crAddFile2() improving the application-defined files addition.
+
+- Ability to control which dbghelp.dll to use (issue 10).
+
+- Ability to define the type of minidump (from normal size to huge size) (issue 10). 
+  Contributed by crcode.s.
+
+- Fixed incorrectly displayed file size in DetailsDlg (issue 14).
+
+- Fixed untranslatable Close button of DetailsDlg (issue 15).
+
+- Fixed: Access to CCrashHandler::m_ThreadExceptionHandlers should be synchronized (issue 16).
+
+--- Ver. 1.2.0 ---
+
+- Reorgranized the include files; moved from 'CrashRpt\include' to 'include'.
+
+- Support of error report batch processing (crprober.exe tool).
+
+- New application programming interface for error report processing (CrashRptProbe.dll).
+
+- Introduced functions crpOpenErrorReport(), crpCloseErrorReport(),
+  crpGetProperty(), crpGetLastErrorMsg().
+
+- Fixed problem with missing gzio.c (issue 6).
+
+- Extended documentation : new section 'Automating Error Report Processing'.
+
+--- Ver. 1.1.3 ---
+
+- Support of globalization and RTL languages.
+
+- Reorganized and improved documentation; New pages Architecture Overview and
+  Internationalization Support.
+
+- Added <?xml version="1.0" encoding="utf-8" ?> element in the 
+  beginning of crash descriptor XML.
+
 --- Ver. 1.1.2 ---
 
 - crInstall: Ability to select what exception handlers to install

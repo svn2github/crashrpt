@@ -1,157 +1,217 @@
 /*!
 
-\page installation Installation
+\page getting_started Getting Started
 
-The following topics are covered in this page:
+If you have ever tried to determine the reason why your program crashes on user's machine, 
+you might know how difficult it is, given user's directions only: "I opened 
+something, then I clicked something and then it stopped working". Most of 
+users won't contact you to tell about the problem and just give up using 
+your program after several crashes. Users who decide to report the problem 
+might not have technical knowledge, so it is difficult to determine the reason 
+of the problem based on their instructions. This makes debugging remote crashes 
+almost impossible, except in the simplest situations. This fact encourages to use 
+some tool to automatically collect technical information about the crash and send error report 
+over the Internet. 
 
-- \ref license
-- \ref download
-- \ref chlog
-- \ref structure
-- \ref compilation
-- \ref link
-- \ref builddox
-- \ref faq
-- \ref bugrpt
+Now assume you receive tons of error reports from users of your software. You 
+would have to spend a lot of time to open each report, analyze its contents and
+write some summary about the report. There may be many reports related to the same 
+problem, so opening such reports doesn't tell anything new. After the 50th report 
+you may become bored and give up further analysis. In the best case, you would 
+analyze only part of reports selected randomly, which guarantees you miss some 
+rarely reported crashes.
 
-\section license License
+That's why it is important to use special tools to report errors automatically
+and tools that help you to post-process arriving error reports.
 
-This library is distributed under the New BSD license. You can find the 
-license text <a href="..\..\license.txt">here</a>.
+\section wer_and_breakpad Approaches to Error Reporting
 
-\section download Download
+First let's review a couple of well-known approaches to the crash handling, reporting & 
+post-processing problem: WER and Breakpad. Then we present our approach, CrashRpt - 
+an open-source error handling, reporting and post-processing library, which is 
+designed specially for Windows applications created in Microsoft Visual C++. 
 
-The latest stable version of CrashRpt is available at
-<a href="http://code.google.com/p/crashrpt">CrashRpt project page</a>
+Every PC user might have seen the window of Dr.Watson, the Windows' default debugger 
+introduced in Windows XP. Dr. Watson is able to intercept unhandled SEH (Structured Exception Handling, SEH) exceptions 
+in user-mode programs, and in OS modules. It collects technical information about 
+the problem (minidump and textual description) and offers user to send the info to 
+Microsoft's server. The developer can browse arriving error reports by registering 
+on this server (digital certificate is required). The disadvantage of Dr. Watson is 
+inability to use third-party server for storing error reports and inability to customize 
+debugger's user interface and report's content.
+
+In Windows Vista, the Dr.Watson was renamed into 
+<a href="http://en.wikipedia.org/wiki/Windows_Error_Reporting">Windows Error Reporting (WER)</a>. The 
+API allowing to customize error reports was introduced and documented in MSDN. You 
+can use the API to add (or not add) minidump, log file, memory block to the report, 
+modify user interface appearance, queue report submission or send it immediately 
+(after user's consent). You can ask WER to start data recovery operation when you app 
+crashes, and even to restart your app. When non-critical error happens, you can create 
+error report manually. WER can also notify user if the solution of the problem is 
+already known.
+
+Advantages of WER:
+
+ - Native to Windows (no need to distribute), has well-developed functionality and well-documented in MSDN
+ - Allows to customize contents of the error report
+ - Has sophisticated online error report processing services on their Watson server
+
+Disadvantages of WER:
+
+ - It is not an open-source software
+ - Requires you to have digital certificate to access your error reports (costs about USD1500)
+ - Doesn't allow to use your own server to store error reports
+
+An alternative of WER is <a href="http://code.google.com/p/google-breakpad/">Google Breakpad</a>. 
+This open-source tool is used in Mozilla Firefox 
+and Google Chrome browsers. Breakpad is an open-source cross-platform C++ library 
+designed for handling exceptions in your program and sending reports to your server 
+over HTTP or HTTPS connection. It also provides tools for post-processing minidumps 
+which present stack traces and other information in human-readable form. Windows 
+(x86) and Mac OS (x86 and PowerPC) platforms are supported. Also (at the moment of writing this text) 
+an experimental version for Linux exists.
+
+When an exception happens, Breakpad creates minidump file and delegates further actions 
+to a user-provided callback function. The function may silently terminate the program or 
+add custom files to the report and launch report sender program. Breakpad provides C++ 
+classes implementing minidump processing functionality which can be used for writing your 
+custom minidump post-processing tools.
+
+Advantages of Breakpad:
+
+ - Breakpad is an open-source software
+ - Is is used in Firefox and Chrome, which means it is wide-spread and well-tested
+ - It supports multiple platforms: Windows, Mac and Linux
+ - Supports multiple C/C++ compilers, e.g. GCC, MS Visual C++
+ - It allows to transfer error reports through HTTPS to your own server 
+
+Disadvantages of Breakpad:
+
+ - It is being developed for all possible platforms and compilers (they are unable to 
+   develop a tool which will work well everywhere, it is too much efforts needed)
+ - Breakpad is not well-suited to Visual C++. For example, it doesn't handle some CRT errors (at the moment of writing this text). 
+ - It uses cross-platform format for storing debugging symbols (instead of PDB files). It makes 
+   you to convert PDB files into this format.
+
+Summary. As we see, WER and Breakpad are wide-spread error reporting and processing tools. But WER
+requires you to purchase a digital certificate, which may be costly. Breakpad is free, but
+you have to convert debugging info into cross-platform format. And Breakpad doesn't suit well
+to Visual C++, e.g. it doesn't handle some CRT errors. So, if you write a program for Windows platform
+only and use Visual C++ only, you might find the CrashRpt library described below more convenient.
+
+\section about_crashrpt About CrashRpt
+
+<b>CrashRpt</b> library is an free open-source (distributed under the New BSD Licence) error handling, 
+reporting and post-processing tool for 
+applications created in Microsoft Visual C++ and running under Windows. It supports only one OS 
+(Windows), only one programming language (C++) and only one compiler (Visual C++). This allows to assume
+it knows all aspects of this environment.
+
+Although CrashRpt is not designed for platforms other than Windows, it handles 
+Visual C++ exceptions better than Breakpad (because CrashRpt designed specially for Visual C++).
+
+CrashRpt supports Visual C++ .NET 2003, 2005, 2008 and Visual C++ Express. It can be compiled for 32-bit and 64-bit platforms
+
+It handles exceptions in the main or in a worker thread of your user-mode program: 
+SEH exceptions, CRT errors and signals.
+
+Generates error report including crash minidump, extensible crash description XML, 
+application-defined files and desktop screenshots. CrashRpt uses Microsoft DbgHelp 
+library for minidump creation and post-processing, 
+which makes it more stable on all variety of processor architectures.
+
+Presents UI allowing user to review the crash report. Supports privacy policy definition. 
+Can display its UI using different languages, which makes it even more suitable for 
+multi-lingual applications.
+
+Sends the report in background after user has provided his/her consent. CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable 
+for users not having servers for storing error reports. To send reports over E-mail, 
+user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
+
+CrashRpt also has a tool for error reports' post processing. The tool may be useful when you 
+receive hundreds of reports a day and need to process them all at once.
+
+One disadvantage of CrashRpt is the fact that you have to distribute additional binaries 
+(dbghelp.dll, CrashRpt.dll, CrashSender.exe) with your software (about 1.5 Mb). 
 
 \section chlog What's New in Current Version
 
 The change log is available
-<a href="..\..\changelog.txt">here</a>
+<a href="../../Changelog.txt">here</a>
 
-\section structure Solution Structure
+\section download Download
 
-There are four projects in CrashRpt solution.
+The latest stable version of CrashRpt is available on
+<a href="http://code.google.com/p/crashrpt">CrashRpt project page</a>
 
-- \b CrashRpt project contains 
-  API implementation and provides functionality to intercept exceptions
-  and generate error reports.
+\section license License
 
-- \b CrashSender project contains functionality 
-  for displaying GUI, sending the error report and show error report sending progress.
+This library is distributed under the <b>New BSD license</b>. You can find the 
+license text <a href="../../License.txt">here</a>.
 
-- \b CrashRptTest is a GUI application that helps to check that 
-   CrashRpt API functions work as expected.
+Internally, CrashRpt uses the following third-party libraries:
 
-- \b crashcon is a console application that helps to test how CrashRpt
-  works with console applications.
+<table>
 
-- \b zlib project contains file compression functionality.
-   
+<tr>
+<td> \b Name
+<td> \b Description
+<td> \b Link
 
-\section compilation Compilation
+<tr>
+<td>WTL
+<td>Used for GUI management
+<td>http://sourceforge.net/projects/wtl/
 
-You can use CrashRpt in C++ programs created using Visual C++. You can't 
-use it in .NET or Visual Basic. Languages other than Visual C++ 
-have different error handling mechanisms and CrashRpt can't intercept 
-errors in other programming languages. 
+<tr>
+<td>Microsoft Debug Help Library 	
+<td>Used for creating crash minidumps
+<td>http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx
 
-You can compile and use CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b>, 
-<b>Visual C++ 2008</b> and <b>Visual C++ Express</b>.
+<tr>
+<td>TinyXml
+<td>Used for creating and editing XML files
+<td>http://www.grinninglizard.com/tinyxml/
 
-By default CrashRpt release package already contains binary files 
-compiled with Visual Studio 2005 in its \c bin directory. 
-However, it is strongly recommended that you compile
-CrashRpt yourself using your version of Visual Studio. This is needed to
-ensure CrashRpt uses the same version of C run-time libraries (CRT) as 
-your application does.
+<tr>
+<td>ZLib 	
+<td>File compression functionality
+<td>http://www.zlib.net/
 
-To compile CrashRpt follow these steps:
+<tr>
+<td>minizip 	
+<td>ZIP file management (replacement for zip_utils) 	
+<td>http://www.winimage.com/zLibDll/minizip.html
 
--# Download and unzip the source code of CrashRpt to any directory. 
--# Download the latest version of WTL from 
-<a href="http://sourceforge.net/projects/wtl">here</a>.
-Unzip the WTL archive to some folder. In Visual Studio, open Tools->
-Options->Projects and Solutions->VC++ Directories.
-In the 'Show directories for' combo select 'Include files', then add 
-the path to WTL\\include directory to the list of include directories.
--# Open one of solution files available in the top level directory of 
-CrashRpt package, depending on your version of Visual Studio:
- - <b>CrashRpt_vs.NET.sln</b> 
- - <b>CrashRpt_vs2005.sln</b>
- - <b>CrashRpt_vs2008.sln</b>
--# Choose the Release build configuration and press F7 to build the solution.
+<tr>
+<td>libpng 	
+<td>PNG file management 	
+<td>http://www.libpng.org/pub/png/libpng.html
 
-<b>Notes about compiling in Visual C++ Express</b>
+</table>
 
-CrashRpt depends on WTL library. WTL is an open source 
-project. It constantly evolves and adapts to new versions of Visual Studio 
-(including VS Express). The latest version at the moment is WTL 8.1.
-
-WTL itself depends on Microsoft's library called ATL (Active Template Library). 
-ATL library is a part of Visual Studio SDKs. The latest version at the moment 
-is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform 
-SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows 
-SDK and the latest version (at the moment) of Windows SDK is v6.0. However, 
-Microsoft didn't include ATL into Windows SDK v6.0 to encourage using of 
-commercial Visual Studio having ATL. The dependency on ATL introduces a lot of 
-problems for WTL, so in the future WTL developers might remove this dependency 
-at all (if possible).
-
-To compile CrashRpt in Visual C++ Express, you need to have Platform SDK for 
-Windows Server 2003, since it is the only Platform SDK that supports ATL.
-Download and install Microsoft Platform SDK for Windows Server 2003, for example
-<a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en">
-from here </a>.
-
-In VC++ Express window, open Tools->Options...->Projects and Solutions->
-VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
-and then add [Platform_SDK_Folder]\\Include\\atl\\ path to the list of include 
-directories.
-
-\section link Include and Lib Directories
-
-It is recommened that you let the Visual C++ compiler know about CrashRpt 
-using the following steps:
-
-In Visual Studio window, open Tools->
-Options->Projects and Solutions->VC++ Directories.
-- In the 'Show directories for' combo select 'Include files', then add 
-  the path to [CRASHRPT_HOME]\\CrashRpt\\include directory to the list below.
-- In the 'Show directories for' combo select 'Library files', then add 
-  the path to [CRASHRPT_HOME]\\lib directory to the list below.
-- In the 'Show directories for' combo select 'Executable files', then add 
-  the path to [CRASHRPT_HOME]\\bin directory to the list below.
-
-Here [CRASHRPT_HOME] should be replaced with the actual path of the 
-directory you unzipped CrashRpt package to.
-
-\section builddox Generating Project Documentation
-
-By default project documentation is already generated and included into the CrashRpt release
-package. To open the documentation, click \c index.html file in the top-level directrory of 
-CrashRpt package.
-
-You can also build documentation yourself. CrashRpt documentation can be 
-generated using the Doxygen tool. You can download
-the tool from <a href="http://www.stack.nl/~dimitri/doxygen/">here</a>. 
-
-To build the documentation, go to the \c docs folder and type in the command line:
-
-\code
-doxygen doxyfile
-\endcode
-
-When doxygen finishes, go to the top level directory and open \c index.html.
 
 \section faq Frequently Asked Questions
 
 You can find a lot of information about CrashRpt in 
 <a href="http://code.google.com/p/crashrpt/wiki/FAQ">online FAQ</a>
 
-\section bugrpt Report a Bug
+\section bugrpt Reporting a Bug/Requesting New Feature
 
-If you detect an issue please let us know <a href="http://code.google.com/p/crashrpt/issues/list">here</a>.
-We appreciate your feedback.
+If you detect an issue or want to request a feature, please create an issue at the
+<a href="http://code.google.com/p/crashrpt/issues/list">Issues</a> page.
+
+If you would like to contribute or ask a question, create a topic in our <a href="http://groups.google.com/group/crashrpt">
+Discussions </a> group.
+
+\section showing_appreciation How can I show my appreciation of CrashRpt project?
+
+If you like CrashRpt and use it in your software, you can show your 
+appreciation.
+
+Add your project name and logo to the 
+<a href="http://code.google.com/p/crashrpt/wiki/WhoUsesCrashRpt">WhoUsesCrashRpt</a> page. 
+By doing this you make CrashRpt more significant for other users and support 
+further development. 
 
 */

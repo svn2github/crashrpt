@@ -1,0 +1,22 @@
+/*!
+
+\page using_crashrpt Using CrashRpt in Your Project
+
+The first step you should perform in order to use CrashRpt in your program
+is to compile CrashRpt with your version of Visual Studio. After you compile
+the library, you need to adjust the properties of your project to enable 
+the generation of debugging information. You add support of crash reporting by
+calling some API functions provided by CrashRpt. Before you release your software, you save the debugging
+information locally to be able to read error reports received from end users properly.
+
+This section covers the following topics:
+
+- \subpage compiling_crashrpt
+- \subpage configuring_project
+- \subpage internationalization_support
+- \subpage using_crashrpt_api
+- \subpage simple_example
+- \subpage sending_error_reports
+- \subpage preparing_to_software_release
+
+*/

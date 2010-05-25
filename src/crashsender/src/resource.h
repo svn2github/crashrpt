@@ -10,6 +10,7 @@
 #define IDD_MAINDLG                     212
 #define IDD_PROGRESSDLG                 213
 #define IDR_POPUPMENU                   214
+#define IDD_RESEND                      215
 #define IDS_NAME                        1000
 #define IDS_DESC                        1001
 #define IDS_TYPE                        1002
@@ -24,6 +25,7 @@
 #define IDS_SYMBOL_FILE                 1006
 #define IDS_HTTP_FORM_DATA              1007
 #define IDC_BUTTON1                     1014
+#define IDC_EXPORT                      1014
 #define IDC_FILE_LIST                   1015
 #define IDC_RICHEDIT21                  1017
 #define IDC_HEADINGTEXT                 1018
@@ -44,10 +46,26 @@
 #define IDC_RADIO1                      1031
 #define IDC_PRIVACYPOLICY               1032
 #define IDC_BYSENDING                   1033
+#define IDC_SUBHEADER                   1034
+#define IDC_RADIOPNG                    1034
+#define IDC_HEADERTEXT                  1035
+#define IDC_PREVIEWTEXT                 1036
+#define IDC_CONSENT                     1037
+#define IDC_INDENT                      1038
+#define IDC_PREVIEW                     1039
+#define IDC_CHECK1                      1040
+#define IDC_RESTART                     1040
 #define ID_MENU1_COPYTHISLINE           32772
 #define ID_MENU1_COPYTHEWHOLELOG        32773
 #define ID_MENU1_COPYSEL                32774
 #define ID_MENU1_COPYLOG                32775
+#define ID_MENU2_HEX                    32776
+#define ID_MENU2_HEX32777               32777
+#define ID_MENU2_TEXT                   32778
+#define ID_PREVIEW_AUTO                 32779
+#define ID_PREVIEW_HEX                  32780
+#define ID_PREVIEW_TEXT                 32781
+#define ID_PREVIEW_IMAGE                32782
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -62,9 +80,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        215
-#define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_RESOURCE_VALUE        216
+#define _APS_NEXT_COMMAND_VALUE         32784
+#define _APS_NEXT_CONTROL_VALUE         1041
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

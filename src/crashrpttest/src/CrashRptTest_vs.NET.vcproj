@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -66,7 +66,7 @@ copy dummy.ini ..\..\bin
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -87,7 +87,7 @@ copy dummy.ini ..\..\bin
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="2"
@@ -130,7 +130,7 @@ copy dummy.ini ..\..\bin
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -151,7 +151,7 @@ copy dummy.ini ..\..\bin
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="0"
@@ -193,7 +193,7 @@ copy dummy.ini ..\..\bin
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool

@@ -1,0 +1,12 @@
+/*!
+
+\page using_error_reports Using Error Reports
+
+This section covers the following topics:
+
+- \subpage analyzing_error_reports
+- \subpage using_crash_descriptor
+- \subpage using_minidump
+- \subpage automating_crash_report_processing
+
+*/

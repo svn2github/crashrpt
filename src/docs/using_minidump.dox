@@ -1,0 +1,99 @@
+/*!
+
+\page using_minidump Using Crash Minidump
+
+You can open minidump files in Visual Studio, in WinDbg or in another debugger tool. 
+
+The crash dump file is a collection of memory ranges, CPU register states, the call stack and 
+local variables for each execution thread, the list of loaded and unloaded modules
+and system information. The minidump is created with the help of the DbgHelp DLL's 
+\b MiniDumpWriteDump() function. The minidump contains 
+various information about the state of the application when the error occurred. 
+
+The crash minidump is unusable without the debugging symbols database (program database, PDB).
+Application modules may be loaded at memory addresses different from time to time. This is common
+for Windows Vista and its Address Space Layout Randomization (/DYNAMICBASE compiler flag).  
+You can not uniquely identify the exception by its address. 
+
+To open crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program
+database files (PDB) are locally stored. You copy the minidump to that folder to ensure the debugger is able to find 
+the program database files and binaries. Then double-click on the minidump file name. This should
+open it using an associated program (for example, Visual Studio). When minidump file is loaded
+in Visual Studio, press F5 to run it. If debug symbols are loaded successfully, you are now able to see
+the place in your source code where exception occurred.
+
+The most interesting for you is the call stack (see the figure below). Open the <i>Call Stack</i> tab to see 
+the stack trace for
+a selected thread. Each line of stack trace contains the name of module where crash occurred, the name of symbol 
+(function or class), offset from beginning of symbol code, source file and line number. This should be enough to
+locate the error, assume the most probable reason and try to fix. You can switch between threads using the 
+<i>Threads</i> tab and browse the stack for each thread.
+
+\image html call_stack.png "Fragment of code where exception occurred and the call stack"
+
+One of the most probable reasons of program crash is using a pointer to a variable without
+checking if it is not equal to NULL. So, in most cases such check would make code more robust.
+
+\section troubleshooting_pdb Troubleshooting
+
+Sometimes you can't determine the location of the crash and the error message is displayed
+'No symbols loaded for any stack frame'. This may be because of the following reasons.
+
+- Debugger may not locate the correct PDB and binary files. Try to open Tools->Options->Debugging->Symbols
+  and enter the path to the directory where your PDB files are located (see the figure below for example). Then reopen the minidump.
+
+\image html symbols_load_paths.png "Where to load symbols from"
+
+- You may have wrong or missing PDB files. Open the Modules window (presented below) and check the symbol status
+  for modules of your program. If the status is 'No symbols loaded.' than you have missing PDB. 
+  Or maybe correct PDB files weren't saved locally before software release.
+  In such case you won't be able to properly read any of received crash reports.
+
+\image html modules.png "Symbols Loaded status for each module"
+
+- If symbols for some modules of your program are loaded, and you have the error, than
+  there were no debugging symbols generated for the module where crash had occurred. Check that
+  you set Program Database (/Zi) compiler flag and Generate Debug Info (/DEBUG) linker flag 
+  for all modules of your application. For additional info, see \ref prgdb                   
+
+
+\section windbg Using WinDbg to Open Minidump Files
+
+You can use \b WinDbg program from <b>Microsoft Debugging Tools for Windows</b> framework for opening 
+crash minidumps. It is freely distributed. However, if you have Visual Studio installed,
+it may be more convenient for you to use Visual Studio.
+
+Let's show how to use WinDbg using an example. Run the sample CrashRptTest application that presents in
+CrashRpt package, and then click on any button to generate an exception. Then extract the crashdump.dmp file 
+from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D.
+
+Next, you need to set the symbol path for WinDbg with the .sympath command. Switch 
+to the command window (ALT+1) and enter \c .sympath followed by a space followed by the 
+semi-colon delimited list of directories to search.
+
+\code
+.sympath D:\CrashRptSaved\CrashRptTest_v1.1.0
+\endcode
+
+Similarly you need to set the executable and source search paths with the .exepath 
+and \c .srcpath commands.
+
+\code
+.exepath D:\CrashRptSaved\CrashRptTest_v1.1.0
+.srcpath D:\Projects\CrashRpt\CrashRptTest\src
+\endcode
+
+The final step is to change the debugger context to the context record associated 
+with the exception by entering the \c .ecxr command.
+
+\code
+.ecxr
+\endcode
+
+If everything is configured correctly, you should now be able to walk the call stack, 
+see local variables, and loaded modules. You can even have WinDbg highlight the offending 
+line of code by double clicking the CrashRptTest frame in the Call Stack window (ALT+6). 
+Note: The exact line number may be a little off due to linker optimizations.
+
+
+*/

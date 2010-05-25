@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
+#include <shellapi.h>
 
 
 CAppModule _Module;
@@ -37,11 +38,17 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
 #else
   lpvState;
   
-  int nAddFile = crAddFile(sLogFile, _T("Dummy Log File"));
-  ATLASSERT(nAddFile==0);
+  int nResult = crAddFile2(sLogFile, NULL, _T("Dummy Log File"), CR_AF_MAKE_FILE_COPY);
+  ATLASSERT(nResult==0);
 
-  nAddFile = crAddFile(sIniFile, _T("Dummy INI File"));
-  ATLASSERT(nAddFile==0);
+  nResult = crAddFile(sIniFile, _T("Dummy INI File"));
+  ATLASSERT(nResult==0);
+
+  nResult = crAddScreenshot(CR_AS_VIRTUAL_SCREEN);
+  ATLASSERT(nResult==0);
+
+  nResult = crAddProperty(_T("VideoCard"),_T("nVidia GeForce 9800"));
+  ATLASSERT(nResult==0);
 #endif
 
   return TRUE;
@@ -52,8 +59,18 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
+  // Get command line params
+  LPCWSTR szCommandLine = GetCommandLineW();  
+  int argc = 0;
+  LPWSTR* argv = CommandLineToArgvW(szCommandLine, &argc);
+  
 	CMainDlg dlgMain;
 
+  if(argc==2 && wcscmp(argv[1], L"/restart")==0)
+    dlgMain.m_bRestarted = TRUE;
+  else
+    dlgMain.m_bRestarted = FALSE;
+  
 	if(dlgMain.Create(NULL) == NULL)
 	{
 		ATLTRACE(_T("Main dialog creation failed!\n"));
@@ -68,6 +85,16 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	return nRet;
 }
 
+namespace
+{
+  class HiddenException {};
+}
+
+static void throw_hidden_exception()
+{
+  throw HiddenException();
+}
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 	HRESULT hRes = ::CoInitialize(NULL);
@@ -75,7 +102,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 // make the EXE free threaded. This means that calls come in on a random RPC thread.
 //	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
-
+  
   // Install crash reporting
 #ifdef TEST_DEPRECATED_FUNCS
 
@@ -89,18 +116,31 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   CR_INSTALL_INFO info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);  
-  info.pszAppName = _T("CrashRpt Tests");
-  info.pszAppVersion = _T("1.0.2");
-  info.pszEmailSubject = _T("Error from CrashRptTests v1.0.1");
-  info.pszEmailTo = _T("test@hotmail.com");
-  info.pszUrl = _T("http://test.com/test.php");
-  info.pfnCrashCallback = CrashCallback;    
-  info.uPriorities[CR_HTTP] = 3;
-  info.uPriorities[CR_SMTP] = 2;
-  info.uPriorities[CR_SMAPI] = 1; 
-  info.dwFlags = 0;
+  info.pszAppName = _T("CrashRpt Tests"); // Define application name.
+  //info.pszAppVersion = _T("1.2.5");     // Define application version.
+  info.pszEmailSubject = _T("Error from CrashRptTests"); // Define subject for email.
+  info.pszEmailTo = _T("test@hotmail.com");   // Define E-mail recipient address.
+  info.pszUrl = _T("http://myappcom.com:1234/crashrpt.php"); // URL for sending reports over HTTP.
+  info.pfnCrashCallback = CrashCallback; // Define crash callback function   
+  // Define sending priorities 
+  info.uPriorities[CR_HTTP] = 0;         // Use HTTP the first
+  info.uPriorities[CR_SMTP] = 2;         // Use SMTP the second
+  info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last   
+  info.dwFlags = 0;                    
+  info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
+  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
+  info.dwFlags |= CR_INST_APP_RESTART;   // Restart the application.  
+  //info.dwFlags |= CR_INST_NO_MINIDUMP; // Do not include minidump.
+  info.dwFlags |= CR_INST_SEND_RECENT_REPORTS; // Send reports that were failed to send recently.
+  info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
+  info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
+  // Define privacy policy URL.
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
-    
+  info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
+  info.pszRestartCmdLine = _T("/restart"); // Command line for automatic app restart.
+  //info.pszLangFilePath = _T("D:\\");   // Specify custom dir and name for language file.
+  
+  // Install crash handlers
   CrAutoInstallHelper cr_install_helper(&info);
   ATLASSERT(cr_install_helper.m_nInstallStatus==0); 
 
@@ -113,6 +153,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   }
 
 #endif //TEST_DEPRECATED_FUNCS
+
+  //throw_hidden_exception();
 
   /* Create another thread */
   g_CrashThreadInfo.m_pCrashRptState = g_pCrashRptState;

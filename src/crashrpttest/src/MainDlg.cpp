@@ -45,7 +45,18 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
 	UIAddChildWindowContainer(m_hWnd);
 
+  if(m_bRestarted)
+  {
+    PostMessage(WM_POSTCREATE);    
+  }
+
 	return TRUE;
+}
+
+LRESULT CMainDlg::OnPostCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T("The application was restarted after crash."), _T("Restarted"), MB_OK);
+  return 0;
 }
 
 LRESULT CMainDlg::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -74,7 +85,7 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
   switch(wID)
   {
   case IDC_MAIN_NOEXC: return 0;
-  case IDC_MAIN_WIN32: type = CR_WIN32_STRUCTURED_EXCEPTION; break;                              
+  case IDC_MAIN_WIN32: type = CR_SEH_EXCEPTION; break;                              
   case IDC_MAIN_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_MAIN_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
   case IDC_MAIN_PURECALL: type = CR_CPP_PURE_CALL; break;
@@ -125,7 +136,7 @@ LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWN
   switch(wID)
   {
   case IDC_THREAD_NOEXC: return 0;
-  case IDC_THREAD_WIN32: type = CR_WIN32_STRUCTURED_EXCEPTION; break;                              
+  case IDC_THREAD_WIN32: type = CR_SEH_EXCEPTION; break;                              
   case IDC_THREAD_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_THREAD_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
   case IDC_THREAD_PURECALL: type = CR_CPP_PURE_CALL; break;

@@ -2,39 +2,74 @@
 
 \page error_report About an Error Report
 
-When an error occurs, CrashRpt notifies a user and allows  
-to review the report contents. First the main dialog shown above is displayed. 
+When an error occurs, CrashRpt notifies the user and allows to review the report contents. 
+<b>Since v1.1.3</b> CrashRpt can be configured to use multiple languages with its user
+interface, as described in \ref internationalization_support.
 
-\image html maindlg.png "Main Dialog"
+\section maindlg Error Report Dialog
 
-The user optionally can provide his/her E-mail address and provide a short problem 
-description. The E-mail address may be later used by software support staff to
+First the <b>Error Report</b> dialog is displayed (see the figure below). 
+
+\image html maindlg.png "Error Report Dialog"
+
+User can optionally provide his/her E-mail address and a short problem 
+description. The E-mail address may be used later by software support staff to
 contact the user and ask for additional information about the problem.
 
-The 'What does this report contan?' link opens the details dialog, where 
-files contained in the report are presented. Double clicking on the 
-filename will open the file using its associated program, if an association exists 
-for the file type.
+The <i>What does this report contain?</i> link opens the details dialog.
 
-\image html detaildlg.png "Crash Details Dialog"
+\section detaildlg Error Report Details Dialog
 
-Once the user is satisfied, he may close the details dialog and click the 'Send report' 
-button on the main dialog. If the user doesn't want to send the report, he clicks the 
-'Close the program' button.
+The <b>Error Report Details</b> dialog (see below) contains files that are presented in the report. 
+Double clicking a filename opens the file using its associated program, 
+if an association exists for the file type. 
 
+Pressing the <i>Export...</i> button results in exporting the error report as ZIP archive.
+This may be useful if you want to save a local copy of the error report.
+
+\image html detaildlg.png "Error Report Details Dialog"
+
+<b>Since v.1.1.2</b> you can use a privacy policy describing what user 
+information your software collects on crash. You provide the URL of your privacy 
+policy HTML document published on your web site or distributed with your software.
+If you need a template you may use this one: 
+<a href="http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate">PrivacyPolicyTemplate</a>. 
 
 The error report refers to a collection of files intended to help the developer 
-diagnose the cause of a crash. 
+diagnose the cause of the crash. 
 
 The error report contains crash minidump file (crashdump.dmp), which has operating system 
 version, processor type, CPU registers state and local variables and stack trace for each 
 execution thread. The minidump in most cases can be used on developer's side to determine 
 the reason of the crash and try to fix the problem.
 
-In addition, CrashRpt generates an XML crash descriptor file. The file contains various
+In addition, CrashRpt generates an XML crash description file. The file contains various
 information that might be useful for crash analysis.
 
 Custom files, for example, application log files, can be included into crash report via the 
 crash callback.
+
+Once the user is satisfied, he/she may close the details dialog and click the 'Send report' 
+button on the main dialog. If the user doesn't want to send the report, the user clicks the 
+'Close the program' button.
+
+\section progressdlg Sending Error Report Dialog
+
+The <b>Sending Error Report</b> dialog (presented below) shows the progress of sending the error report. There are
+maximum three attempts to send the report: using HTTP, using SMTP, and using Simple MAPI. The client
+application may specify the order of attempts. By default HTTP connection is tried the first, SMTP
+connection is tried the second, and Simple MAPI is tried the last.
+
+There is the status log area below the progress bar. It contains the details of report
+sending process. You can copy some selected lines or the whole log to the clipboard. To do this,
+select several lines of the log, right-click the selection and choose an item in the context menu. 
+The log may be useful when troubleshooting some error report sending problem.
+
+\image html progressdlg.png "Sending Error Report Dialog"
+
+\note The dialog becomes hidden in three seconds after start. Then it is displayed as icon in system tray.
+Double-click the icon to restore the dialog. The dialog is restored automatically when some user
+interaction is required.
+
 
 */

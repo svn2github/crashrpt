@@ -28,9 +28,11 @@ void test_generate_report()
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);
-  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.exctype = CR_SEH_EXCEPTION;
+  ei.code = 0x1234;
   ei.code = 0x1234;
   ei.pexcptrs = NULL;
+  ei.bManual = TRUE; // Signal the report is being generated manually.
 
   int nResult = crGenerateErrorReport(&ei);
   if(nResult!=0)
