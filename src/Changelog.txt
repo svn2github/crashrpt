@@ -1,5 +1,24 @@
 ======= Change History ========
 
+--- Ver. 1.2.5 ---
+
+- Introduced an ability to send error reports queued for delivery (issue 33).
+  New flag CR_INST_SEND_QUEUED_REPORTS.
+
+- Fixed: zipped file timestamps are incorrect (issue 40).
+
+- Fixed: Release buffer from DnsQuery (issue 42).
+
+- Fixed: exit(1) in different thread may cause crashes (issue 43).
+
+- Fixed: A bug in CScreenCapture multiple monitors
+
+- Fixed: Issue with g_CrashInfo.m_uPriorities. Introduced CR_NEGATIVE_PRIORITY constant.
+
+- Refactored php example of how to receive error reports by HTTP.
+
+- Extended documentation. 
+
 --- Ver. 1.2.4 ---
 
 - Introduced an ability to restart an application automatically on crash. The application is

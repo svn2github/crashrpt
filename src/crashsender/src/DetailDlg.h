@@ -55,6 +55,7 @@ public:
   CStatic m_statPreview;
   CFilePreviewCtrl m_filePreview;
   PreviewMode m_previewMode;
+  int m_nCurReport;
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)    
     DLGRESIZE_CONTROL(IDC_FILE_LIST, DLSZ_SIZE_X)

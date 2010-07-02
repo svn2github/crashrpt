@@ -82,7 +82,8 @@ public:
   LRESULT OnCopyLog(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
 
 
-  void Start(BOOL bCollectInfo);
+  void Start(BOOL bCollectInfo, BOOL bMakeVisible=TRUE);
+  void Stop();
   void CloseDialog(int nVal);
   int SetClipboard(CString& sData);
 

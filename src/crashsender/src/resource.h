@@ -11,6 +11,8 @@
 #define IDD_PROGRESSDLG                 213
 #define IDR_POPUPMENU                   214
 #define IDD_RESEND                      215
+#define IDD_PROGRESSMULTI               216
+#define IDD_ACTIONPROGRESS              216
 #define IDS_NAME                        1000
 #define IDS_DESC                        1001
 #define IDS_TYPE                        1002
@@ -55,6 +57,14 @@
 #define IDC_PREVIEW                     1039
 #define IDC_CHECK1                      1040
 #define IDC_RESTART                     1040
+#define IDC_OTHERACTIONS                1041
+#define IDC_SELSIZE                     1042
+#define IDC_LINE                        1043
+#define IDC_STATUS                      1044
+#define IDC_OTHERACTIONS2               1044
+#define IDC_SHOWLOG                     1044
+#define IDC_ACTIONDESC                  1045
+#define IDC_CURRENTACTION               1046
 #define ID_MENU1_COPYTHISLINE           32772
 #define ID_MENU1_COPYTHEWHOLELOG        32773
 #define ID_MENU1_COPYSEL                32774
@@ -66,6 +76,16 @@
 #define ID_PREVIEW_HEX                  32780
 #define ID_PREVIEW_TEXT                 32781
 #define ID_PREVIEW_IMAGE                32782
+#define ID_Menu                         32784
+#define ID_SHOW                         32785
+#define ID_MENU3_EXIT                   32786
+#define ID_MENU3_SHOW                   32787
+#define ID_MENU4_REMINDMELATER          32788
+#define ID_MENU4_EXITANDNEVERREMINDAGAIN 32789
+#define ID_MENU4_REMINDLATER            32790
+#define ID_MENU4_NEVERREMIND            32791
+#define ID_MENU5_CLOSETHEPROGRAM        32792
+#define ID_MENU5_SENDREPORTLATER        32793
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -80,9 +100,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        216
-#define _APS_NEXT_COMMAND_VALUE         32784
-#define _APS_NEXT_CONTROL_VALUE         1041
+#define _APS_NEXT_RESOURCE_VALUE        217
+#define _APS_NEXT_COMMAND_VALUE         32794
+#define _APS_NEXT_CONTROL_VALUE         1047
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

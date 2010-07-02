@@ -117,7 +117,7 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
   return 0;
 }
 
-void CProgressDlg::Start(BOOL bCollectInfo)
+void CProgressDlg::Start(BOOL bCollectInfo, BOOL bMakeVisible)
 { 
   if(bCollectInfo)
   {
@@ -137,7 +137,7 @@ void CProgressDlg::Start(BOOL bCollectInfo)
   // Center the dialog on the screen
 	CenterWindow();
 
-  if(!g_CrashInfo.m_bSilentMode)
+  if(!g_CrashInfo.m_bSilentMode && bMakeVisible)
   {
     ShowWindow(SW_SHOW); 
     SetFocus();    
@@ -150,7 +150,13 @@ void CProgressDlg::Start(BOOL bCollectInfo)
 
   SetTimer(0, 200); // Update this dialog each 200 ms.
 
-  m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
+  m_ActionOnCancel = DONT_CLOSE;
+}
+
+void CProgressDlg::Stop()
+{
+  KillTimer(0);
+  KillTimer(1);
 }
 
 LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -230,14 +236,14 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
       }      
       else if(messages[i].CompareNoCase(_T("[status_success]"))==0)
-      { 
+      {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;        
         m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
         HWND hWndParent = ::GetParent(m_hWnd);        
         ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
       }
       else if(messages[i].CompareNoCase(_T("[status_failed]"))==0)
-      { 
+      {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
         m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
         KillTimer(1);
@@ -255,7 +261,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         }
       }
       else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
-      { 
+      {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
         m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
         KillTimer(1);        

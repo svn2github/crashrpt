@@ -57,9 +57,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   CString sFileName;
 
   // Get monitor size
-  nLeft = lprcMonitor->left;
-  nTop = lprcMonitor->top;
-	nWidth = lprcMonitor->right - lprcMonitor->left;
+  nWidth = lprcMonitor->right - lprcMonitor->left;
 	nHeight = lprcMonitor->bottom - lprcMonitor->top;
 	
   // Get monitor info
@@ -92,8 +90,8 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 		{
       ICONINFO IconInfo;
 		  GetIconInfo((HICON)psc->m_CursorInfo.hCursor, &IconInfo);
-			int x = psc->m_ptCursorPos.x - nLeft - IconInfo.xHotspot;
-			int y = psc->m_ptCursorPos.y - nTop  - IconInfo.yHotspot;
+      int x = psc->m_ptCursorPos.x - lprcMonitor->left - IconInfo.xHotspot;
+      int y = psc->m_ptCursorPos.y - lprcMonitor->top  - IconInfo.yHotspot;
 			DrawIcon(hCompatDC, x, y, (HICON)psc->m_CursorInfo.hCursor);
       DeleteObject(IconInfo.hbmMask);
 			DeleteObject(IconInfo.hbmColor);

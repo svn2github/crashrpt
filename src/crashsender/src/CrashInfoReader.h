@@ -41,6 +41,7 @@
 #include "tinyxml.h"
 #include "dbghelp.h"
 
+// The structure describing file item.
 struct FileItem
 {
   FileItem()
@@ -48,80 +49,125 @@ struct FileItem
     m_bMakeCopy = FALSE;
   }
 
-  CString m_sDestFile;
-  CString m_sSrcFile;
-  CString m_sDesc;
-  BOOL m_bMakeCopy;
+  CString m_sDestFile;  // Destination file name (not including directory name).
+  CString m_sSrcFile;   // Absolute source file path.
+  CString m_sDesc;      // File description.
+  BOOL m_bMakeCopy;     // Should we copy source file to error report folder?
 };
 
+// Error report delivery status
+enum DELIVERY_STATUS
+{  
+  PENDING    = 0,  // Status pending  
+  DELIVERED  = 1,  // Error report was delivered ok
+  FAILED     = 2   // Error report delivery failed
+};
+
+// Error report info
 struct ErrorReportInfo
 {
-  CString     m_sErrorReportDirName;
-  CString     m_sCrashGUID;
-  CString     m_sAppName;
-  CString     m_sAppVersion;
-  CString     m_sImageName;  
-  CString     m_sEmailFrom;     
-  CString     m_sDescription;    
+  ErrorReportInfo()
+  {
+    m_bSelected = TRUE;
+    m_DeliveryStatus = PENDING;
+    m_uTotalSize = 0;
+  }
 
+  CString     m_sErrorReportDirName; // Name of the directory where error report files are located.
+  CString     m_sCrashGUID;          // Crash GUID.
+  CString     m_sAppName;            // Application name.
+  CString     m_sAppVersion;         // Application version.
+  CString     m_sImageName;          // Path to the application executable file.
+  CString     m_sEmailFrom;          // E-mail sender address.
+  CString     m_sDescription;        // User-provided problem description.
+  CString     m_sSystemTimeUTC;      // The time when crash occurred (UTC).
+  ULONG64     m_uTotalSize;          // Summary size of this (uncompressed) report.
+  BOOL        m_bSelected;           // Is this report selected for delivery.
+  DELIVERY_STATUS m_DeliveryStatus;  // Delivery status.
+ 
+  // The list of files that are included into this report.
   std::map<CString, FileItem>  m_FileItems; 
 };
 
+// Remind policy.
+enum REMIND_POLICY 
+{
+  REMIND_LATER,   // Remind later.
+  NEVER_REMIND    // Never remind.
+};
+
+// Class responsible for reading the crash info.
 class CCrashInfoReader
 {
 public:
 
-  CString     m_sLangFileName;
-  CString     m_sDbgHelpPath;  
-  CString     m_sAppName;    
-  CString     m_sEmailTo;
-  CString     m_sEmailSubject;
-  CString     m_sEmailText;  
-  int         m_nSmtpPort;  
-  CString     m_sSmtpProxyServer;
-  int         m_nSmtpProxyPort;  
-  CString     m_sUrl;
-  BOOL        m_bHttpBinaryEncoding;
-  BOOL        m_bSilentMode;
-  BOOL        m_bSendErrorReport;
-  BOOL        m_bAppRestart;
-  CString     m_sRestartCmdLine;
-  UINT        m_uPriorities[3];
-  CString     m_sPrivacyPolicyURL;
-  BOOL        m_bGenerateMinidump;  
-  MINIDUMP_TYPE m_MinidumpType;
-  DWORD       m_dwProcessId;
-  DWORD       m_dwThreadId;
-  PEXCEPTION_POINTERS m_pExInfo;
-  BOOL        m_bAddScreenshot;
-  DWORD       m_dwScreenshotFlags;
-  CPoint      m_ptCursorPos;
-  CRect       m_rcAppWnd;
-  BOOL        m_bSendRecentReports;
-  CString     m_sUnsentCrashReportsFolder;
+  /* Member variables. */
 
-  std::vector<ErrorReportInfo> m_Reports;
-  int m_nCurrentReport;
-
+  CString     m_sUnsentCrashReportsFolder; // Path to UnsentCrashReports folder for the application.
+  CString     m_sLangFileName;        // Path to language INI file.
+  CString     m_sDbgHelpPath;         // Path to dbghelp.dll.
+  CString     m_sAppName;             // Application name.
+  CString     m_sEmailTo;             // E-mail recipient address.
+  CString     m_sEmailSubject;        // E-mail subject.
+  CString     m_sEmailText;           // E-mail text.
+  int         m_nSmtpPort;            // SMTP port.
+  CString     m_sSmtpProxyServer;     // SMTP proxy server.
+  int         m_nSmtpProxyPort;       // SMTP proxy port.
+  CString     m_sUrl;                 // URL (used for HTTP connection).
+  BOOL        m_bHttpBinaryEncoding;  // Should we use binary transfer encoding (HTTP).
+  BOOL        m_bSilentMode;          // Should we show GUI?
+  BOOL        m_bSendErrorReport;     // Should we send error report now?
+  BOOL        m_bSendRecentReports;   // Should we send recent reports now?
+  BOOL        m_bAppRestart;          // Should we restart the application?
+  CString     m_sRestartCmdLine;      // Command line for app restart.
+  UINT        m_uPriorities[3];       // Delivery priorities.
+  CString     m_sPrivacyPolicyURL;    // Privacy policy URL.
+  BOOL        m_bGenerateMinidump;    // Should we generate crash minidump file?
+  MINIDUMP_TYPE m_MinidumpType;       // Minidump type.
+  DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
+  DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
+  PEXCEPTION_POINTERS m_pExInfo;      // Address of exception info (used for minidump generation).
+  BOOL        m_bAddScreenshot;       // Should we add a desktop screenshot?
+  DWORD       m_dwScreenshotFlags;    // Screenshot options.
+  CPoint      m_ptCursorPos;          // Mouse cursor position on crash.
+  CRect       m_rcAppWnd;             // Rectangle of the application's main window.  
+  BOOL        m_bQueueEnabled;        // Can reports be send later or not (queue enabled)?
+  
+  /* Member functions */
+    
   // Gets crash info from internal crash info XML file
   int Init(CString sCrashInfoFile);
 
   BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
   BOOL AddFilesToCrashDescriptionXML(std::vector<FileItem>);
 
-  BOOL GetErrorReportInfo(CString sXmlName, ErrorReportInfo& eri);
+  ErrorReportInfo& GetReport(int nIndex){ return m_Reports[nIndex]; }
+  int GetReportCount(){ return (int)m_Reports.size(); }
 
-  ErrorReportInfo& GetCurReport(){return m_Reports[m_nCurrentReport];}
+  BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
+  BOOL SetLastRemindDateToday();
+  BOOL IsRemindNowOK();
+  REMIND_POLICY GetRemindPolicy();
+  BOOL SetRemindPolicy(REMIND_POLICY Policy);
 
 private:
 
   // Gets the list of file items 
-  int ParseFileList(int nReport, TiXmlHandle& hRoot);
+  int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
   // Retrieves some crash info from crash description XML
-  int ParseCrashDescription(int nReport, CString sFileName);
+  int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
 
+  // Calculates size of an uncompressed error report.
+  LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
+
+  // Array of error reports
+  std::vector<ErrorReportInfo> m_Reports;
+
+  // Path to ~CrashRpt.ini file.
+  CString m_sINIFile; 
 };
 
-// Declare globally available object
+// Declare globally available object.
 extern CCrashInfoReader g_CrashInfo;
+

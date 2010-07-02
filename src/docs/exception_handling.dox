@@ -85,7 +85,7 @@ Example:
 
     *p = 13; // causes an access violation exception;
   }
-  __except() // Here is exception filter
+  __except(EXCEPTION_EXECUTE_HANDLER) // Here is exception filter expression
   {  
     // Here is exception handler
  
@@ -186,7 +186,7 @@ void trans_func( unsigned int u, EXCEPTION_POINTERS* pExp )
 \endcode
 
 
-The disadvantage of the __try{}__catch(Expression){} construction is that you may forget to guard a potentially buggy
+The disadvantage of the __try{}__catch(Expression){} construction is that you may forget to guard a potentially incorrect
 code that may cause an exception that won't be handled by your program. However, such an unhandled SEH exception
 can be caught using the top-level unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
 
@@ -216,8 +216,14 @@ void main()
 
 \endcode
 
-The exception handler works for all threads of the caller process, so its enough to call it once
+The top-level SEH exception handler works for all threads of the caller process, so its enough to call it once
 in the beginning of your \b main() function.
+
+The top-level SEH exception handler is called in context of the thread where exception have occurred. 
+This can affect the exception handler's ability to recover from certain exceptions, such as an invalid stack.
+
+If your exception handler function is located inside of a DLL, be careful when using the \b SetUnhandledExceptionFilter()
+function. If your DLL is unloaded at the moment of crash, the behavior may be unpredictable.
 
 \section vectored_exc Vectored Exception Handling
 

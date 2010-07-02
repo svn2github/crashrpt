@@ -317,6 +317,9 @@ GenerateErrorReport(
 #define CR_SMTP 1 //!< Send error report via SMTP connection.
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client).
 
+// Special priority constant that allows to skip some sending attempt.
+#define CR_NEGATIVE_PRIORITY ((UINT)-1)
+
 // Flags for CR_INSTALL_INFO::dwFlags
 #define CR_INST_STRUCTURED_EXCEPTION_HANDLER   0x1    //!< Install SEH handler (deprecated name, use \ref CR_INST_SEH_EXCEPTION_HANDLER instead.
 #define CR_INST_SEH_EXCEPTION_HANDLER   0x1           //!< Install SEH handler.
@@ -338,10 +341,10 @@ GenerateErrorReport(
 
 #define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
 #define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
-#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Save error reports locally, do not send them.
+#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Don't send error report immediately, just save it locally.
 #define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
 #define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
-#define CR_INST_SEND_RECENT_REPORTS            0x40000 //!< CrashRpt should resend error reports that it failed to send recently.
+#define CR_INST_SEND_QUEUED_REPORTS            0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -389,8 +392,8 @@ GenerateErrorReport(
  *
  *    \a uPriorities is an array that defines the preferred ways of sending error reports. 
  *         The available ways are: HTTP connection, SMTP connection or simple MAPI (default mail client).
- *         A priority is an integer number. The greater positive number defines the greater priority. If the number is negative,
- *         the respective way is skipped.
+ *         A priority is a non-negative integer number or special constant \ref CR_NEGATIVE_PRIORITY. The greater positive number defines the greater priority. 
+ *         Specify the \ref CR_NEGATIVE_PRIORITY to skip the given way.
  *         The element having index \ref CR_HTTP defines priority for using HTML connection.
  *         The element having index \ref CR_SMTP defines priority for using SMTP connection.
  *         The element having index \ref CR_SMAPI defines priority for using the default mail client.
@@ -425,8 +428,9 @@ GenerateErrorReport(
  *             is supported for backwards compatibility and not recommended to use.
  *             For additional information, see \ref sending_error_reports.
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
- *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report, just save it locally'. 
- *             Use this if you have direct access to the machine where crash happens and do not need to send report over the Internet.  
+ *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report immediately on crash, just save it locally'. 
+ *             Use this if you have direct access to the machine where crash happens and do not need 
+ *             to send report over the Internet.
  *    <tr><td> \ref CR_INST_APP_RESTART     
  *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
  *             for the application is taken from \a pszRestartCmdLine parameter. To avoid cyclic restarts of an application which crashes on startup, 
@@ -435,9 +439,11 @@ GenerateErrorReport(
  *        <td> <b>Available since v.1.2.4</b> Specify this parameter if you want minidump file not to be included into crash report. The default
  *             behavior is to include the minidump file.
  *
- *    <tr><td> \ref CR_INST_SEND_RECENT_REPORTS     
- *        <td> <b>Available since v.1.2.5</b> Specify this parameter to resend all reports that failed to send recently. Those
- *             report files are stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
+ *    <tr><td> \ref CR_INST_SEND_QUEUED_REPORTS     
+ *        <td> <b>Available since v.1.2.5</b> Specify this parameter to send all queued reports. Those
+ *             report files are by default stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
+ *             If this is specified, CrashRpt checks if it's time to remind user about recent errors in the application and offers to send
+ *             all queued error reports.
  *
  *   </table>
  *

@@ -170,6 +170,8 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, AssyncNotification* scn,
   int r = DnsQuery(sServer, DNS_TYPE_MX, DNS_QUERY_STANDARD, 
     NULL, (PDNS_RECORD*)&apResult, NULL);
   
+  PDNS_RECORD pRecOrig = apResult;
+
   if(r==0)
   {
     while(apResult!=NULL)
@@ -183,8 +185,10 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, AssyncNotification* scn,
       apResult = apResult->pNext;
     }
 
+    DnsRecordListFree(pRecOrig, DnsFreeRecordList);
+
     return 0;
-  }
+  } 
 
   sStatusMsg.Format(_T("DNS query failed with code %d"), r);
   scn->SetProgress(sStatusMsg, 2);
@@ -279,6 +283,8 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   scn->SetProgress(sStatusMsg, 5);
   
   if(scn->IsCancelled()) {status = 2; goto exit;}
+
+  scn->SetProgress(_T("Waiting for greeting message from SMTP server..."), 1);
 
   res = recv(sock, buf, 1024, 0);
   if(res==SOCKET_ERROR)

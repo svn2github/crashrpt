@@ -63,7 +63,12 @@ public:
   void FeedbackReady(int code);
 
   LONG64 GetUncompressedReportSize();
-  
+
+  int GetCurReport();
+  BOOL SetCurReport(int nCurReport);
+
+  BOOL SetLogFile(LPCTSTR szFileName);
+
 private:
 
   void DoWorkAssync();
@@ -72,21 +77,23 @@ private:
   BOOL CollectCrashFiles();
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
   BOOL TakeDesktopScreenshot();
-  BOOL CreateMiniDump();
+  BOOL CreateMiniDump();  
   static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
   BOOL RestartApp();
   BOOL CompressReportFiles();
+  void UnblockParentProcess();
     
   BOOL SendReport();
   BOOL SendOverHTTP();
-  int CErrorReportSender::Base64EncodeAttachment(CString sFileName, std::string& sEncodedFileData);
+  int Base64EncodeAttachment(CString sFileName, std::string& sEncodedFileData);
   CString FormatEmailText();
   BOOL SendOverSMTP();
   BOOL SendOverSMAPI();
 
+  int m_nCurReport;
   HANDLE m_hThread;                   // Handle to the worker thread
   int m_SendAttempt;                  // Number of current sending attempt
   AssyncNotification m_Assync;        // Used for communication with the main thread
@@ -97,7 +104,7 @@ private:
   CString m_sZipName;                 // Name of the ZIP archive to send
   int m_Action;                // Current action
   BOOL m_bExport;
-  CString m_sExportFileName;
+  CString m_sExportFileName;  
 };
 
 extern CErrorReportSender g_ErrorReportSender;

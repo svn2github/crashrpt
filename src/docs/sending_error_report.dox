@@ -2,23 +2,35 @@
 
 \page sending_error_reports Sending Error Reports
 
-When crash occurs, CrashRpt runs the \b CrashSender.exe process that collects crash information (desktop screenshot, minidump, application-defined files). 
+When crash occurs, CrashRpt runs the \b CrashSender.exe process that collects 
+crash information (desktop screenshot, minidump, application-defined files). 
 The parent process is then terminated, except in the case when you generate error report manually.
 
-By default, \b CrashSender.exe saves error report files to <i>%%LOCAL_APP_DATA%\\CrashRpt\\UnsentErrorReports\\%%AppName%%_%%AppVersion%</i> folder. 
-Optionally, you can specify another location where to store files using CR_INSTALL_INFO::pszErrorReportSaveDir structure member.
+By default, \b CrashSender.exe saves error report files to 
+<i>%%LOCAL_APP_DATA%\\CrashRpt\\UnsentErrorReports\\%%AppName%%_%%AppVersion%</i> folder. 
+Optionally, you can specify another location where to store files using 
+CR_INSTALL_INFO::pszErrorReportSaveDir structure member.
+ 
+When crash report files are collected, CrashRpt does one of the following: sends report immediately (by default) or 
+exits (\ref CR_INST_DONT_SEND_REPORT flag for CR_INSTALL_INFO::dwFlags member is specified).
 
-\b CrashSender.exe moves crash report files to the Recycle Bin after the report is sent to the recipient successfuly. 
-If error report sending procedure fails, \b CrashSender.exe doesn't delete the report files.          
+If error report delivery fails, CrashRpt can save (queue) error report data locally for later delivery.
 
-\b CrashSender.exe displays GUI as described in \ref error_report and when user confirms error report submission, 
-\b CrashSender.exe compresses the report files and attempts to send the error report to the recipient over HTTP or over E-mail 
-using the following ways in turn:
+You can ask CrashRpt to send all queued reports by specifying \ref CR_INST_SEND_QUEUED_REPORTS 
+flag for CR_INSTALL_INFO::dwFlags member. On application start up, if this flag is specified, CrashRpt 
+checks if it is time to remind user about error reports ready for delivery, shows notification balloon 
+and offers user to deliver them. CrashRpt shows notification if at least one week elapsed since the last 
+notification.
+
+\section delivery_methods Delivery Methods
+
+CrashRpt attempts to deliver the error report using any of the following delivery methods:
  - via HTTP request to a server-side script
  - via direct connection to an SMTP server
  - via Simple MAPI programming interface (user's default E-mail client application)
 
-You can specify the order of trials by using CR_INSTALL_INFO::uPriorities structure member.
+You can specify the order of trials by using CR_INSTALL_INFO::uPriorities structure member. You can
+disable certain delivery method by using the \ref CR_NEGATIVE_PRIORITY constant for that member.
 
 \section error_report_size_limitations Error Report Size Limitations
 
@@ -197,28 +209,33 @@ The script can receive error reports from any version of CrashRpt.
 
 <?php
 
+// Specify the directory where to save error reports
 $file_root = "/home/username/crash_reports/";
 
+// This is to avoid PHP warning
 date_default_timezone_set('UTC');
 
+// Writes error code and text message and then exits
 function done($return_status, $message)
 {
   echo $return_status." ".$message; 
   exit(0);
 }
 
+// Checks that text fild doesn't contain inacceptable symbols
 function checkOK($field)
 {
-  if (eregi("\\r",$field) || eregi("\\n",$field)) 
+  if (stristr($field, "\\r") || stristr($field, "\\n")) 
   {
     done(450, "Invalid input parameter.");
   }
 }
 
-$md5_hash = "";
-$file_name = "";
-$crash_guid = "";
+$md5_hash = "";    // MD5 hash for error report ZIP
+$file_name = "";   // Destination file name                                  
+$crash_guid = "";  // Crash GUID
 
+// Check that MD5 hash exists 
 if(!isset($_POST['md5']))
 {
   done(450, "MD5 hash is missing.");
@@ -232,19 +249,52 @@ if(strlen($md5_hash)!=32)
   done(450, "MD5 hash value has wrong length.");
 }
 
+// Get CrashGUID
+if(array_key_exists("crashguid", $_POST))
+{
+  $crash_guid = $_POST["crashguid"];
+  checkOK($crash_guid);
+  if(strlen($crash_guid)!=36)
+  {
+    done(450, "Crash GUID has wrong length.");
+  }  
+}
+
+// Get file attachment
 if(array_key_exists("crashrpt", $_FILES))
 {
-  $tmp_file_name = $_FILES["crashrpt"]["name"];
-  checkOK($tmp_file_name);
-
-  $base_name = basename($tmp_file_name);
-  if(empty($base_name))
+  // Check upload error code
+  $error_code = $_FILES["crashrpt"]["error"];
+  if($error_code!=0)
   {
-    done(450, "Missing filename");
+    done(450, "File upload failed with code $error_code.");
   }
 
-  $file_name = $file_root.$base_name;
+  // Get temporary name uploaded file is stored currently
+  $tmp_file_name = $_FILES["crashrpt"]["tmp_name"];
+  checkOK($tmp_file_name);
 
+  // Check that uploaded file data have correct MD5 hash
+  $my_md5_hash = strtolower(md5_file($tmp_file_name));
+  $their_md5_hash = strtolower($md5_hash);
+  if($my_md5_hash!=$their_md5_hash)
+  {
+    done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
+  }
+
+  if(!empty($crash_guid))
+  { 
+    // If crash GUID presents, use it as file name
+    $file_name = $file_root.$crash_guid.".zip";
+  }
+  else
+  {
+    // Generate random file name 
+    $date_time = date(DATE_RFC822);
+    $file_name = $file_root.md5(md5_file($tmp_file_name).$date_time).".zip";
+  }
+
+  // Move uploaded file to an appropriate directory
   if(!move_uploaded_file($tmp_file_name, $file_name))
   {
     done(452, "Couldn't save data to local storage"); 
@@ -258,29 +308,32 @@ else
     done(450, "Error report data is missing.");
   }
 
+  // Get BASE64-encoded file data
   $encoded_data = $_POST["crashrpt"];
 
   // Decode file data
   $file_data = base64_decode($encoded_data);
 
-  if(array_key_exists("crashguid", $_POST))
+  // Check that decoded data have correct MD5 hash
+  $my_md5_hash = strtolower(md5($file_data));
+  $their_md5_hash = strtolower($md5_hash);
+  if($my_md5_hash!=$their_md5_hash)
   {
-    $crash_guid = $_POST["crashguid"];
-    checkOK($crash_guid);
-    if(strlen($crash_guid)!=36)
-    {
-      done(450, "Crash GUID has wrong length.");
-    }
-    
+    done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
+  }
+
+  if(!empty($crash_guid))
+  { 
+    // If crash GUID presents, use it as file name
     $file_name = $file_root.$crash_guid.".zip";
   }
   else
   {
-    // Generate ZIP file name
+    // Generate random file name 
     $date_time = date(DATE_RFC822);
     $file_name = $file_root.md5($file_data.$date_time).".zip";
   }
-
+  
   // Write decoded data to file
   $f = fopen($file_name, "w");
   if($f==FALSE)
@@ -290,14 +343,6 @@ else
          
   fwrite($f, $file_data);
   fclose($f);
-}
-
-// Check that decoded data have correct MD5 hash
-$my_md5_hash = strtolower(md5_file($file_name));
-$their_md5_hash = strtolower($md5_hash);
-if($my_md5_hash!=$their_md5_hash)
-{
-  done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
 }
 
 // OK.

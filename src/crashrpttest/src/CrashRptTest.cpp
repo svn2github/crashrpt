@@ -119,28 +119,30 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszAppName = _T("CrashRpt Tests"); // Define application name.
   //info.pszAppVersion = _T("1.2.5");     // Define application version.
   info.pszEmailSubject = _T("Error from CrashRptTests"); // Define subject for email.
-  info.pszEmailTo = _T("test@hotmail.com");   // Define E-mail recipient address.
-  info.pszUrl = _T("http://myappcom.com:1234/crashrpt.php"); // URL for sending reports over HTTP.
-  info.pfnCrashCallback = CrashCallback; // Define crash callback function   
-  // Define sending priorities 
-  info.uPriorities[CR_HTTP] = 0;         // Use HTTP the first
-  info.uPriorities[CR_SMTP] = 2;         // Use SMTP the second
-  info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last   
+  info.pszEmailTo = _T("test@hotmail.com");   // Define E-mail recipient address.  
+  info.pszUrl = _T("http://localhost:80/crashrpt.php"); // URL for sending reports over HTTP.
+  info.pfnCrashCallback = CrashCallback; // Define crash callback function.   
+  // Define delivery transport priorities. 
+  info.uPriorities[CR_HTTP] = 3;         // Use HTTP the first.
+  info.uPriorities[CR_SMTP] = 2;         // Use SMTP the second.
+  info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last.  
   info.dwFlags = 0;                    
-  info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
+  info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers.
   info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
-  info.dwFlags |= CR_INST_APP_RESTART;   // Restart the application.  
-  //info.dwFlags |= CR_INST_NO_MINIDUMP; // Do not include minidump.
-  info.dwFlags |= CR_INST_SEND_RECENT_REPORTS; // Send reports that were failed to send recently.
-  info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
-  info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
+  info.dwFlags |= CR_INST_APP_RESTART;            // Restart the application on crash.  
+  //info.dwFlags |= CR_INST_NO_MINIDUMP;            // Do not include minidump.
+  //info.dwFlags |= CR_INST_NO_GUI;                 // Don't display GUI.
+  //info.dwFlags |= CR_INST_DONT_SEND_REPORT;       // Don't send report immediately, just queue for delivery.
+  info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS;    // Send reports that were failed to send recently.
+  info.pszDebugHelpDLL = NULL;                    // Search for dbghelp.dll using default search sequence.
+  info.uMiniDumpType = MiniDumpNormal;            // Define minidump size.
   // Define privacy policy URL.
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
-  info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
+  info.pszErrorReportSaveDir = NULL;       // Save error reports to the default location.
   info.pszRestartCmdLine = _T("/restart"); // Command line for automatic app restart.
-  //info.pszLangFilePath = _T("D:\\");   // Specify custom dir and name for language file.
+  //info.pszLangFilePath = _T("D:\\");       // Specify custom dir and name for language file.
   
-  // Install crash handlers
+  // Install crash handlers.
   CrAutoInstallHelper cr_install_helper(&info);
   ATLASSERT(cr_install_helper.m_nInstallStatus==0); 
 

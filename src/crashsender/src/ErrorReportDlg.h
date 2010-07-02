@@ -184,7 +184,9 @@ public:
     COMMAND_ID_HANDLER(IDC_MOREINFO, OnMoreInfoClick)    
     COMMAND_ID_HANDLER(IDC_RESTART, OnRestartClick)    
 		COMMAND_ID_HANDLER(IDOK, OnSend)
-		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)        
+		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)            
+    COMMAND_ID_HANDLER(ID_MENU5_SENDREPORTLATER, OnPopupSendReportLater)            
+    COMMAND_ID_HANDLER(ID_MENU5_CLOSETHEPROGRAM, OnPopupCloseTheProgram)            
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -206,6 +208,8 @@ public:
   LRESULT OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnRestartClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+  LRESULT OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void CloseDialog(int nVal);
   void ShowMoreInfo(BOOL bShow);
