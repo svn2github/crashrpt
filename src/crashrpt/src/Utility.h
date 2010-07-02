@@ -61,7 +61,10 @@ namespace Utility
   int GenerateGUID(CString& sGUID);  
 
   // Returns current system time as string (uses UTC time format).
-  int GetSystemTimeUTC(CString& sTime);  
+  int GetSystemTimeUTC(CString& sTime); 
+
+  // Converts UTC string to local time.
+  void UTC2SystemTime(CString sUTC, SYSTEMTIME& st);
 
   // Returns friendly name of operating system (name, version, service pack)
   int GetOSFriendlyName(CString& sOSName);  
@@ -77,7 +80,9 @@ namespace Utility
 
   // Retrieves a string from INI file.
   CString GetINIString(LPCTSTR pszFileName, LPCTSTR pszSection, LPCTSTR pszName);
-  //CString GetINIString(LPCTSTR pszSection, LPCTSTR pszName);
+  
+  // Adds a string to INI file.
+  void SetINIString(LPCTSTR pszFileName, LPCTSTR pszSection, LPCTSTR pszName, LPCTSTR pszValue);
 
   // Mirrors the content of a window.
   void SetLayoutRTL(HWND hWnd);
@@ -107,7 +112,7 @@ namespace Utility
   // Converts system time to UINT64
   ULONG64 SystemTimeToULONG64( const SYSTEMTIME& st );
 
-   /*static CString LoadString(UINT uID);*/
+  CString FileSizeToStr(ULONG64 uFileSize);
 };
 
 #endif	// _UTILITY_H_

@@ -132,6 +132,28 @@ int Utility::GetSystemTimeUTC(CString& sTime)
   return 0;
 }
 
+void Utility::UTC2SystemTime(CString sUTC, SYSTEMTIME& st)
+{
+  CString sYear = sUTC.Mid(0, 4);
+  CString sMonth = sUTC.Mid(5, 2);
+  CString sDay = sUTC.Mid(8, 2);
+  CString sHour = sUTC.Mid(11, 2);
+  CString sMin = sUTC.Mid(14, 2);
+  CString sSec = sUTC.Mid(17, 2);
+
+  SYSTEMTIME UtcTime;
+  memset(&UtcTime, 0, sizeof(SYSTEMTIME));
+  UtcTime.wYear = (WORD)_ttoi(sYear);
+  UtcTime.wMonth = (WORD)_ttoi(sMonth);
+  UtcTime.wDay = (WORD)_ttoi(sDay);
+  UtcTime.wHour = (WORD)_ttoi(sHour);
+  UtcTime.wMinute = (WORD)_ttoi(sMin);
+  UtcTime.wSecond = (WORD)_ttoi(sSec);
+
+  // Convert to local time
+  SystemTimeToTzSpecificLocalTime(NULL, &UtcTime, &st);
+}
+
 int Utility::GenerateGUID(CString& sGUID)
 {
   int status = 1;
@@ -263,18 +285,6 @@ int Utility::RecycleFile(CString sFilePath, bool bPermanentDelete)
   return SHFileOperation(&fop); // do it!  
 }
 
-//CString Utility::GetINIString(LPCTSTR pszSection, LPCTSTR pszName)
-//{
-//  static CString sINIFileName = _T("");
-//
-//  if(sINIFileName.IsEmpty())
-//  {
-//    sINIFileName = GetModulePath(GetModuleHandle(NULL)) + _T("\\crashrpt_lang.ini");
-//  }
-//  
-//  return GetINIString(sINIFileName, pszSection, pszName);
-//}
-
 CString Utility::GetINIString(LPCTSTR pszFile, LPCTSTR pszSection, LPCTSTR pszName)
 {  
   TCHAR szBuffer[1024] = _T("");  
@@ -285,6 +295,12 @@ CString Utility::GetINIString(LPCTSTR pszFile, LPCTSTR pszSection, LPCTSTR pszNa
 
   return sResult;
 }
+
+void Utility::SetINIString(LPCTSTR pszFile, LPCTSTR pszSection, LPCTSTR pszName, LPCTSTR pszValue)
+{   
+  WritePrivateProfileString(pszSection, pszName, pszValue, pszFile);
+}
+
 
 void Utility::SetLayoutRTL(HWND hWnd)
 {
@@ -473,4 +489,42 @@ ULONG64 Utility::SystemTimeToULONG64( const SYSTEMTIME& st )
   integer.LowPart = ft.dwLowDateTime ;
   integer.HighPart = ft.dwHighDateTime ;
   return integer.QuadPart ;
+}
+
+CString Utility::FileSizeToStr(ULONG64 uFileSize)
+{
+  CString sFileSize;
+    
+  if(uFileSize==0)
+  {
+    sFileSize = _T("0 KB");
+  }
+  else if(uFileSize<1024)
+  {
+    float fSizeKbytes = (float)uFileSize/(float)1024;
+    TCHAR szStr[64];
+#if _MSC_VER<1400
+    _stprintf(szStr, _T("%0.1f KB"), fSizeKbytes);    
+#else
+    _stprintf_s(szStr, 64, _T("%0.1f KB"), fSizeKbytes);    
+#endif
+    sFileSize = szStr;
+  }
+  else if(uFileSize<1024*1024)
+  {
+    sFileSize.Format(_T("%I64u KB"), uFileSize/1024);
+  }
+  else
+  {
+    float fSizeMbytes = (float)uFileSize/(float)(1024*1024);
+    TCHAR szStr[64];
+#if _MSC_VER<1400
+    _stprintf(szStr, _T("%0.1f MB"), fSizeMbytes);    
+#else
+    _stprintf_s(szStr, 64, _T("%0.1f MB"), fSizeMbytes);    
+#endif
+    sFileSize = szStr;
+  }
+
+  return sFileSize;
 }

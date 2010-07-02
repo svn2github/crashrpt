@@ -162,58 +162,58 @@ private:
 
   /* Crash report generation methods */
 
-  // Collects current process state
+  // Collects current process state.
   void GetExceptionPointers(DWORD dwExceptionCode, 
     EXCEPTION_POINTERS** pExceptionPointers);
   
-  // Collects various information useful for crash analyzis
+  // Collects various information useful for crash analyzis.
   void CollectMiscCrashInfo();
     
-  // Creates crash description XML file
+  // Creates crash description XML file.
   int CreateCrashDescriptionXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
-  // Creates internally used crash description file
+  // Creates internally used crash description file.
   int CreateInternalCrashInfoFile(CString sFileName, 
-    EXCEPTION_POINTERS* pExInfo);
+    EXCEPTION_POINTERS* pExInfo, BOOL bSendRecentReports);
   
-  // Launches the CrashSender.exe process
+  // Launches the CrashSender.exe process.
   int LaunchCrashSender(CString sCmdLineParams, BOOL bWait);  
 
   // Replaces characters that are restricted in XML.
   std::string XmlEncodeStr(CString sText);
   
-  // Sets internal pointers to exception handlers to NULL
+  // Sets internal pointers to exception handlers to NULL.
   void InitPrevExceptionHandlerPointers();
 
   /* Private member variables. */
 
-  static CCrashHandler* m_pProcessCrashHandler; // Singleton of the CCrashHandler class
+  static CCrashHandler* m_pProcessCrashHandler; // Singleton of the CCrashHandler class.
   
-  LPTOP_LEVEL_EXCEPTION_FILTER  m_oldSehHandler;  // previous SEH exception filter
+  LPTOP_LEVEL_EXCEPTION_FILTER  m_oldSehHandler;  // previous SEH exception filter.
       
 #if _MSC_VER>=1300
-  _purecall_handler m_prevPurec;   // Previous pure virtual call exception filter
-  _PNH m_prevNewHandler; // Previous new operator exception filter
+  _purecall_handler m_prevPurec;   // Previous pure virtual call exception filter.
+  _PNH m_prevNewHandler; // Previous new operator exception filter.
 #endif
 
 #if _MSC_VER>=1400
-  _invalid_parameter_handler m_prevInvpar; // Previous invalid parameter exception filter  
+  _invalid_parameter_handler m_prevInvpar; // Previous invalid parameter exception filter.
 #endif
 
 #if _MSC_VER>=1300 && _MSC_VER<1400
-  _secerr_handler_func m_prevSec; // Previous security exception filter
+  _secerr_handler_func m_prevSec; // Previous security exception filter.
 #endif
 
-  void (__cdecl *m_prevSigABRT)(int); // Previous SIGABRT handler  
-  void (__cdecl *m_prevSigINT)(int);  // Previous SIGINT handler
-  void (__cdecl *m_prevSigTERM)(int); // Previous SIGTERM handler
+  void (__cdecl *m_prevSigABRT)(int); // Previous SIGABRT handler.  
+  void (__cdecl *m_prevSigINT)(int);  // Previous SIGINT handler.
+  void (__cdecl *m_prevSigTERM)(int); // Previous SIGTERM handler.
 
-  // List of exception handlers installed for worker threads of current process
+  // List of exception handlers installed for worker threads of current process.
   std::map<DWORD, ThreadExceptionHandlers> m_ThreadExceptionHandlers;
-  CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers
+  CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers.
 
-  std::map<CString, FileItem> m_files;  // Files to add.
+  std::map<CString, FileItem> m_files;  // Files to be added to crash report.
   std::map<CString, CString> m_props;   // User-defined properties
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
   CString m_sEmailTo;            // Email recipient address.
@@ -223,7 +223,7 @@ private:
   CString m_sSmtpProxyServer;    // SMTP proxy server address.
   int m_nSmtpProxyPort;          // SMTP proxy server port.
   CString m_sUrl;                // URL for sending reports via HTTP.
-  UINT m_uPriorities[3];         // Which way to prefer when sending crash report?
+  UINT m_uPriorities[3];         // Which method to prefer when sending crash report?
   CString m_sAppName;            // Application name.
   CString m_sAppVersion;         // Application version.
   CString m_sImageName;          // Path to client executable file.
@@ -231,12 +231,12 @@ private:
   CString m_sCrashGUID;          // Unique ID of the crash report.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
   CString m_sReportFolderName;   // Folder where current crash report will be saved.
-  CString m_sPrivacyPolicyURL;   // Privacy policy URL  
-  HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
-  CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
+  CString m_sPrivacyPolicyURL;   // Privacy policy URL.  
+  HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL.
+  CString m_sPathToDebugHelpDll; // Path to dbghelp DLL.
   BOOL m_bGenerateMinidump;      // Should we generate minidump file?
-  BOOL m_bSendRecentReports;     // Should we send recently generated and unsent reports again?
-  MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
+  BOOL m_bQueueEnabled;          // Should we resend recently generated reports?
+  MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type. 
   BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
   BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
   BOOL m_bSendErrorReport;       // Should we send error report or just save it  
@@ -244,21 +244,21 @@ private:
   SYSTEMTIME m_AppStartTime;     // The time this application was started.
   CString m_sCrashTime;          // Crash time in UTC format
   CString m_sOSName;             // Operating system name.
-  DWORD m_dwGuiResources;        // Count of GUI resources in use
-  DWORD m_dwProcessHandleCount;  // Count of opened handles
-  CString m_sMemUsage;           // Memory usage
+  DWORD m_dwGuiResources;        // Count of GUI resources in use.
+  DWORD m_dwProcessHandleCount;  // Count of opened handles.
+  CString m_sMemUsage;           // Memory usage.
 
   BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
-  DWORD m_dwScreenshotFlags;     // Screenshot flags
+  DWORD m_dwScreenshotFlags;     // Screenshot flags.
   CRect m_rcAppWnd;              // Rectangle of the main app window (used for screenshot generation).
-  CPoint m_ptCursorPos;          // Mouse cursor position at the moment of crash
+  CPoint m_ptCursorPos;          // Mouse cursor position at the moment of crash.
 
   BOOL m_bAppRestart;            // Should we restart the crashed app or not?
   CString m_sRestartCmdLine;     // Command line for app restart.
 
-  HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe
+  HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe.
 
-  BOOL m_bInitialized;           // Flag telling if this object was are initialized.
+  BOOL m_bInitialized;           // Flag telling if this object was initialized.  
 };
 
 #endif	// !_CRASHHANDLER_H_
