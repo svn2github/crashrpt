@@ -109,7 +109,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
+				CommandLine="copy &quot;$(SolutionDir)lang_files\crashrpt_lang_EN.ini&quot; &quot;$(OutDir)\crashrpt_lang.ini&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -300,7 +300,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
+				CommandLine="copy &quot;$(SolutionDir)lang_files\crashrpt_lang_EN.ini&quot; &quot;$(OutDir)\crashrpt_lang.ini&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -491,7 +491,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
+				CommandLine="copy &quot;$(SolutionDir)lang_files\crashrpt_lang_EN.ini&quot; &quot;$(OutDir)\crashrpt_lang.ini&quot;"
 			/>
 		</Configuration>
 		<Configuration

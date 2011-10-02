@@ -109,7 +109,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;copy dummy.ini &quot;$(OutDir)&quot;&#x0D;&#x0A;copy dummy.log &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -298,7 +298,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;copy dummy.ini &quot;$(OutDir)&quot;&#x0D;&#x0A;copy dummy.log &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -485,7 +485,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(SolutionDir)dbghelp\bin\dbghelp.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;copy dummy.ini &quot;$(OutDir)&quot;&#x0D;&#x0A;copy dummy.log &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
