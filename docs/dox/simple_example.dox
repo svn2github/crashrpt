@@ -1,0 +1,341 @@
+/*!
+
+\page simple_example An Example of Using CrashRpt API
+
+The following example shows how to use \ref CrashRptAPI and \ref CrashRptStructs
+to enable crash reporting support. 
+
+First create a console WinAPI application and call it MyApp. Then configure the MyApp application
+as described in \ref configuring_project.
+
+Let's assume the case when MyApp application has two threads. The first thread, the application thread,
+will be the main one. The \b main() function will be executed in this thread and interaction with user
+will also be done in this thread. The second thread, the worker thread, is 
+usually used when some time-consuming computational work is to be done without blocking the application thread.
+
+The MyApp application will create a log file that will be included in error report on crash. The
+log file is typically helpful when debugging a crash.
+
+Let's create the code template.
+
+\code
+
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+
+FILE* g_hLog = NULL; // Global handle to the application log file
+
+// The following function writes an entry to the log file
+void log_write(LPCTSTR szFormat, ...)
+{
+  if (g_hLog == NULL) 
+    return; // Log file seems to be closed
+
+  va_list args;
+  va_start(args); 
+  _vftprintf_s(g_hLog, szFormat, args);
+  fflush(g_hLog);
+}
+
+// Thread procedure
+DWORD WINAPI ThreadProc(LPVOID lpParam)
+{
+  log_write(_T("Entering the thead proc\n"));
+
+  // Define the infinite loop where some processing will be done 
+  for(;;)
+  {
+    // There is a hidden error somewhere inside of the loop...
+    int* p = NULL;
+    *p = 13; // This results in Access Violation
+  }    
+   
+  log_write(_T("Leaving the thead proc\n"));
+
+  return 0;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+  // Open log file
+  errno_t err = _tfopen_s(&g_hLog, _T("log.txt"), _T("wt"));
+  if(err!=0 || g_hLog==NULL)
+  {
+    _tprintf_s(_T("Error opening log.txt\n"));
+    return 1; // Couldn't open log file
+  }
+
+  log_write(_T("Started successfully\n"));
+
+  // Create the worker thread
+  HANDLE hWorkingThread = CreateThread(NULL, 0, 
+           ThreadProc, (LPVOID)NULL, 0, NULL);
+
+  log_write(_T("Created working thread\n"));
+
+  // There is a hidden error in the main() function
+  // Call of _tprintf_s with NULL parameter
+  TCHAR* szFormatString = NULL;
+  _tprintf_s(szFormatString);
+
+  // Wait until the worker thread is exited
+  WaitForSingleObject(hWorkingThread, INFINITE);
+
+  log_write(_T("Working thread has exited\n"));
+
+  // Close the log file
+  if(g_hLog!=NULL)
+  {
+    fclose(g_hLog);
+    g_hLog = NULL;// Clean up handle
+  }
+
+  // Exit
+  return 0;
+}
+
+\endcode
+
+We intentionally inserted the code that would cause an exception in both threads. In real-life
+programs such code always exist, even when you test your application very carefully.
+
+To enable crash reporting support in the application, you need to insert some \ref CrashRptAPI.
+Below is the same code with CrashRpt API functions inserted.
+
+\code
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+// Include CrashRpt Header 
+#include "CrashRpt.h"
+
+FILE* g_hLog = NULL; // Global handle to the application log file
+
+// Define the callback function that will be called on crash
+BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
+{  
+  // The application has crashed!
+
+  // Close the log file here
+  // to ensure CrashRpt is able to include it into error report
+  if(g_hLog!=NULL)
+  {
+    fclose(g_hLog);
+    g_hLog = NULL;// Clean up handle
+  }
+
+  // Return TRUE to generate error report
+  return TRUE;
+}
+
+// The following function returns TRUE if the correct CrashRpt DLL was loaded,
+// otherwise it returns FALSE
+BOOL CheckCrashRptVersion()
+{
+  BOOL bExitCode = FALSE;
+  TCHAR szModuleName[_MAX_PATH] = _T("");
+  HMODULE hModule = NULL;
+  DWORD dwBuffSize = 0;
+  LPBYTE pBuff = NULL;
+  VS_FIXEDFILEINFO* fi = NULL;
+  UINT uLen = 0;
+
+  // Get handle to loaded CrashRpt.dll module
+  hModule = GetModuleHandle(_T("CrashRpt.dll"));
+  if(hModule==NULL)
+    goto cleanup; // No "CrashRpt.dll" module loaded
+
+  // Get module file name
+  GetModuleFileName(hModule, szModuleName, _MAX_PATH);
+
+  // Get module version 
+  dwBuffSize = GetFileVersionInfoSize(szModuleName, 0);
+  if(dwBuffSize==0)
+    goto cleanup; // Invalid buffer size
+
+  pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);
+  if(pBuff==NULL)
+    goto cleanup;
+      
+  if(0==GetFileVersionInfo(szModuleName, 0, dwBuffSize, pBuff))
+    goto cleanup; // No version info found
+  
+  VerQueryValue(pBuff, _T("\\"), (LPVOID*)&fi, &uLen);
+
+  WORD dwVerMajor = HIWORD(fi->dwProductVersionMS);
+  WORD dwVerMinor = LOWORD(fi->dwProductVersionMS);  
+  WORD dwVerBuild = LOWORD(fi->dwProductVersionLS);
+
+  DWORD dwModuleVersion = dwVerMajor*1000+dwVerMinor*100+dwVerBuild;
+
+  if(CRASHRPT_VER==dwModuleVersion)
+    bExitCode = TRUE; // Version match!
+
+cleanup:
+
+  if(pBuff)
+  {
+    // Free buffer
+    GlobalFree((HGLOBAL)pBuff);
+    pBuff = NULL;
+  }
+
+  return bExitCode;
+}
+
+// The following function writes an entry to the log file
+void log_write(LPCTSTR szFormat, ...)
+{
+  if (g_hLog == NULL) 
+    return; // Log file seems to be closed
+
+  va_list args; 
+  va_start(args); 
+  _vftprintf_s(g_hLog, szFormat, args);
+  fflush(g_hLog);
+}
+
+// Thread procedure
+DWORD WINAPI ThreadProc(LPVOID lpParam)
+{
+  // Install exception handlers for this thread
+  crInstallToCurrentThread2(0);
+
+  log_write(_T("Entering the thead proc\n"));
+
+  // Define the infinite loop where some processing will be done 
+  for(;;)
+  {
+    // There is a hidden error somewhere inside of the loop...
+    int* p = NULL;
+    *p = 13; // This results in Access Violation
+  }    
+   
+  log_write(_T("Leaving the thead proc\n"));
+
+  // Unset exception handlers before exiting the thread
+  crUninstallFromCurrentThread();    
+
+  return 0;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+  // First check if it is safe to call functions from CrashRpt.dll
+  if(!CheckCrashRptVersion())
+  {
+    // An invalid CrashRpt.dll loaded!
+    _tprintf(_T("The version of CrashRpt.dll is invalid.\n"));
+    return 1;
+  }
+
+  // Define CrashRpt configuration parameters
+  CR_INSTALL_INFO info;  
+  memset(&info, 0, sizeof(CR_INSTALL_INFO));  
+  info.cb = sizeof(CR_INSTALL_INFO);    
+  info.pszAppName = _T("MyApp");  
+  info.pszAppVersion = _T("1.0.0");  
+  info.pszEmailSubject = _T("MyApp 1.0.0 Error Report");  
+  info.pszEmailTo = _T("myapp_support@hotmail.com");    
+  info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");  
+  info.pfnCrashCallback = CrashCallback;   
+  info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
+  info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
+  info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
+  // Install all available exception handlers, use HTTP binary transfer encoding (recommended).
+  info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS;
+  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING; 
+  info.dwFlags |= CR_INST_APP_RESTART; 
+  info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS; 
+  info.pszRestartCmdLine = _T("/restart");
+  // Define the Privacy Policy URL 
+  info.pszPrivacyPolicyURL = _T("http://myapp.com/privacypolicy.html"); 
+  
+  // Install exception handlers
+  int nResult = crInstall(&info);    
+  if(nResult!=0)  
+  {    
+    // Something goes wrong. Get error message.
+    TCHAR szErrorMsg[512] = _T("");        
+    crGetLastErrorMsg(szErrorMsg, 512);    
+    _tprintf_s(_T("%s\n"), szErrorMsg);    
+    return 1;
+  } 
+
+  // Add our log file to the error report
+  crAddFile2(_T("log.txt"), NULL, _T("Log File"), CR_AF_MAKE_FILE_COPY);    
+
+  // We want the screenshot of the entire desktop is to be added on crash
+  crAddScreenshot(CR_AS_VIRTUAL_SCREEN);   
+
+  // Add a named property that means what graphics adapter is
+  // installed on user's machine
+  crAddProperty(_T("VideoCard"), _T("nVidia GeForce 8600 GTS"));
+
+  // The main code follows...
+
+  // Open log file
+  errno_t err = _tfopen_s(&g_hLog, _T("log.txt"), _T("wt"));
+  if(err!=0 || g_hLog==NULL)
+  {
+    _tprintf_s(_T("Error opening log.txt\n"));
+    return 1; // Couldn't open log file
+  }
+
+  log_write(_T("Started successfully\n"));
+
+  // Create the worker thread
+  HANDLE hWorkingThread = CreateThread(NULL, 0, 
+           ThreadProc, (LPVOID)NULL, 0, NULL);
+
+  log_write(_T("Created working thread\n"));
+
+  // There is a hidden error in the main() function
+  // Call of _tprintf_s with NULL parameter
+  TCHAR* szFormatString = NULL;
+  _tprintf_s(szFormatString);
+
+  // Wait until the worker thread is exited
+  WaitForSingleObject(hWorkingThread, INFINITE);
+
+  log_write(_T("Working thread has exited\n"));
+
+  // Close the log file
+  if(g_hLog!=NULL)
+  {
+    fclose(g_hLog);
+    g_hLog = NULL;// Clean up handle
+  }
+
+  // Unset exception handlers before exiting the main function
+  crUninstall();
+
+  // Exit
+  return 0;
+}
+\endcode
+
+The code above contains the function named \b CheckCrashRptVersion() that is used
+to check if the correct \b CrashRpt.dll was loaded to the process. For additional
+information on when an incorrect \b CrashRpt.dll may be loaded, refer to 
+\ref checking_crashrpt_version.
+
+Add \b version.lib to the list of input libraries of the MyApp application and 
+compile the application in the Release configuration.
+
+Before running the application, you should place the following files to the directory 
+where your application executable file is located (for additional information, 
+see \ref preparing_to_software_release):
+                                                                              
+- \b CrashRpt.dll 
+- \b CrashSender.exe
+- \b dbghelp.dll
+- \b crashrpt_lang.ini 
+
+When files are copied, run the application. As error occurs, you should be able to see an
+error report window (for additional information, see \ref error_report)
+
+
+
+*/

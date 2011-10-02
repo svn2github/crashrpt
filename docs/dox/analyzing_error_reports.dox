@@ -1,0 +1,58 @@
+/*!
+
+\page analyzing_error_reports Analyzing Error Reports
+
+When a software release is made and CrashRpt support is enabled in your software, sooner or later you
+start receiving crash reports. 
+
+Count of received crash reports may depend on robustness of your software to various 
+exceptional situations and on popularity of your software. So it's nothing unusual
+if you receive hundreds of error reports a day. If there are many incoming error reports,
+you can monitor and analyse them for the first few days after release, and prepare a hot fix 
+release. 
+
+The purpose of the error report is to help you determine the reason of the problem and 
+try to fix it. The keyword is 'try', because in most cases you can't fix crash reports as 
+you usually do with normal bugs. You usually can't reproduce the error on your machine,
+so you can't guarantee it is fixed. So the only way to check is to make fixes in parts of code 
+that could cause the crash most probably and to release a new version of software. 
+For some tips on doing such code modifications, see \ref writing_robust_code.
+
+The normal scenario is that your software becomes more and more stable with each evolutional release and
+less and less error reports are received. 
+
+\section zip_structure The Structure of an Error Report
+
+A crash report is a ZIP file containing several files, such as 
+ - crash minidump (crashdump.dmp)
+ - crash description XML (crashrpt.xml) 
+ - and optionally application specific files, for example, application log files.
+
+For more information about using crash description XML and crash minidump, 
+see \ref using_crash_descriptor and \ref using_minidump.
+
+For information on how to automate error report processing, see \ref automating_crash_report_processing.
+
+\section analyzing_reports_faq FAQ
+
+<b>How do I check integrity of a received error report?</b>
+
+You may calculate MD5 hash for your error report and compare it with the MD5 hash 
+that is attached to the error report. When you receive error reports using HTTP 
+connection, the MD5 hash is passed to the server-side script through the 'md5' parameter.
+Since CrashRpt v1.1.1., when you receive error reports using email, the MD5 hash is 
+attached to the email. 
+
+<b>I want the user to directly send me the stack trace, w/o me need to postprocess 
+anything with that on my side. Does crashrpt support this somehow?</b>
+
+No, CrashRpt can't generate readable stack traces on the side of the user. It supports 
+developer-side error report processing.
+
+User-side error report processing would require you to distribute your PDB files with 
+your software. Typically you do not distribute PDB files, because it makes someone 
+easier to reverse-engineer your program. Our approach is developer-side post-processing. 
+This means users send you error reports and you post-process them on your machine, 
+where PDB files, binaries and source code is located. 
+
+*/

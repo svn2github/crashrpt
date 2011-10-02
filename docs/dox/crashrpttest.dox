@@ -1,0 +1,48 @@
+/*!
+
+\page demos Running Demo Applications 
+
+\note CrashRpt distribution archive contains compiled demo applications for demonstration purposes. 
+If you run the compiled demos from \c bin folder and do not compile them yourself, you might
+experience some problems if Visual C++ 2005 Redistributable files are not installed on your machine. 
+There may be error messages like 'The application configuration is incorrect' and so on.
+If you do not have Visual C++ 2005 Redistributable on your machine and do not want to install it, 
+please compile the solution yourself as described in \ref compiling_crashrpt.
+
+\section crashrpttest About CrashRptTest Demo
+
+\b CrashRptTest demo application shows how CrashRpt intercepts exceptions and
+how it sends error reports to the software support team. The application has simple dialog based GUI that
+allows to choose what type of exception to generate and in what thread. 
+
+\note This demo does not uppload error reports to any server, it just demonstrates how error report delivery works.
+To make this demo to upload your error reports, you need to edit its configuration (see CrashRptTest.cpp file inside of 
+/reporting/crashrpttest folder) and then recompile the demo.
+
+To run CrashRptTest demo, open \c bin directory and run \b CrashRptTest.exe.
+You can also compile the demo yourself.
+
+CrashRptTest application (see the figure below) is designed to test the most probable crash situations. 
+The <i>Exception type</i> combo box allows to select an exception type. For more information,
+see \ref exception_handling.
+The <i>Thread</i> combo box allows to select the thread exception should occur in. 
+
+\image html crashrpttest.png "CrashRptTest GUI"
+
+\section crashcon About Crashcon Demo
+
+\b crashcon demo is a console application (presented below). It generates a SEH 
+exception and shows how CrashRpt intercepts the exception and sends the error
+report to software support team.
+
+\note This demo does not uppload error reports to any server, it just demonstrates how error report delivery works.
+To make this demo to upload your error reports, you need to edit its configuration (see crashcon.cpp file inside of 
+/reporting/crashcon folder) and then recompile the demo.
+
+To run the demo, open \c bin directory and run \b crashcon.exe.
+You can also compile the demo yourself.
+
+\image html crashcon.png "crashcon"
+
+
+*/

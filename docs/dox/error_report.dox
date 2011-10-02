@@ -1,0 +1,104 @@
+/*!
+
+\page error_report About an Error Report
+
+When an error occurs, CrashRpt notifies the user and allows to review the report contents. 
+<b>Since v1.1.3</b> CrashRpt can be configured to use multiple languages with its user
+interface, as described in \ref internationalization_support.
+
+\section maindlg Error Report Dialog
+
+First the <b>Error Report</b> dialog is displayed (see the figure below). 
+
+\image html maindlg.png "Error Report Dialog"
+
+User can optionally provide his/her E-mail address and a short problem 
+description. The E-mail address may be used later by software support staff to
+contact the user and ask for additional information about the problem.
+
+The <i>What does this report contain?</i> link opens the details dialog.
+
+\section detaildlg Error Report Details Dialog
+
+The <b>Error Report Details</b> dialog (see below) contains files that are presented in the report. 
+Double clicking a filename opens the file using its associated program, 
+if an association exists for the file type. 
+
+Pressing the <i>Export...</i> button results in exporting the error report as a ZIP archive.
+This may be useful if you want to save a local copy of the error report.
+
+\image html detaildlg.png "Error Report Details Dialog"
+
+<b>Since v.1.1.2</b> you can use a privacy policy describing what user 
+information your software collects on crash. You provide the URL of your privacy 
+policy file published on your web site or distributed with your software.
+If you need a template you may use this one: 
+<a href="http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate">PrivacyPolicyTemplate</a>. 
+
+The error report refers to a collection of files intended to help the developer 
+diagnose the cause of the crash. 
+
+The error report contains crash minidump file (crashdump.dmp), which has operating system 
+version, processor type, CPU registers state and local variables and stack trace for each 
+execution thread. The minidump in most cases can be used on developer's side to determine 
+the reason of the crash and try to fix the problem.
+
+In addition, CrashRpt generates an XML crash description file. The file contains various
+information that might be useful for crash analysis.
+
+Custom files, for example, application log files and desktop screen shots, can be included 
+into crash report via the API functions provided by CrashRpt.
+
+Once the user is satisfied, he/she may close the details dialog and click the 'Send report' 
+button on the main dialog. If the user doesn't want to send the report, the user clicks the 
+'Close the program' button.
+
+\section progressdlg Sending Error Report Dialog
+
+The <b>Sending Error Report</b> dialog (presented below) shows the progress of sending the error report. There are
+maximum three attempts to send the report: using HTTP (or HTTPS), using SMTP, and using Simple MAPI. The client
+application may specify the order of attempts. By default HTTP connection is tried the first, SMTP
+connection is tried the second, and Simple MAPI is tried the last.
+
+There is the status log area below the progress bar. It contains the details of report
+sending process. You can copy some selected lines or the whole log to the clipboard. To do this,
+select several lines of the log, right-click the selection and choose an item in the context menu. 
+The log may be useful when troubleshooting some error report sending problem.
+
+\image html progressdlg.png "Sending Error Report Dialog"
+
+\note The dialog becomes hidden in three seconds after start. Then it is displayed as icon in system tray.
+Double-click the icon to restore the dialog. The dialog is restored automatically when some user
+interaction is required.
+
+\section queued_reports Queued Error Report Delivery
+
+If error report delivery fails, CrashRpt can save (queue) error report data locally for later delivery.
+
+You can ask CrashRpt to send all queued reports in turn. On application start up, CrashRpt 
+checks if it is time to remind user about error reports ready for delivery, shows notification balloon 
+and offers user to deliver them. CrashRpt shows notification if at least one week elapsed since the last 
+notification.
+
+\image html send_queued_reports.png "Sending Recent Error Reports"
+
+If user wants to send some queued error reports immediately, he/she presses the "Send now" button.
+If user wants to postpone the delivery, he/she presses the "Other actions..." button and clicks the 
+"Remind me later" from the context menu, or just closes the window. If user doesn't want to send error
+reports later, he/she clicks the "Never remind" context menu item.
+
+\section error_report_faq FAQ
+
+<b>What do I do to save a local copy of an error report to my disk?</b>
+
+Since v.1.2.2, you can use the 'Export...' button on the Error Report Details dialog to save a 
+local copy of the error report. 
+
+<b>I would like to force the user to enter a description of what happened just before the crash. 
+What do I do?</b>
+
+The user has an ability to enter the description of the problem in the Error Report dialog by 
+clicking the link "Provide additional information (recommended)". However, the practice 
+shows that most users do not enter anything meaningful into this field. 
+
+*/
