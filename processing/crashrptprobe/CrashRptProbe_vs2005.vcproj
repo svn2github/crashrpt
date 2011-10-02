@@ -152,7 +152,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashRptProbed.dll"
+				OutputFile="$(OutDir)\CrashRptProbe$(CrashRptVer)d.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib\$(PlatformName)&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\lib\amd64&quot;"
 				ModuleDefinitionFile="CrashRptProbe.def"
@@ -321,7 +321,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashRptProbe.dll"
+				OutputFile="$(OutDir)\CrashRptProbe$(CrashRptVer).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName);$(SolutionDir)thirdparty\dbghelp\lib\amd64"
 				ModuleDefinitionFile="CrashRptProbe.def"

@@ -186,7 +186,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlib.lib version.lib shell32.lib Comdlg32.lib gdi32.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashRpt.dll"
+				OutputFile="$(OutDir)\CrashRpt$(CrashRptVer).dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
@@ -394,7 +394,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlibd.lib version.lib shell32.lib Comdlg32.lib gdi32.lib libpngd.lib libpngd.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashRptd.dll"
+				OutputFile="$(OutDir)\CrashRpt$(CrashRptVer)d.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"

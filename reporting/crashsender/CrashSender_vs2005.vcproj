@@ -174,7 +174,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizipd.lib version.lib psapi.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashSenderd.exe"
+				OutputFile="$(OutDir)\CrashSender$(CrashRptVer)d.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
@@ -205,7 +205,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(SolutionDir)lang_files\crashrpt_lang_EN.ini&quot; &quot;$(OutDir)\crashrpt_lang.ini&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -364,7 +364,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizip.lib version.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashSender.exe"
+				OutputFile="$(OutDir)\CrashSender$(CrashRptVer).exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
@@ -395,7 +395,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
+				CommandLine="copy &quot;$(SolutionDir)lang_files\crashrpt_lang_EN.ini&quot; &quot;$(OutDir)\crashrpt_lang.ini&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -556,7 +556,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib psapi.lib version.lib"
-				OutputFile="$(OutDir)\CrashSender.exe"
+				OutputFile="$(OutDir)\CrashSender$(CrashRptVer).exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
@@ -587,7 +587,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
+				CommandLine="copy &quot;$(SolutionDir)lang_files\crashrpt_lang_EN.ini&quot; &quot;$(OutDir)\crashrpt_lang.ini&quot;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -920,10 +920,6 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
-			<File
-				RelativePath=".\res\CrashSender.exe.manifest"
-				>
-			</File>
 			<File
 				RelativePath=".\res\CrashSender.ico"
 				>
