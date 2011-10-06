@@ -67,29 +67,35 @@ CErrorReportSender::~CErrorReportSender()
 
 int CErrorReportSender::GetGlobalStatus()
 {
+    // Return global error report delivery status
     return m_nGlobalStatus;
 }
 
 int CErrorReportSender::GetCurReport()
 {
+    // Returns the index of error report currently being sent
     return m_nCurReport;
 }
 
 BOOL CErrorReportSender::SetCurReport(int nCurReport)
 {
+    // Validate input params
     if(nCurReport<0 || nCurReport>=g_CrashInfo.GetReportCount())
     {
         ATLASSERT(0);
         return FALSE;
     }
+
+    // Update current report index
     m_nCurReport = nCurReport;
     return TRUE;
 }
 
-// This method does crash files collection and/or
-// error report sending work
+// This method performs crash files collection and/or
+// error report sending work in a worker thread.
 BOOL CErrorReportSender::DoWork(int action)
 {
+    // Save the action code
     m_Action = action;
 
     // Create worker thread which will do all work assynchronously
@@ -97,9 +103,9 @@ BOOL CErrorReportSender::DoWork(int action)
 
     // Check if the thread was created ok
     if(m_hThread==NULL)
-        return FALSE;
+        return FALSE; // Failed to create worker thread
 
-    // Done
+    // Done, return
     return TRUE;
 }
 
@@ -111,6 +117,7 @@ DWORD WINAPI CErrorReportSender::WorkerThread(LPVOID lpParam)
     CErrorReportSender* pSender = (CErrorReportSender*)lpParam;
     pSender->DoWorkAssync();
 
+    // Exit code can be ignored
     return 0;
 }
 
@@ -118,22 +125,25 @@ void CErrorReportSender::UnblockParentProcess()
 {
     // Notify the parent process that we have finished with minidump,
     // so the parent process is able to unblock and terminate itself.
-    CString sEventName;
 
+    // Open the event the parent process had created for us
+    CString sEventName;
     sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.GetReport(0).m_sCrashGUID);
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
     if(hEvent!=NULL)
-        SetEvent(hEvent);
+        SetEvent(hEvent); // Signal event
 }
 
 // This method collects required crash files (minidump, screenshot etc.)
 // and then sends the error report over the Internet.
 void CErrorReportSender::DoWorkAssync()
 {
+    // Reset the completion event
     m_Assync.Reset();
 
     if(g_CrashInfo.m_bSendRecentReports) // If we are currently sending pending error reports
     {
+        // Add a message to log
         CString sMsg;
         sMsg.Format(_T(">>> Performing actions with error report: '%s'"), 
             g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName);
@@ -142,6 +152,7 @@ void CErrorReportSender::DoWorkAssync()
 
     if(m_Action&COLLECT_CRASH_INFO) // Collect crash report files
     {
+        // Add a message to log
         m_Assync.SetProgress(_T("Start collecting information about the crash..."), 0, false);
 
         // First take a screenshot of user's desktop (if needed).
@@ -149,8 +160,10 @@ void CErrorReportSender::DoWorkAssync()
 
         if(m_Assync.IsCancelled()) // Check if user-cancelled
         {      
+            // Parent process can now terminate
             UnblockParentProcess();
 
+            // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
             return;
         }
@@ -160,8 +173,10 @@ void CErrorReportSender::DoWorkAssync()
 
         if(m_Assync.IsCancelled()) // Check if user-cancelled
         {      
+            // Parent process can now terminate
             UnblockParentProcess();
 
+            // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
             return;
         }
@@ -175,31 +190,34 @@ void CErrorReportSender::DoWorkAssync()
 
         if(m_Assync.IsCancelled()) // Check if user-cancelled
         {      
+            // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
             return;
         }
 
+        // Add a message to log
         m_Assync.SetProgress(_T("[confirm_send_report]"), 100, false);
     }
 
-    if(m_Action&COMPRESS_REPORT)
+    if(m_Action&COMPRESS_REPORT) // We have to compress error report file into ZIP archive
     { 
         // Compress error report files
         BOOL bCompress = CompressReportFiles(g_CrashInfo.GetReport(m_nCurReport));
         if(!bCompress)
         {
+            // Add a message to log
             m_Assync.SetProgress(_T("[status_failed]"), 100, false);
             return; // Error compressing files
         }
     }
 
-    if(m_Action&RESTART_APP)
+    if(m_Action&RESTART_APP) // We need to restart the parent process
     { 
         // Restart the application
         RestartApp();
     }
 
-    if(m_Action&SEND_REPORT)
+    if(m_Action&SEND_REPORT) // We need to send the report over the Internet
     {
         // Send the error report.
         SendReport();
@@ -228,17 +246,20 @@ void CErrorReportSender::GetStatus(int& nProgressPct, std::vector<CString>& msg_
     m_Assync.GetProgress(nProgressPct, msg_log); 
 }
 
+// This method cancels the current operation
 void CErrorReportSender::Cancel()
 {
     // User-cancelled
     m_Assync.Cancel();
 }
 
+// This method notifies the main thread that we have finished assync operation
 void CErrorReportSender::FeedbackReady(int code)
 {
     m_Assync.FeedbackReady(code);
 }
 
+// This method cleans up temporary files
 BOOL CErrorReportSender::Finalize()
 {  
     if(g_CrashInfo.m_bSendErrorReport && !g_CrashInfo.m_bQueueEnabled)
@@ -262,39 +283,48 @@ BOOL CErrorReportSender::Finalize()
         g_ErrorReportSender.WaitForCompletion();
     }
 
+    // Done OK
     return TRUE;
 }
 
-// This takes the desktop screenshot (screenshot of entire virtual screen
+// This method takes the desktop screenshot (screenshot of entire virtual screen
 // or screenshot of the main window). 
 BOOL CErrorReportSender::TakeDesktopScreenshot()
 {
-    CScreenCapture sc;
-    ScreenshotInfo ssi; 
-    std::vector<CString> screenshot_names;
+    CScreenCapture sc; // Screen capture object
+    ScreenshotInfo ssi; // Screenshot params
+    std::vector<CString> screenshot_names; // The list of screenshot files
 
+    // Add a message to log
     m_Assync.SetProgress(_T("[taking_screenshot]"), 0);    
 
+    // Check if screenshot capture is allowed
     if(!g_CrashInfo.m_bAddScreenshot)
     {
+        // Add a message to log
         m_Assync.SetProgress(_T("Desktop screenshot generation disabled; skipping."), 0);    
+        // Exit, nothing to do here
         return TRUE;
     }
 
+    // Add a message to log
     m_Assync.SetProgress(_T("Taking desktop screenshot"), 0);    
 
+    // Get screenshot flags passed by the parent process
     DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
 
+    // Determine what image format to use (JPG or PNG)
     SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG;
 
     if((dwFlags&CR_AS_USE_JPEG_FORMAT)!=0)
         fmt = SCREENSHOT_FORMAT_JPG;
 
+    // Determine what to use - color or grayscale
     BOOL bGrayscale = (dwFlags&CR_AS_GRAYSCALE_IMAGE)!=0;
 
-    std::vector<CRect> wnd_list;
+    std::vector<CRect> wnd_list; // List of window handles
 
-    if((dwFlags&CR_AS_MAIN_WINDOW)!=0)
+    if((dwFlags&CR_AS_MAIN_WINDOW)!=0) // We need to capture the main window
     {     
         // Take screenshot of the main window
         std::vector<WindowInfo> aWindows; 
@@ -310,9 +340,8 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
             ssi.m_aWindows.push_back(aWindows[0]);
         }
     }
-    else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0)
-    {     
-        // Take screenshot of the main window    
+    else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0) // Capture all process windows
+    {          
         std::vector<WindowInfo> aWindows; 
         HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, g_CrashInfo.m_dwProcessId);
         if(hProcess!=NULL)
@@ -326,7 +355,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
             wnd_list.push_back(aWindows[i].m_rcWnd);
         ssi.m_aWindows = aWindows;
     }
-    else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0
+    else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
     {
         // Take screenshot of the entire desktop
         CRect rcScreen;
@@ -576,6 +605,7 @@ cleanup:
     return bStatus;
 }
 
+// This method adds an element to XML file
 void CErrorReportSender::AddElemToXML(CString sName, CString sValue, TiXmlNode* root)
 {
     strconv_t strconv;
@@ -585,6 +615,7 @@ void CErrorReportSender::AddElemToXML(CString sName, CString sValue, TiXmlNode* 
     hElem.ToElement()->LinkEndChild(text);
 }
 
+// This method generates an XML file describing the crash
 BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
 {
     BOOL bStatus = FALSE;
@@ -955,6 +986,7 @@ cleanup:
     return 0;
 }
 
+// This method dumps a registry key contents to an XML file
 int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile, CString& sErrorMsg)
 {
     strconv_t strconv;
@@ -1233,6 +1265,7 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
     return 0;
 }
 
+// This method calculates an MD5 hash for the file
 int CErrorReportSender::CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 {
     FILE* f = NULL;
@@ -1277,7 +1310,7 @@ int CErrorReportSender::CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
     return 0;
 }
 
-// This method restarts the application
+// This method restarts the client application
 BOOL CErrorReportSender::RestartApp()
 {
     if(g_CrashInfo.m_bAppRestart==FALSE)
@@ -1325,6 +1358,7 @@ BOOL CErrorReportSender::RestartApp()
     return TRUE;
 }
 
+// This method calculates the total size of files included into error report
 LONG64 CErrorReportSender::GetUncompressedReportSize(ErrorReportInfo& eri)
 {
     m_Assync.SetProgress(_T("Calculating total size of files to compress..."), 0, false);

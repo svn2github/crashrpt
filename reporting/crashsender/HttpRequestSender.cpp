@@ -85,7 +85,7 @@ BOOL CHttpRequestSender::InternalSend()
     TCHAR szServer[512];       // Server name
     TCHAR szURI[1024];         // URI
     DWORD dwPort=0;            // Port
-    CString sHeaders = _T("Content-type: multipart/form-data, boundary=") + m_sBoundary;
+    CString sHeaders = _T("Content-type: multipart/form-data; boundary=") + m_sBoundary;
     LPCTSTR szAccept[2]={_T("*/*"), NULL};
     INTERNET_BUFFERS BufferIn;
     BYTE pBuffer[2048];
