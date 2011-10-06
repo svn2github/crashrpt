@@ -79,11 +79,10 @@ BOOL CSharedMem::Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize)
 
 BOOL CSharedMem::Destroy()
 {
-    std::set<LPBYTE>::iterator it;
+    std::map<LPBYTE, LPBYTE>::iterator it;
     for(it=m_aViewStartPtrs.begin(); it!=m_aViewStartPtrs.end(); it++)
     {
-        if(*it != NULL)
-            UnmapViewOfFile(*it);    
+        UnmapViewOfFile(it ->second);    
     }
     m_aViewStartPtrs.clear();
 
@@ -114,18 +113,18 @@ LPBYTE CSharedMem::CreateView(DWORD dwOffset, DWORD dwLength)
     DWORD dwDiff = dwOffset-dwBaseOffs;
     LPBYTE pPtr = NULL;
 
-    pPtr = (LPBYTE)MapViewOfFile(m_hFileMapping, FILE_MAP_READ|FILE_MAP_WRITE, 0, dwBaseOffs, dwLength+dwDiff);
-    m_aViewStartPtrs.insert(pPtr);
+    pPtr = (LPBYTE)MapViewOfFile(m_hFileMapping, FILE_MAP_READ|FILE_MAP_WRITE, 0, dwBaseOffs, dwLength + dwDiff);
+    m_aViewStartPtrs[pPtr + dwDiff] = pPtr;
 
     return (pPtr+dwDiff);
 }
 
 void CSharedMem::DestroyView(LPBYTE pViewPtr)
 {
-    std::set<LPBYTE>::iterator it = m_aViewStartPtrs.find(pViewPtr);
+    std::map<LPBYTE, LPBYTE>::iterator it = m_aViewStartPtrs.find(pViewPtr);
     if(it!=m_aViewStartPtrs.end())
     {
-        UnmapViewOfFile(pViewPtr);
+        UnmapViewOfFile(it ->second);
         m_aViewStartPtrs.erase(it);
     }
 }

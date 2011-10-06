@@ -159,7 +159,7 @@ private:
     HANDLE m_hFileMapping;		  // Memory mapped object
     DWORD m_dwAllocGranularity; // System allocation granularity  	  
     ULONG64 m_uSize;	      	  // Size of the file mapping.		  
-    std::set<LPBYTE> m_aViewStartPtrs; // Base of the view of the file mapping.    
+    std::map<LPBYTE, LPBYTE> m_aViewStartPtrs; // Base of the view of the file mapping.    
 };
 
 
