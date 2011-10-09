@@ -9,6 +9,7 @@
 
 - Updated Italian lang file (thanks to ).
 
+- Removed obsolete API InstallW, InstallA, Uninstall, AddFileW, AddFileA, GenerateErrorReport.
 
 --- Ver. 1.2.10 ---
 

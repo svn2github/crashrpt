@@ -1,11 +1,5 @@
 EXPORTS   
 
-   InstallW      @1
-   InstallA      @2
-   Uninstall     @3   
-   AddFileW      @4
-   AddFileA      @5
-   GenerateErrorReport  @6
    crInstallW    @7
    crInstallA    @8
    crUninstall   @9
