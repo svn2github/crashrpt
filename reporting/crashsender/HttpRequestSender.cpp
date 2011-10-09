@@ -41,8 +41,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
+// Constructor
 CHttpRequestSender::CHttpRequestSender()
 {
+    // Init variables
     m_sBoundary = _T("AaB03x5fs1045fcc7");
 
     m_sTextPartHeaderFmt = _T("--%s\r\nContent-disposition: form-data; name=\"%s\"\r\n\r\n");
@@ -51,6 +53,7 @@ CHttpRequestSender::CHttpRequestSender()
     m_sFilePartFooterFmt = _T("\r\n");  
 }
 
+// Sends HTTP request assyncronously (in a working thread)
 BOOL CHttpRequestSender::SendAssync(CHttpRequest& Request, AssyncNotification* an)
 {
     // Copy parameters
@@ -65,6 +68,7 @@ BOOL CHttpRequestSender::SendAssync(CHttpRequest& Request, AssyncNotification* a
     return TRUE;
 }
 
+// Thread procedure.
 DWORD WINAPI CHttpRequestSender::WorkerThread(VOID* pParam)
 {
     CHttpRequestSender* pSender = (CHttpRequestSender*)pParam;
@@ -74,6 +78,7 @@ DWORD WINAPI CHttpRequestSender::WorkerThread(VOID* pParam)
     return 0;
 }
 
+// Sends HTTP request and checks responce
 BOOL CHttpRequestSender::InternalSend()
 { 
     BOOL bStatus = FALSE;      // Resulting status
@@ -88,7 +93,7 @@ BOOL CHttpRequestSender::InternalSend()
     CString sHeaders = _T("Content-type: multipart/form-data; boundary=") + m_sBoundary;
     LPCTSTR szAccept[2]={_T("*/*"), NULL};
     INTERNET_BUFFERS BufferIn;
-    BYTE pBuffer[2048];
+    BYTE pBuffer[4096] = {0};
     BOOL bRet = FALSE;
     DWORD dwBuffSize = 0;
     CString sMsg;
@@ -136,14 +141,18 @@ BOOL CHttpRequestSender::InternalSend()
         goto cleanup; 
     }
 
+    // Check if canceled
     if(m_Assync->IsCancelled()){ goto cleanup; }
 
+    // Add a message to log
     m_Assync->SetProgress(_T("Opening HTTP request..."), 0, true);
 
+    // Configure flags for HttpOpenRequest
     DWORD dwFlags = INTERNET_FLAG_NO_CACHE_WRITE;
     if(dwPort==INTERNET_DEFAULT_HTTPS_PORT)
         dwFlags |= INTERNET_FLAG_SECURE; // Use SSL
 
+    // Open HTTP request
     hRequest = HttpOpenRequest(
         hConnect, 
         _T("POST"), 
@@ -160,6 +169,7 @@ BOOL CHttpRequestSender::InternalSend()
         goto cleanup;
     }
 
+    // Fill in buffer
     BufferIn.dwStructSize = sizeof( INTERNET_BUFFERS ); // Must be set or error will occur
     BufferIn.Next = NULL; 
     BufferIn.lpcszHeader = sHeaders;
@@ -174,7 +184,9 @@ BOOL CHttpRequestSender::InternalSend()
     m_dwPostSize = (DWORD)lPostSize;
     m_dwUploaded = 0;
 
+    // Add a message to log
     m_Assync->SetProgress(_T("Sending HTTP request..."), 0);
+    // Send request
     if(!HttpSendRequestEx( hRequest, &BufferIn, NULL, 0, 0))
     {
         m_Assync->SetProgress(_T("HttpSendRequestEx has failed."), 0);
@@ -197,31 +209,39 @@ BOOL CHttpRequestSender::InternalSend()
             goto cleanup;
     }
 
+    // Write boundary
     bRet = WriteTrailingBoundary(hRequest);
     if(!bRet)
         goto cleanup;
 
+    // Add a message to log
     m_Assync->SetProgress(_T("Ending HTTP request..."), 0);
+
+    // End request
     if(!HttpEndRequest(hRequest, NULL, 0, 0))
     {
         m_Assync->SetProgress(_T("HttpEndRequest has failed."), 0);
         goto cleanup;
     }
 
+    // Add a message to log
     m_Assync->SetProgress(_T("Reading server response..."), 0);
 
-    InternetReadFile(hRequest, pBuffer, 2048, &dwBuffSize);
+    // Read responce
+    InternetReadFile(hRequest, pBuffer, 4095, &dwBuffSize);
     pBuffer[dwBuffSize] = 0;
     sMsg = CString((LPCSTR)pBuffer, dwBuffSize);
     sMsg = _T("Server returned:") + sMsg;
     m_Assync->SetProgress(sMsg, 0);
 
+    // Get status code
     if(atoi((LPCSTR)pBuffer)!=200)
     {
         m_Assync->SetProgress(_T("Failed."), 100, false);
         goto cleanup;
     }
 
+    // Add a message to log
     m_Assync->SetProgress(_T("Error report was sent OK!"), 100, false);
     bStatus = TRUE;
 
@@ -229,6 +249,7 @@ cleanup:
 
     if(!bStatus)
     {
+        // Add a message to log
         m_Assync->SetProgress(_T("Error sending HTTP request."), 100, false);
     }
 
@@ -236,12 +257,15 @@ cleanup:
     if(hRequest) 
         InternetCloseHandle(hRequest);
 
+    // Clean up internet handle
     if(hConnect) 
         InternetCloseHandle(hConnect);
 
+    // Clean up internet session
     if(hSession) 
         InternetCloseHandle(hSession);
 
+    // Notify about completion
     m_Assync->SetCompleted(bStatus?0:1);
 
     return bStatus;
@@ -612,6 +636,7 @@ BOOL CHttpRequestSender::CalcAttachmentPartSize(CString sName, LONGLONG& lSize)
     return TRUE;
 }
 
+// This method updates upload progress status
 void CHttpRequestSender::UploadProgress(DWORD dwBytesWritten)
 {
     m_dwUploaded += dwBytesWritten;
@@ -620,7 +645,7 @@ void CHttpRequestSender::UploadProgress(DWORD dwBytesWritten)
     m_Assync->SetProgress((int)progress, false);
 }
 
-// Parses URL. This method's code was taken from 
+// Parses URL and splits it into URL, port, protocol and so on. This method's code was taken from 
 // http://www.codeproject.com/KB/IP/simplehttpclient.aspx
 void CHttpRequestSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol, 
                                   LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, LPTSTR szURI, UINT cbURI)
