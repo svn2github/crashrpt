@@ -12,16 +12,15 @@ application does.
 
 \section building_solution Building Solution
 
-You can compile CrashRpt in <b>Visual C++ 2003</b>
+You can compile CrashRpt in <b>Visual C++ 2005</b>
 and later versions, and in <b>Visual C++ Express</b>.
 
 Open one of solution files available in the top level directory of 
 CrashRpt distribution, depending on your version of Visual Studio:
- - <b>CrashRpt_vs2003.sln</b> if you use Visual C++ 2003 
- - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005, Visual C++ 2005 Express, 
+  - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005, Visual C++ 2005 Express, 
     Visual C++ 2008 or Visual C++ 2008 Express. Visual Studio will convert project 
     files to the right format.
- - <b>CrashRpt_vs2010.sln</b> if you use Visual C++ 2010 or Visual C++ 2010 Express.
+  - <b>CrashRpt_vs2010.sln</b> if you use Visual C++ 2010 or Visual C++ 2010 Express.
 
 There are several projects in CrashRpt solution.
 
@@ -58,7 +57,6 @@ F7 to start building process.
 \section compiling_x64_platform Compilation for 64-bit (x64) Platform
 
 <b>Since v.1.2.1</b>, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms.
-Visual C++ 2005 or later is required to compile for x64 plaform. 
 You can choose the current platform by opening menu Build->Configuration Manager... 
 and by selecting the desired platform from the 'Active solution platform:' combo box.
 

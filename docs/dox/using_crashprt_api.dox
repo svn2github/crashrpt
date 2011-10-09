@@ -3,9 +3,7 @@
 \page using_crashrpt_api Using CrashRpt API
 
 CrashRpt library provides several API functions, structures and classes that can be used in your 
-project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). Before calling CrashRpt
-API functions, always check that a correct \b CrashRpt.dll version was loaded into your process, as
-described in \ref checking_crashrpt_version.
+project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). 
 
 \note Older versions of CrashRpt provided different set of API functions that are now 
 declared obsolete. Those obsolete API functions are still supported for compatibility with older versions of CrashRpt,
@@ -59,7 +57,7 @@ install exception handlers in each worker thread.
 \section adding_a_custom_file Adding a Custom File
 
 Typically an application creates and maintains a log file where operations and errors are
-written. Such log file can be helpful for crash analysis and should be added to your application's error
+written. Such a log file can be helpful for crash analysis and should be added to your application's error
 report. You add application-specific files to the error report using crAddFile2() function.
 
 \section adding_a_custom_property Adding a Custom Property
@@ -142,89 +140,6 @@ You may call this function in each thread of your program to ensure all exceptio
 
 Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
 text error message of the last called function, use crGetLastErrorMsg().
-
-\section checking_crashrpt_version Checking CrashRpt Version
-
-As there may be several versions of \b CrashRpt.dll installed on your system, 
-it is strongly recommended that you check if the correct \b CrashRpt.dll version was loaded
-into your process. If you do not perform such check, it is possible that an incompatible \b CrashRpt.dll
-is loaded, and a call to a CrashRpt API function will result in a crash.
-
-For example, assume the following real-life scenario:
-  - Another application had copied an older version of \b CrashRpt.dll to its installation
-    directory and added the path to the \b PATH environment variable.
-  - When installing your application, you forgot to copy the \b CrashRpt.dll binary to 
-    the folder where your application's executable file is located.
-  - When you run your application, it searches for \b CrashRpt.dll in the current directory and doesn't find it.
-    Then it searches \b CrashRpt.dll in \b PATH directories and loads an older version of \b CrashRpt.dll
-    that may be incompatible with yours.
-  - When your application tries to call a CrashRpt API function from the incompatible \b CrashRpt.dll, it may crash.
-
-One way to check \b CrashRpt.dll version is to get a handle to its loaded instance, get file version info for
-the module and compare it with the correct CrashRpt version.
-
-The following function may be used to check if the correct \b CrashRpt.dll version was loaded in your process
-address space. You should call this function before calling any CrashRpt API functions. If the function
-returns FALSE, do not call CrashRpt API functions.
-
-\code
-
-// The following function returns TRUE if the correct CrashRpt DLL was loaded,
-// otherwise it returns FALSE
-BOOL CheckCrashRptVersion()
-{
-  BOOL bExitCode = FALSE;
-  TCHAR szModuleName[_MAX_PATH] = _T("");
-  HMODULE hModule = NULL;
-  DWORD dwBuffSize = 0;
-  LPBYTE pBuff = NULL;
-  VS_FIXEDFILEINFO* fi = NULL;
-  UINT uLen = 0;
-
-  // Get handle to loaded CrashRpt.dll module
-  hModule = GetModuleHandle(_T("CrashRpt.dll"));
-  if(hModule==NULL)
-    goto cleanup; // No "CrashRpt.dll" module loaded
-
-  // Get module file name
-  GetModuleFileName(hModule, szModuleName, _MAX_PATH);
-
-  // Get module version 
-  dwBuffSize = GetFileVersionInfoSize(szModuleName, 0);
-  if(dwBuffSize==0)
-    goto cleanup; // Invalid buffer size
-
-  pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);
-  if(pBuff==NULL)
-    goto cleanup;
-      
-  if(0==GetFileVersionInfo(szModuleName, 0, dwBuffSize, pBuff))
-    goto cleanup; // No version info found
-  
-  VerQueryValue(pBuff, _T("\\"), (LPVOID*)&fi, &uLen);
-
-  WORD dwVerMajor = HIWORD(fi->dwProductVersionMS);
-  WORD dwVerMinor = LOWORD(fi->dwProductVersionMS);  
-  WORD dwVerBuild = LOWORD(fi->dwProductVersionLS);
-
-  DWORD dwModuleVersion = dwVerMajor*1000+dwVerMinor*100+dwVerBuild;
-
-  if(CRASHRPT_VER==dwModuleVersion)
-    bExitCode = TRUE; // Version match!
-
-cleanup:
-
-  if(pBuff)
-  {
-    // Free buffer
-    GlobalFree((HGLOBAL)pBuff);
-    pBuff = NULL;
-  }
-
-  return bExitCode;
-}
-
-\endcode
 
 \section api_reference CrashRpt API Reference
 

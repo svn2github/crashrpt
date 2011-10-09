@@ -686,8 +686,8 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
 
     // If 0 is specified as dwFlags, assume all handlers should be
     // installed
-    if((dwFlags&0x1FF)==0)
-        dwFlags |= 0x1FFF;
+    if((dwFlags&CR_INST_ALL_POSSIBLE_HANDLERS)==0)
+        dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS;
 
     if(dwFlags&CR_INST_STRUCTURED_EXCEPTION_HANDLER)
     {
@@ -807,8 +807,8 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
 
     // If 0 is specified as dwFlags, assume all available exception handlers should be
     // installed  
-    if((dwFlags&0x1FFF)==0)
-        dwFlags |= 0x1FFF;
+    if((dwFlags&CR_INST_ALL_POSSIBLE_HANDLERS)==0)
+        dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS;
 
     DWORD dwThreadId = GetCurrentThreadId();
 

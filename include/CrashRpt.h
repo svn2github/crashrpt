@@ -314,7 +314,8 @@ GenerateErrorReport(
 #define CR_INST_SIGSEGV_HANDLER                0x800  //!< Install SIGSEGV signal handler.
 #define CR_INST_SIGTERM_HANDLER                0x1000 //!< Install SIGTERM signal handler.  
 
-#define CR_INST_ALL_EXCEPTION_HANDLERS         0       //!< Install all possible exception handlers.
+#define CR_INST_ALL_POSSIBLE_HANDLERS          0x1FFF  //!< Install all possible exception handlers.
+#define CR_INST_ALL_EXCEPTION_HANDLERS         0       //!< Deprecated, not recommended to use. Use \ref CR_INST_ALL_POSSIBLE_HANDLERS instead.
 #define CR_INST_CRT_EXCEPTION_HANDLERS         0x1FFE  //!< Install exception handlers for the linked CRT module.
 
 #define CR_INST_NO_GUI                         0x2000  //!< Do not show GUI, send report silently (use for non-GUI apps only).
@@ -412,9 +413,9 @@ GenerateErrorReport(
 *
 *    <table>
 *    <tr><td colspan="2"> <i>Use the combination of the following constants to specify what exception handlers to install:</i>
-*    <tr><td> \ref CR_INST_ALL_EXCEPTION_HANDLERS    <td> Install all available exception handlers.
-*    <tr><td> \ref CR_INST_SEH_EXCEPTION_HANDLER     <td> Install SEH exception handler.
-*    <tr><td> \ref CR_INST_PURE_CALL_HANDLER         <td> Install pure call handler (VS .NET and later).
+*    <tr><td> \ref CR_INST_ALL_POSSIBLE_HANDLERS      <td> Install all available exception handlers.
+*    <tr><td> \ref CR_INST_SEH_EXCEPTION_HANDLER      <td> Install SEH exception handler.
+*    <tr><td> \ref CR_INST_PURE_CALL_HANDLER          <td> Install pure call handler (VS .NET and later).
 *    <tr><td> \ref CR_INST_NEW_OPERATOR_ERROR_HANDLER <td> Install new operator error handler (VS .NET and later).
 *    <tr><td> \ref CR_INST_SECURITY_ERROR_HANDLER     <td> Install security errror handler (VS .NET and later).
 *    <tr><td> \ref CR_INST_INVALID_PARAMETER_HANDLER  <td> Install invalid parameter handler (VS 2005 and later).

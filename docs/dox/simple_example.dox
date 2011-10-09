@@ -2,8 +2,9 @@
 
 \page simple_example An Example of Using CrashRpt API
 
-The following example shows how to use \ref CrashRptAPI and \ref CrashRptStructs
-to enable crash reporting support. 
+The following example shows how to use CrashRpt API functions and structures 
+to enable crash reporting support. For additional information on CrashRpt API functions
+and structures, please refer to \ref using_crashrpt_api.
 
 First create a console WinAPI application and call it MyApp. Then configure the MyApp application
 as described in \ref configuring_project.
@@ -41,7 +42,7 @@ void log_write(LPCTSTR szFormat, ...)
 // Thread procedure
 DWORD WINAPI ThreadProc(LPVOID lpParam)
 {
-  log_write(_T("Entering the thead proc\n"));
+  log_write(_T("Entering the thread proc\n"));
 
   // Define the infinite loop where some processing will be done 
   for(;;)
@@ -51,7 +52,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
     *p = 13; // This results in Access Violation
   }    
    
-  log_write(_T("Leaving the thead proc\n"));
+  log_write(_T("Leaving the thread proc\n"));
 
   return 0;
 }
@@ -100,8 +101,8 @@ int _tmain(int argc, _TCHAR* argv[])
 We intentionally inserted the code that would cause an exception in both threads. In real-life
 programs such code always exist, even when you test your application very carefully.
 
-To enable crash reporting support in the application, you need to insert some \ref CrashRptAPI.
-Below is the same code with CrashRpt API functions inserted.
+To enable crash reporting support in the application, you need to include CrashRpt header in the beginning of your code
+and insert some \ref CrashRptAPI. Below is the same code with CrashRpt API functions inserted.
 
 \code
 #include <windows.h>
@@ -129,61 +130,6 @@ BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
   return TRUE;
 }
 
-// The following function returns TRUE if the correct CrashRpt DLL was loaded,
-// otherwise it returns FALSE
-BOOL CheckCrashRptVersion()
-{
-  BOOL bExitCode = FALSE;
-  TCHAR szModuleName[_MAX_PATH] = _T("");
-  HMODULE hModule = NULL;
-  DWORD dwBuffSize = 0;
-  LPBYTE pBuff = NULL;
-  VS_FIXEDFILEINFO* fi = NULL;
-  UINT uLen = 0;
-
-  // Get handle to loaded CrashRpt.dll module
-  hModule = GetModuleHandle(_T("CrashRpt.dll"));
-  if(hModule==NULL)
-    goto cleanup; // No "CrashRpt.dll" module loaded
-
-  // Get module file name
-  GetModuleFileName(hModule, szModuleName, _MAX_PATH);
-
-  // Get module version 
-  dwBuffSize = GetFileVersionInfoSize(szModuleName, 0);
-  if(dwBuffSize==0)
-    goto cleanup; // Invalid buffer size
-
-  pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);
-  if(pBuff==NULL)
-    goto cleanup;
-      
-  if(0==GetFileVersionInfo(szModuleName, 0, dwBuffSize, pBuff))
-    goto cleanup; // No version info found
-  
-  VerQueryValue(pBuff, _T("\\"), (LPVOID*)&fi, &uLen);
-
-  WORD dwVerMajor = HIWORD(fi->dwProductVersionMS);
-  WORD dwVerMinor = LOWORD(fi->dwProductVersionMS);  
-  WORD dwVerBuild = LOWORD(fi->dwProductVersionLS);
-
-  DWORD dwModuleVersion = dwVerMajor*1000+dwVerMinor*100+dwVerBuild;
-
-  if(CRASHRPT_VER==dwModuleVersion)
-    bExitCode = TRUE; // Version match!
-
-cleanup:
-
-  if(pBuff)
-  {
-    // Free buffer
-    GlobalFree((HGLOBAL)pBuff);
-    pBuff = NULL;
-  }
-
-  return bExitCode;
-}
-
 // The following function writes an entry to the log file
 void log_write(LPCTSTR szFormat, ...)
 {
@@ -202,7 +148,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
   // Install exception handlers for this thread
   crInstallToCurrentThread2(0);
 
-  log_write(_T("Entering the thead proc\n"));
+  log_write(_T("Entering the thread proc\n"));
 
   // Define the infinite loop where some processing will be done 
   for(;;)
@@ -212,7 +158,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
     *p = 13; // This results in Access Violation
   }    
    
-  log_write(_T("Leaving the thead proc\n"));
+  log_write(_T("Leaving the thread proc\n"));
 
   // Unset exception handlers before exiting the thread
   crUninstallFromCurrentThread();    
@@ -221,15 +167,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
 }
 
 int _tmain(int argc, _TCHAR* argv[])
-{
-  // First check if it is safe to call functions from CrashRpt.dll
-  if(!CheckCrashRptVersion())
-  {
-    // An invalid CrashRpt.dll loaded!
-    _tprintf(_T("The version of CrashRpt.dll is invalid.\n"));
-    return 1;
-  }
-
+{  
   // Define CrashRpt configuration parameters
   CR_INSTALL_INFO info;  
   memset(&info, 0, sizeof(CR_INSTALL_INFO));  
@@ -244,7 +182,7 @@ int _tmain(int argc, _TCHAR* argv[])
   info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
   // Install all available exception handlers, use HTTP binary transfer encoding (recommended).
-  info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS;
+  info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS;
   info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING; 
   info.dwFlags |= CR_INST_APP_RESTART; 
   info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS; 
@@ -316,20 +254,12 @@ int _tmain(int argc, _TCHAR* argv[])
 }
 \endcode
 
-The code above contains the function named \b CheckCrashRptVersion() that is used
-to check if the correct \b CrashRpt.dll was loaded to the process. For additional
-information on when an incorrect \b CrashRpt.dll may be loaded, refer to 
-\ref checking_crashrpt_version.
-
-Add \b version.lib to the list of input libraries of the MyApp application and 
-compile the application in the Release configuration.
-
 Before running the application, you should place the following files to the directory 
 where your application executable file is located (for additional information, 
 see \ref preparing_to_software_release):
                                                                               
-- \b CrashRpt.dll 
-- \b CrashSender.exe
+- \b CrashRptXXXX.dll (here and below XXXX should be replaced with the actual version of CrashRpt)
+- \b CrashSenderXXXX.exe
 - \b dbghelp.dll
 - \b crashrpt_lang.ini 
 
