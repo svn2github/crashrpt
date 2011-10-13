@@ -2,14 +2,22 @@
 
 --- Ver. 1.3.0 ---
 
-- Removed support of Visual Studio 2003. To compile, use Visual Studio 2005 or later.
+- Added support of CMake - cross-plaform build system. Although CrashRpt doesn't support operating systems
+  other than Windows, CMake makes it easier to maintain build configurations for different versions of Visual Studio.
+
+- Added instructions to the documentation on how to generate Visual Studio project files with CMake.
+
+- Removed project files for Visual Studio 2003 (CrashRpt_v2003.sln). To compile, use Visual Studio 2005 
+  or later project files (or use CMake to generate Visual Studio project files for your favorite version).
 
 - Binary files now have version suffices (CrashRpt1300.dll, CrashRptProbe1300.dll and CrashSender1300.exe). This is
   to resolve problems of loading incorrect version of the DLL.
 
-- Updated Italian lang file (thanks to ).
-
 - Removed obsolete API InstallW, InstallA, Uninstall, AddFileW, AddFileA, GenerateErrorReport.
+
+- Updated Italian lang file (issue ).
+- Updated German lang file (issue ).
+- Updated French lang file (issue ).
 
 --- Ver. 1.2.10 ---
 
