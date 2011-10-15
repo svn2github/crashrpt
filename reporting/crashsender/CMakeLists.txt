@@ -16,7 +16,8 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
                             ${CMAKE_SOURCE_DIR}/thirdparty/minizip  
                             ${CMAKE_SOURCE_DIR}/thirdparty/jpeg 
                             ${CMAKE_SOURCE_DIR}/thirdparty/libpng 
-                            ${CMAKE_SOURCE_DIR}/thirdparty/tinyxml )
+                            ${CMAKE_SOURCE_DIR}/thirdparty/tinyxml
+                            ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/include )
 
 # Add executable build target
 add_executable(CrashSender ${source_files})

@@ -12,4 +12,6 @@ include_directories( ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/thirdparty/
 # Add library build target
 add_library(CrashRpt ${source_files})
 
+target_link_libraries(CrashRpt rpcrt4.dll version.lib)
+
 
