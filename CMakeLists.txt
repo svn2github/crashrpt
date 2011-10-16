@@ -18,8 +18,9 @@ if(CMAKE_CONFIGURATION_TYPES)
      FORCE)
 endif()
 
-# Build option
-option(CRASHRPT_USE_STATIC_LINKAGE "If set, CrashRpt modules are built as static libs and linked to CRT statically. If unset (default), CrashRpt modules are built as DLLs and CRT is linked as a shared lib." OFF)
+# Build options
+option(CRASHRPT_BUILD_SHARED_LIBS "If set (default), CrashRpt modules are built as dynamic-link libraries, otherwise as static libs." ON)
+option(CRASHRPT_LINK_CRT_AS_DLL "If set (default), CrashRpt modules link C run-time (CRT) as multi-threaded dynamic libraries, otherwise as multi-threaded static libs." ON)
 
 # Set output directory for DLL files
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
@@ -47,6 +48,27 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar
     LIST(APPEND ${SourcesVar} ${PrecompiledSource})
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
+
+# Tweaks CMake's default compiler/linker settings.
+# The macro is taken from Google Test code.
+macro(fix_default_compiler_settings_)
+  if (MSVC)
+    # For MSVC, CMake sets certain flags to defaults we want to override.
+    # This replacement code is taken from sample in the CMake Wiki at
+    # http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace.
+    foreach (flag_var
+             CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+             CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+      if (NOT CRASHRPT_LINK_CRT_AS_DLL)        
+        string(REPLACE "/MD" "-MT" ${flag_var} "${${flag_var}}")
+      endif(CRASHRPT_LINK_CRT_AS_DLL)        
+
+      # We prefer more strict warning checking.
+      # Replaces /W3 with /W4 in defaults.
+      string(REPLACE "/W3" "-W4" ${flag_var} "${${flag_var}}")
+    endforeach()
+  endif()
+endmacro()
 
 # Other CMakeLists are located in project subdirectories 
 

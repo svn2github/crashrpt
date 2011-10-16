@@ -6,6 +6,8 @@ aux_source_directory( . source_files )
 # Define _UNICODE (use wide-char encoding)
 add_definitions(-D_UNICODE -D_CRT_SECURE_NO_DEPRECATE /wd4996)
 
+fix_default_compiler_settings_()
+
 # Add library build target
 add_library(zlib STATIC ${source_files})
 

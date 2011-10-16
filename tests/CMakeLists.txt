@@ -13,6 +13,8 @@ add_msvc_precompiled_header(stdafx.h ./stdafx.cpp srcs_using_precomp )
 # Define _UNICODE (use wide-char encoding)
 add_definitions(-D_UNICODE )
 
+fix_default_compiler_settings_()
+
 # Add include dir
 include_directories( ${CMAKE_SOURCE_DIR}/include 
                             ${CMAKE_SOURCE_DIR}/reporting/CrashRpt)

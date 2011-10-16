@@ -6,6 +6,8 @@ aux_source_directory( . source_files )
 # Define _UNICODE (use wide-char encoding)
 add_definitions(-D_UNICODE )
 
+fix_default_compiler_settings_()
+
 # Add include dir
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
