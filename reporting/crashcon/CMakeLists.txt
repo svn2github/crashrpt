@@ -22,4 +22,4 @@ add_executable(crashcon ${source_files})
 # Add input link libraries
 target_link_libraries(crashcon CrashRpt)
 
-
+set_target_properties(crashcon PROPERTIES DEBUG_POSTFIX d )

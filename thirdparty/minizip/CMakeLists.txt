@@ -13,5 +13,6 @@ include_directories( ${CMAKE_SOURCE_DIR}/thirdparty/zlib )
 add_library(minizip ${source_files})
 
 # Add linker input libraries
-target_link_libraries(zlib)
+target_link_libraries(minizip zlib)
 
+set_target_properties(minizip PROPERTIES DEBUG_POSTFIX d )

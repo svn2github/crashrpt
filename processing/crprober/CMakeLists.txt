@@ -15,4 +15,4 @@ add_executable(crprober ${source_files})
 # Add input link libraries
 target_link_libraries(crprober CrashRptProbe)
 
-
+set_target_properties(crprober PROPERTIES DEBUG_POSTFIX d )

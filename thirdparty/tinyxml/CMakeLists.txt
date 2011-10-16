@@ -9,3 +9,4 @@ add_definitions(-D_UNICODE)
 # Add library build target
 add_library(tinyxml ${source_files})
 
+set_target_properties(tinyxml PROPERTIES DEBUG_POSTFIX d )

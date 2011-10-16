@@ -13,5 +13,6 @@ include_directories( ${CMAKE_SOURCE_DIR}/thirdparty/zlib )
 add_library(libpng ${source_files})
 
 # Add linker input libraries
-target_link_libraries(zlib)
+target_link_libraries(libpng zlib)
 
+set_target_properties(libpng PROPERTIES DEBUG_POSTFIX d )
