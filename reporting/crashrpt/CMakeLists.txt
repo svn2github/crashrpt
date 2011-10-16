@@ -16,9 +16,23 @@ add_definitions(-D_UNICODE -D_CRT_SECURE_NO_DEPRECATE)
 include_directories( ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/thirdparty/wtl)
 
 # Add library build target
-add_library(CrashRpt ${source_files})
+if(CRASHRPT_USE_STATIC_LINKAGE)
+	add_library(CrashRpt STATIC ${source_files})
+else(CRASHRPT_USE_STATIC_LINKAGE)
+	add_library(CrashRpt SHARED ${source_files})
+endif(CRASHRPT_USE_STATIC_LINKAGE)
 
 target_link_libraries(CrashRpt rpcrt4.dll version.lib)
 
-set_target_properties(CrashRpt PROPERTIES DEBUG_POSTFIX d )
+if(CRASHRPT_USE_STATIC_LINKAGE)
+
+	set_target_properties(CrashRpt PROPERTIES DEBUG_POSTFIX LIBd )
+	set_target_properties(CrashRpt PROPERTIES RELEASE_POSTFIX LIB )
+
+else(CRASHRPT_USE_STATIC_LINKAGE)
+
+	set_target_properties(CrashRpt PROPERTIES DEBUG_POSTFIX d )
+	set_target_properties(CrashRpt PROPERTIES IMPORT_POSTFIX_DEBUG d )
+
+endif(CRASHRPT_USE_STATIC_LINKAGE)
 

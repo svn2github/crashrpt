@@ -10,6 +10,17 @@ set (CRASHRPT_VER 1300)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 
+# Build configurations
+if(CMAKE_CONFIGURATION_TYPES)
+   set(CMAKE_CONFIGURATION_TYPES Debug Release)
+   set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+     "Reset the configurations to what we need"
+     FORCE)
+endif()
+
+# Build option
+option(CRASHRPT_USE_STATIC_LINKAGE "If set, CrashRpt modules are built as static libs and linked to CRT statically. If unset (default), CrashRpt modules are built as DLLs and CRT is linked as a shared lib." OFF)
+
 # Set output directory for DLL files
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
@@ -39,12 +50,6 @@ ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
 # Other CMakeLists are located in project subdirectories 
 
-add_subdirectory("thirdparty/jpeg")
-add_subdirectory("thirdparty/libpng")
-add_subdirectory("thirdparty/minizip")
-add_subdirectory("thirdparty/zlib")
-add_subdirectory("thirdparty/tinyxml")
-
 add_subdirectory("reporting/crashcon")
 add_subdirectory("reporting/crashrpt")
 add_subdirectory("reporting/crashrpttest")
@@ -54,3 +59,13 @@ add_subdirectory("processing/crashrptprobe")
 add_subdirectory("processing/crprober")
 
 add_subdirectory("tests")
+
+# Set output directory for LIB files
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/thirdparty/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}thirdparty/lib)
+
+add_subdirectory("thirdparty/jpeg")
+add_subdirectory("thirdparty/libpng")
+add_subdirectory("thirdparty/minizip")
+add_subdirectory("thirdparty/zlib")
+add_subdirectory("thirdparty/tinyxml")

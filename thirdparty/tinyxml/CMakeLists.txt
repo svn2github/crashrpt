@@ -7,6 +7,6 @@ aux_source_directory( . source_files )
 add_definitions(-D_UNICODE)
 
 # Add library build target
-add_library(tinyxml ${source_files})
+add_library(tinyxml STATIC ${source_files})
 
 set_target_properties(tinyxml PROPERTIES DEBUG_POSTFIX d )

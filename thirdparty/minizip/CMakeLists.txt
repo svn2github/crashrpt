@@ -10,7 +10,7 @@ add_definitions(-D_UNICODE -D_CRT_SECURE_NO_DEPRECATE)
 include_directories( ${CMAKE_SOURCE_DIR}/thirdparty/zlib )
 
 # Add library build target
-add_library(minizip ${source_files})
+add_library(minizip STATIC ${source_files})
 
 # Add linker input libraries
 target_link_libraries(minizip zlib)
