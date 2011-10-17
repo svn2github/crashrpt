@@ -307,7 +307,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
         scn->SetProgress(sStatusMsg, 0);    
         goto exit;
     }
-
+    
     sStatusMsg.Format(_T("Sending sender and recipient information"));
     scn->SetProgress(sStatusMsg, 1);
 
@@ -341,9 +341,25 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
         goto exit;
     }
 
+    // Get current time
+    time_t cur_time;
+    time(&cur_time);
+    char szDateTime[64] = "";
 
+    struct tm ltimeinfo;
+    localtime_s(&ltimeinfo, &cur_time );
+    strftime(szDateTime, 64,  "%a, %d %b %Y %H:%M:%S", &ltimeinfo);
+    
+    TIME_ZONE_INFORMATION tzi;
+    GetTimeZoneInformation(&tzi);
+
+    int diff_hours = -tzi.Bias/60;
+    int diff_mins = abs(tzi.Bias%60);
+
+    str.Format(_T("Date: %s %c%02d%02d\r\n"), strconv.a2t(szDateTime), diff_hours>=0?'+':'-', diff_hours, diff_mins);
+    sMsg = str;
     str.Format(_T("From: <%s>\r\n"), msg->m_sFrom);
-    sMsg  = str;
+    sMsg  += str;
     str.Format(_T("To: <%s>\r\n"), msg->m_sTo);
     sMsg += str;
     str.Format(_T("Subject: %s\r\n"), msg->m_sSubject);
