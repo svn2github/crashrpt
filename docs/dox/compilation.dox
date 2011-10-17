@@ -22,6 +22,28 @@ CrashRpt distribution, depending on your version of Visual Studio:
     files to the right format.
   - <b>CrashRpt_vs2010.sln</b> if you use Visual C++ 2010 or Visual C++ 2010 Express.
 
+\section cmake_build Generating Project Files with CMake
+
+<b>Since v.1.3.0</b>, you can also generate Visual Studio project files using 
+<a href="http://www.cmake.org/">CMake</a> cross-platform make system. Although CrashRpt
+doesn't support operating systems other than Windows and doesn't support compilers other
+than Visual C++, CMake is useful, because it makes it easier to maintain multiple build
+configurations between different versions of Visual Studio.
+
+To generate CrashRpt solution/project files for your favorite version of Visual Studio 
+with CMake, do the following:
+
+- Download <a href="http://www.cmake.org/">CMake</a> (version 2.8 or later) and install it. This will create CMake shortcuts in All Programs menu in the Start menu.
+- Run CMake (cmake-gui) application. This will display the cmake-gui window.
+- In the <i>Where is the source code:</i> field, enter the path to your top-level directory of CrashRpt distribution. The top-level directory and its subdirectories contain CMakeLists.txt files which are CMake configuration files.
+- In the <i>Where to build the binaries:</i> field, enter the path to the directory where you want to generate project files. It is recommended to enter the path to your top-level directory of CrashRpt distribution here, too.
+- In the option list, modify build options as you wish. For example, unchecking the <i>CRASHRPT_BUILD_SHARED_LIBS</i> option will force CrashRpt to build static libs instead of DLLs.
+- Press the <i>Configure</i> button. When prompted, select your version of Visual Studio from the list. If everything is OK, you should see the message "Configuring done".
+- Press the <i>Generate</i> button. This will generate project files to the directory you have specified. If everything is OK, you should see the message "Generating done".
+- And finally, go to the directory you have specified in the <i>Where to build the binaries:</i> field. You should see <b>CrashRpt.sln</b> file you can use to compile CrashRpt.
+   
+\section solution_structure CrashRpt Solution Structure
+  
 There are several projects in CrashRpt solution.
 
 - \b CrashRpt project contains 
