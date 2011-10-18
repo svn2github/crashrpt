@@ -34,15 +34,15 @@ disable certain delivery method by using the \ref CR_NEGATIVE_PRIORITY constant 
 
 \section error_report_size_limitations Error Report Size Limitations
 
-<b>Since v.1.2.2</b>, CrashRpt provides better support of large error reports being sent using HTTP (or HTTPS) connection.
+<b>Since v.1.2.2</b>, CrashRpt provides support of large error reports being sent using HTTP (or HTTPS) connection.
 You can send error reports having arbitrary size, however check your web-server settings to ensure it won't
 reject reports larger than some limit. For example, if you use PHP, check the <i>upload_max_filesize</i>
 configuration parameter (the default in 2 megabytes), <i>post_max_size</i> parameter and possibly others (see PHP documentation 
 for details).
 
-In case you plan to deliver error reports over E-mail, than error reports should be as small as possible. 
+In case you plan to deliver error reports over E-mail (SMTP or Simple MAPI), than error reports should be as small as possible. 
 This is because of limitations of email attachment size. If the error report is larger than the 
-limit (which may be different for different mail server), it is possible that the error report 
+limit (which may be different for different mail servers), it is possible that the error report 
 will be rejected. 
 
 \section httpsend Sending Crash Report Using HTTP Connection
@@ -226,13 +226,10 @@ This way may also fail if firewall blocks outgoing connections on port 25.
 
 \section smapisend Sending Crash Report Using Simple MAPI
 
-\note Microsoft has declared Simple MAPI deprecated. Its support was removed from recent versions of Microsoft Outlook.
+CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird or Microsoft Outlook, to send an error report as email. 
+The error report is sent as an E-mail message with attachments. This requires some user interaction.
 
-CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. 
-The error report is sent as an E-mail message with attachments.
-This requires some user interaction.
-
-This way has the lowest priority by default.
+This delivery method has the lowest priority by default.
 
 \section sending_error_reports_faq FAQ
 
