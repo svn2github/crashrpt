@@ -68,6 +68,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="..\..\version.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -76,6 +77,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="..\..\version.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -84,6 +86,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="..\..\version.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -122,9 +125,9 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CrashRptd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CrashRpt$(CrashRptVer)d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CrashRptd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CrashRpt</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CrashRpt$(CrashRptVer)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashRpt</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">CrashRptLIB</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">CrashRptLIB</TargetName>
@@ -170,7 +173,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashRpt.pdb</ProgramDatabaseFile>
       <OptimizeReferences>true</OptimizeReferences>
-      <ImportLibrary>$(SolutionDir)lib\CrashRpt.lib</ImportLibrary>
+      <ImportLibrary>$(SolutionDir)lib\$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -266,11 +269,11 @@
       <AdditionalDependencies>psapi.lib;mapi32.lib;Rpcrt4.lib;version.lib;shell32.lib;Comdlg32.lib;gdi32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ModuleDefinitionFile>CrashRptd.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>CrashRpt.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashRptd.pdb</ProgramDatabaseFile>
       <BaseAddress>0x20000000</BaseAddress>
-      <ImportLibrary>$(SolutionDir)lib\CrashRptd.lib</ImportLibrary>
+      <ImportLibrary>$(SolutionDir)lib\$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -473,6 +476,7 @@
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CrashRpt.def" />
     <None Include="res\CrashRpt.ico" />
   </ItemGroup>
   <ItemGroup>

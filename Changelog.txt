@@ -7,8 +7,8 @@
 
 - Added instructions to the documentation on how to generate Visual Studio project files with CMake.
 
-- Removed project files for Visual Studio 2003 (CrashRpt_v2003.sln). To compile, use Visual Studio 2005 
-  or later project files (or use CMake to generate Visual Studio project files for your favorite version).
+- Removed project files for Visual Studio 2003 (CrashRpt_v2003.sln) and Visual Studio 2005 (CrashRpt_v2005.sln). To compile in VS2010, use Visual Studio 2010 
+  project files (or use CMake to generate Visual Studio project files for your favorite version of Visual Studio).
 
 - Binary files now have version suffices (CrashRpt1300.dll, CrashRptProbe1300.dll and CrashSender1300.exe). This is
   to resolve problems of loading incorrect version of the DLL.
