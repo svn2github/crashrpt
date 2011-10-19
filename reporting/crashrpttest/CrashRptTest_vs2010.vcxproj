@@ -201,6 +201,7 @@ copy "dummy.log" "$(OutDir)"
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -208,7 +209,7 @@ copy "dummy.log" "$(OutDir)"
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>CrashRpt.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CrashRpt1300.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashRptTest.pdb</ProgramDatabaseFile>
@@ -216,9 +217,9 @@ copy "dummy.log" "$(OutDir)"
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)
-copy dummy.ini $(OutDir)
-copy dummy.log $(OutDir)
+      <Command>copy "$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll" "$(OutDir)"
+copy "dummy.ini" "$(OutDir)"
+copy "dummy.log" "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -261,9 +262,9 @@ copy dummy.log $(OutDir)
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)dbghelp\bin\dbghelp.dll $(OutDir)
-copy dummy.ini $(OutDir)
-copy dummy.log $(OutDir)
+      <Command>copy "$(SolutionDir)dbghelp\bin\dbghelp.dll" "$(OutDir)"
+copy "dummy.ini" "$(OutDir)"
+copy "dummy.log" "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -291,6 +292,7 @@ copy dummy.log $(OutDir)
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -305,9 +307,9 @@ copy dummy.log $(OutDir)
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)
-copy dummy.ini $(OutDir)
-copy dummy.log $(OutDir)
+      <Command>copy "$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll" "$(OutDir)"
+copy "dummy.ini" "$(OutDir)"
+copy "dummy.log" "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -348,9 +350,9 @@ copy dummy.log $(OutDir)
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)dbghelp\bin\dbghelp.dll $(OutDir)
-copy dummy.ini $(OutDir)
-copy dummy.log $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)dbghelp\bin\dbghelp.dll" "$(OutDir)"
+copy "dummy.ini" "$(OutDir)"
+copy "dummy.log" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -370,9 +372,9 @@ copy dummy.log $(OutDir)</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)dbghelp\bin\dbghelp.dll $(OutDir)
-copy dummy.ini $(OutDir)
-copy dummy.log $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)dbghelp\bin\dbghelp.dll" "$(OutDir)"
+copy "dummy.ini" "$(OutDir)"
+copy "dummy.log" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

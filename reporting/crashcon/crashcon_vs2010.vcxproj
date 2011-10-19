@@ -149,6 +149,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -168,7 +169,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -207,7 +208,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -285,7 +286,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)
+      <Command>copy "$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll" "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -306,6 +307,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -325,7 +327,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)
+      <Command>copy "$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll" "$(OutDir)"
 
 </Command>
     </PostBuildEvent>
@@ -364,7 +366,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

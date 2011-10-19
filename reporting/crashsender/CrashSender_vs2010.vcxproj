@@ -210,6 +210,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -225,7 +226,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini</Command>
+      <Command>copy "$(SolutionDir)lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -267,7 +268,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini</Command>
+      <Command>copy "$(SolutionDir)lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">
@@ -294,6 +295,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -309,7 +311,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini</Command>
+      <Command>copy "$(SolutionDir)lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">
@@ -349,7 +351,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini</Command>
+      <Command>copy "$(SolutionDir)lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -369,7 +371,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini</Command>
+      <Command>copy "$(SolutionDir)lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
