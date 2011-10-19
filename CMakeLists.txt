@@ -61,7 +61,7 @@ macro(fix_default_compiler_settings_)
              CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
       if (NOT CRASHRPT_LINK_CRT_AS_DLL)        
         string(REPLACE "/MD" "-MT" ${flag_var} "${${flag_var}}")
-      endif(CRASHRPT_LINK_CRT_AS_DLL)        
+      endif(NOT CRASHRPT_LINK_CRT_AS_DLL)        
 
       # We prefer more strict warning checking.
       # Replaces /W3 with /W4 in defaults.
