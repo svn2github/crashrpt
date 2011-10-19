@@ -138,11 +138,11 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Template|x64'" />
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CrashSender$(CrashRptVer)d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CrashSender$(CrashRptVer)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashSender</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashSender$(CrashRptVer)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">CrashSender$(CrashRptVer)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CrashSender$(CrashRptVer)d</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\bin\$(Platform)\</OutDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">CrashSender</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">CrashSender$(CrashRptVer)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -252,6 +252,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -333,6 +334,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

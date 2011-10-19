@@ -126,7 +126,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CrashRptProbe$(CrashRptVer)d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CrashRptProbe$(CrashRptVer)d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CrashRptProbe$(CrashRptVer)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashRptProbe</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashRptProbe$(CrashRptVer)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">CrashRptProbeLIB</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">CrashRptProbeLIB</TargetName>
   </PropertyGroup>
@@ -215,6 +215,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -227,7 +228,7 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(SolutionDir)lib\$(Platform)\CrashRptProbe.lib</ImportLibrary>
+      <ImportLibrary>$(SolutionDir)lib\$(Platform)\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">
@@ -257,6 +258,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

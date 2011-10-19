@@ -218,9 +218,10 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>CrashRptProbe.lib;CrashRpt.lib;psapi.lib;libpng.lib;zlib.lib;minizip.lib;wininet.lib;dnsapi.lib;WS2_32.lib;Rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CrashRptProbe1300.lib;CrashRpt1300.lib;psapi.lib;libpng.lib;zlib.lib;minizip.lib;wininet.lib;dnsapi.lib;WS2_32.lib;Rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform);..\thirdparty\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
@@ -236,6 +237,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>CrashRptProbeLIB.lib;CrashRptLIB.lib;psapi.lib;libpng.lib;zlib.lib;minizip.lib;wininet.lib;dnsapi.lib;WS2_32.lib;Rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>

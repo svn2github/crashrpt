@@ -131,7 +131,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CrashRpt$(CrashRptVer)d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CrashRpt$(CrashRptVer)d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CrashRpt$(CrashRptVer)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashRpt</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashRpt$(CrashRptVer)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">CrashRptLIB</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">CrashRptLIB</TargetName>
   </PropertyGroup>
@@ -213,6 +213,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -226,7 +227,7 @@
       <ModuleDefinitionFile>CrashRpt.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>
-      <ImportLibrary>$(SolutionDir)lib\$(Platform)\CrashRpt.lib</ImportLibrary>
+      <ImportLibrary>$(SolutionDir)lib\$(Platform)\$(TargetName).lib</ImportLibrary>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -407,6 +408,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
