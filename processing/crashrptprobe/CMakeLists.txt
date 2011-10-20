@@ -26,6 +26,12 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
 			${CMAKE_SOURCE_DIR}/thirdparty/tinyxml
 			${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/include)
 
+if(NOT CMAKE_CL_64)
+	link_directories( ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib )
+else(NOT CMAKE_CL_64)
+	link_directories( ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib/amd64 )
+endif(NOT CMAKE_CL_64)
+			
 # Add library build target
 if(CRASHRPT_BUILD_SHARED_LIBS)	
 	add_library(CrashRptProbe SHARED ${source_files})

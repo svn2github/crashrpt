@@ -30,7 +30,10 @@ endif(CRASHRPT_BUILD_SHARED_LIBS)
 target_link_libraries(CrashRpt rpcrt4.dll version.lib)
 
 # Add compiler flags (/MP for multi-processor compilation, /Os to favor small code)
-set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/MP /Os")
+set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/Os")
+if(${MSVC_VERSION} GREATER 1310)
+	set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/MP")
+endif(${MSVC_VERSION} GREATER 1310)
 
 if(CRASHRPT_BUILD_SHARED_LIBS)
 	set_target_properties(CrashRpt PROPERTIES 

@@ -345,11 +345,16 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
     time_t cur_time;
     time(&cur_time);
     char szDateTime[64] = "";
-
-    struct tm ltimeinfo;
-    localtime_s(&ltimeinfo, &cur_time );
-    strftime(szDateTime, 64,  "%a, %d %b %Y %H:%M:%S", &ltimeinfo);
     
+#if MSC_VER >= 1400
+	struct tm ltimeinfo;
+    localtime_s(&ltimeinfo, &cur_time );
+	strftime(szDateTime, 64,  "%a, %d %b %Y %H:%M:%S", &ltimeinfo);
+#else
+	struct tm* ltimeinfo = localtime(&cur_time );
+	strftime(szDateTime, 64,  "%a, %d %b %Y %H:%M:%S", ltimeinfo);
+#endif
+        
     TIME_ZONE_INFORMATION tzi;
     GetTimeZoneInformation(&tzi);
 

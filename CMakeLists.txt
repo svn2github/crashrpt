@@ -6,6 +6,15 @@ cmake_minimum_required (VERSION 2.8)
 # CrashRpt version number
 set (CRASHRPT_VER 1300)
 
+# Check supported generators
+if(NOT MSVC OR ${MSVC_VERSION} LESS 1310)
+	message("This version of Visual Studio is not supported: ${CMAKE_GENERATOR}.")
+endif(NOT MSVC OR ${MSVC_VERSION} LESS 1310)
+
+# Set output directory for executable files
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+
 # Build configurations
 if(CMAKE_CONFIGURATION_TYPES)
    set(CMAKE_CONFIGURATION_TYPES Debug Release)
