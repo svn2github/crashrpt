@@ -15,9 +15,20 @@
 
 - Removed obsolete API InstallW, InstallA, Uninstall, AddFileW, AddFileA, GenerateErrorReport.
 
-- Updated Italian lang file (issue ).
-- Updated German lang file (issue ).
-- Updated French lang file (issue ).
+- Updated Italian lang file (issue 92).
+- Updated German lang file (issue 98).
+- Updated French lang file (issue 107).
+- Fixed: CrashSender fails to initialize if two files both have empty destination properties (issue 88)
+- Fixed: DestroyView fails in SharedMem implementation (issue 93)
+- Fixed: CHttpRequestSender::InternalSend() sends bad request header (issue 95)
+- Fixed: Potential buffer overflow in CHttpRequestSender::InternalSend() (issue 96)
+- Fixed: Formatting / coding request (issue 97)
+- Fixed: Typo in string conversion class (issue 99)
+- Fixed: Compilation fails if build directory contains spaces (issue 100)
+- Fixed:The space confuses some mail servers, the RFC for QUIT defines that there should be no space. (issue 105)
+- Fixed: RFC correct base64 for SMTP send (issue 106)
+- Fixed: Wrong handling of dwFlags when setting handlers (issue 109)
+- Fixed: SMTP fails if Date header missing (issue 110)
 
 --- Ver. 1.2.10 ---
 
