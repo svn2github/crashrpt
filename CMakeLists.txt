@@ -87,7 +87,7 @@ add_subdirectory("tests")
 
 # Set output directory for LIB files
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/thirdparty/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}thirdparty/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/thirdparty/lib)
 
 add_subdirectory("thirdparty/jpeg")
 add_subdirectory("thirdparty/libpng")
