@@ -9,6 +9,9 @@ date_default_timezone_set('UTC');
 // Writes error code and text message and then exits
 function done($return_status, $message)
 {
+  // Write HTTP responce code
+  header("HTTP/1.0 ".$return_status." ".$message);
+  // Write HTTP responce body (for backwards compatibility)
   echo $return_status." ".$message; 
   exit(0);
 }

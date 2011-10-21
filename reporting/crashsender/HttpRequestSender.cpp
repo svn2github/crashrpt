@@ -226,22 +226,52 @@ BOOL CHttpRequestSender::InternalSend()
 
     // Add a message to log
     m_Assync->SetProgress(_T("Reading server response..."), 0);
+	
+	// Get HTTP responce code from HTTP headers
+	DWORD lHttpStatus = 0;
+	DWORD lHttpStatusSize = sizeof(lHttpStatus);
+	BOOL bQueryInfo = HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, 
+									&lHttpStatus, &lHttpStatusSize, 0);
+	
+	if(bQueryInfo)
+	{
+		sMsg.Format(_T("Server responce code: %ld"), lHttpStatus);
+		m_Assync->SetProgress(sMsg, 0);
+	}
 
-    // Read responce
-    InternetReadFile(hRequest, pBuffer, 4095, &dwBuffSize);
-    pBuffer[dwBuffSize] = 0;
-    sMsg = CString((LPCSTR)pBuffer, dwBuffSize);
-    sMsg = _T("Server returned:") + sMsg;
-    m_Assync->SetProgress(sMsg, 0);
+	// Read HTTP responce
+	InternetReadFile(hRequest, pBuffer, 4095, &dwBuffSize);
+	pBuffer[dwBuffSize] = 0;
+	sMsg = CString((LPCSTR)pBuffer, dwBuffSize);
+	sMsg = _T("Server responce body:")  + sMsg;
+	m_Assync->SetProgress(sMsg, 0);
+	
 
-    // Get status code
-    if(atoi((LPCSTR)pBuffer)!=200)
-    {
-        m_Assync->SetProgress(_T("Failed."), 100, false);
-        goto cleanup;
-    }
+	// If the first byte of HTTP responce is a digit, than assume a legacy way
+	// of determining delivery status - the HTTP responce starts with a delivery status code
+	if(dwBuffSize>0 && pBuffer[0]>='0' && pBuffer[0]<='9')
+	{
+		m_Assync->SetProgress(_T("Assuming legacy method of determining delivery status (from HTTP responce body)."), 0);
 
-    // Add a message to log
+		// Get status code from HTTP responce
+		if(atoi((LPCSTR)pBuffer)!=200)
+		{
+			m_Assync->SetProgress(_T("Failed (HTTP responce body doesn't start with code 200)."), 100, false);
+			goto cleanup;
+		}
+	}
+	else
+	{
+		// If the first byte of HTTP responce is not a digit, assume that
+		// the delivery status should be read from HTTP header
+		if(!bQueryInfo || lHttpStatus!=200)
+		{
+			m_Assync->SetProgress(_T("Failed (HTTP responce code is not equal to 200)."), 100, false);
+			goto cleanup;
+		}
+	}
+
+	// Add a message to log
     m_Assync->SetProgress(_T("Error report was sent OK!"), 100, false);
     bStatus = TRUE;
 

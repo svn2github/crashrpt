@@ -110,7 +110,7 @@ it knows all aspects of this environment.
   - Although CrashRpt is not designed for platforms other than Windows, it handles 
     Visual C++ exceptions better than Breakpad (because CrashRpt designed specially for Visual C++).
 
-  - CrashRpt supports Visual C++ 2005, 2008, 2010 and Visual C++ Express. 
+  - CrashRpt supports Visual C++ .NET 2003, 2005, 2008, 2010 and Visual C++ Express. 
     It can be compiled for 32-bit and 64-bit platform.
 
   - CrashRpt handles exceptions in the main thread or in a worker thread of your user-mode program: 

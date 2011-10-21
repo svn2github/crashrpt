@@ -184,11 +184,11 @@ of <b>$_FILES</b> global array.
 
 \subsection script_return Return Value
 
-The script should return status of request completion as server responce content. In HTTP/1.0 and since, 
+The script should return status of request completion as server responce header. In HTTP/1.0 and since, 
 the first line of the HTTP response is called the status line and includes a numeric status code (such as "404") 
 and a textual reason phrase (such as "Not Found").
 
-If the script succeeds in saving the error report, it should return the "200 Success" as server responce content.
+If the script succeeds in saving the error report, it should return the "200 Success" as server responce header.
 If the script encounters an error, it should return a 4xx error code, for example "450 Invalid parameter". 
 Note that some error codes are reserved by HTTP specification. If the script uses custom error codes, they shouldn't
 intersect with standard predefined HTTP codes. 
