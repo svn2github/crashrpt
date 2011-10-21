@@ -25,12 +25,6 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
 			${CMAKE_SOURCE_DIR}/thirdparty/minizip
 			${CMAKE_SOURCE_DIR}/thirdparty/tinyxml
 			${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/include)
-
-if(NOT CMAKE_CL_64)
-	link_directories( ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib )
-else(NOT CMAKE_CL_64)
-	link_directories( ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib/amd64 )
-endif(NOT CMAKE_CL_64)
 			
 # Add library build target
 if(CRASHRPT_BUILD_SHARED_LIBS)	
@@ -39,7 +33,15 @@ else(CRASHRPT_BUILD_SHARED_LIBS)
 	add_library(CrashRptProbe STATIC ${source_files})	
 endif(CRASHRPT_BUILD_SHARED_LIBS)
 
-target_link_libraries(CrashRptProbe zlib minizip tinyxml ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib/dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib psapi.lib)
+if(CMAKE_CL_64)
+	link_directories( ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib/amd64 )	
+	target_link_libraries(CrashRptProbe ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib/amd64/dbghelp.lib)
+else(CMAKE_CL_64)
+	link_directories( ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib )
+	target_link_libraries(CrashRptProbe ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib/dbghelp.lib)
+endif(CMAKE_CL_64)
+
+target_link_libraries(CrashRptProbe zlib minizip tinyxml Rpcrt4.lib shell32.lib gdi32.lib version.lib psapi.lib)
 
 if(CRASHRPT_BUILD_SHARED_LIBS)
 
