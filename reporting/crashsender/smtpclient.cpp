@@ -346,7 +346,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
     time(&cur_time);
     char szDateTime[64] = "";
     
-#if MSC_VER >= 1400
+#if _MSC_VER >= 1400
 	struct tm ltimeinfo;
     localtime_s(&ltimeinfo, &cur_time );
 	strftime(szDateTime, 64,  "%a, %d %b %Y %H:%M:%S", &ltimeinfo);

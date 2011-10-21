@@ -61,7 +61,8 @@ enum DELIVERY_STATUS
 {  
     PENDING    = 0,  // Status pending  
     DELIVERED  = 1,  // Error report was delivered ok
-    FAILED     = 2   // Error report delivery failed
+    FAILED     = 2,  // Error report delivery failed
+	DELETED    = 3   // Error report was deleted by user
 };
 
 // Error report info
@@ -169,6 +170,12 @@ public:
 
     // Returns count of error reports
     int GetReportCount();
+
+	// Deletes n-th report
+	void DeleteReport(int nIndex);
+
+	// Deletes all reports
+	void DeleteAllReports();
 
     // Returns TRUE if it is time to remind user
     BOOL IsRemindNowOK();

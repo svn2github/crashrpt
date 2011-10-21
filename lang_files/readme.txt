@@ -8,7 +8,11 @@ a previous version to the latest version.
 
 --- v.1.3.0 ---
 
-  No changes
+ * In [DetailDlg]
+  - SelectAll - new
+  - DeselectAll - new
+  - DeleteSelected - new
+  - DeleteAll - new
 
 --- v.1.2.10 ---
 

@@ -127,9 +127,14 @@ public:
         COMMAND_ID_HANDLER(ID_MENU3_EXIT, OnPopupExit)
         COMMAND_ID_HANDLER(ID_MENU4_REMINDLATER, OnRemindLater)
         COMMAND_ID_HANDLER(ID_MENU4_NEVERREMIND, OnNeverRemind)
+		COMMAND_ID_HANDLER(ID_MENU6_SELECTALL, OnPopupSelectAll)
+		COMMAND_ID_HANDLER(ID_MENU6_DESELECTALL, OnPopupDeselectAll)
+		COMMAND_ID_HANDLER(ID_MENU6_DELETESELECTED, OnPopupDeleteSelected)
+		COMMAND_ID_HANDLER(ID_MENU6_DELETEALL, OnPopupDeleteAll)
         NOTIFY_HANDLER(IDC_LIST, LVN_ITEMCHANGING, OnListItemChanging)
         NOTIFY_HANDLER(IDC_LIST, LVN_ITEMCHANGED, OnListItemChanged)
         NOTIFY_HANDLER(IDC_LIST, NM_DBLCLK, OnListDblClick)
+		NOTIFY_HANDLER(IDC_LIST, NM_RCLICK, OnListRClick)
 
         CHAIN_MSG_MAP(CDialogResize<CResendDlg>)
     END_MSG_MAP()
@@ -148,11 +153,16 @@ public:
     LRESULT OnListItemChanging(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
     LRESULT OnListItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
     LRESULT OnListDblClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+	LRESULT OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
     LRESULT OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnShowLog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnPopupSelectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnPopupDeselectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnPopupDeleteAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
     void CloseDialog(int nVal);
     void AddTrayIcon(BOOL bAdd);

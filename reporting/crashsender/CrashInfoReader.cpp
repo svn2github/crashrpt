@@ -290,12 +290,37 @@ int CCrashInfoReader::UnpackString(DWORD dwOffset, CString& str)
 
 ErrorReportInfo& CCrashInfoReader::GetReport(int nIndex)
 { 
+	ATLASSERT(nIndex>=0 && nIndex<(int)m_Reports.size());
+	
     return m_Reports[nIndex]; 
 }
 
 int CCrashInfoReader::GetReportCount()
 { 
     return (int)m_Reports.size(); 
+}
+
+void CCrashInfoReader::DeleteReport(int nIndex)
+{
+	ATLASSERT(nIndex>=0 && nIndex<(int)m_Reports.size());
+
+	// Delete report files
+	Utility::RecycleFile(m_Reports[nIndex].m_sErrorReportDirName, TRUE);
+
+	// Delete from list
+	m_Reports[nIndex].m_DeliveryStatus = DELETED;
+}
+
+void CCrashInfoReader::DeleteAllReports()
+{
+	int i;
+	for(i=0; i<(int)m_Reports.size(); i++)
+	{
+		// Delete report files
+		Utility::RecycleFile(m_Reports[i].m_sErrorReportDirName, TRUE);
+
+		m_Reports[i].m_DeliveryStatus = DELETED;
+	}	
 }
 
 void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
