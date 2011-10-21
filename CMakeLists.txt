@@ -1,7 +1,9 @@
-project (CrashRpt)
-
 # Preserve backwards compatibility
 cmake_minimum_required (VERSION 2.8)
+
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE )
+
+project (CrashRpt)
 
 # CrashRpt version number
 set (CRASHRPT_VER 1300)
@@ -14,14 +16,6 @@ endif(NOT MSVC OR ${MSVC_VERSION} LESS 1310)
 # Set output directory for executable files
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
-
-# Build configurations
-if(CMAKE_CONFIGURATION_TYPES)
-   set(CMAKE_CONFIGURATION_TYPES Debug Release)
-   set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
-     "Reset the configurations to what we need"
-     FORCE)
-endif()
 
 # Build options
 option(CRASHRPT_BUILD_SHARED_LIBS "If set (default), CrashRpt modules are built as dynamic-link libraries, otherwise as static libs." ON)
