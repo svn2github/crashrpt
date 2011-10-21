@@ -7,9 +7,9 @@ can be used for automating crash report processing. To run the tool, go to
 \c bin directory and type <b>crprober.exe</b> in the command line.
 
 \note If you run the precompiled tool from \c bin folder and do not compile it yourself, you might
-experience some problems if Visual C++ 2005 Redistributable files are not installed on your machine. 
+experience some problems if Visual C++ 2010 Redistributable files are not installed on your machine. 
 There may be error messages like 'The application configuration is incorrect' and so on.
-If you do not have Visual C++ 2005 Redistributable on your machine and do not want to install it, 
+If you do not have Visual C++ 2010 Redistributable on your machine and do not want to install it, 
 please compile the solution yourself as described in \ref compiling_crashrpt.
 
 

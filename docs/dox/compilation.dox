@@ -39,11 +39,11 @@ with CMake, do the following:
   to generate project files. It is recommended to enter the path to your top-level directory of 
   CrashRpt distribution here, too.
 - In the option list, modify build options as you wish. 
-     - <i>CRASHRPT_BUILD_SHARED_LIBS</i> option controls whether to build CrashRpt as DLL or as a static LIB.
-	   It is recommended that you have this checked. Unchecking the <i>CRASHRPT_BUILD_SHARED_LIBS</i> option will force CrashRpt to build static libs instead of DLLs.
-	 - <i>CRASHRPT_LINK_CRT_AS_DLL</i> option controls how CrashRpt should be linked to C run-time (CRT) libraries.
-	   Unchecking this option will force CrashRpt to link CRT as a multi-threaded static library.
-	   It is recommended that you have this checked, which results in linking CRT as multi-threaded DLL.
+	- <i>CRASHRPT_BUILD_SHARED_LIBS</i> option controls whether to build CrashRpt as DLL or as a static LIB.
+	  It is recommended that you have this checked. Unchecking the <i>CRASHRPT_BUILD_SHARED_LIBS</i> option will force CrashRpt to build static libs instead of DLLs.
+	- <i>CRASHRPT_LINK_CRT_AS_DLL</i> option controls how CrashRpt should be linked to C run-time (CRT) libraries.
+	  Unchecking this option will force CrashRpt to link CRT as a multi-threaded static library.
+	  It is recommended that you have this checked, which results in linking CRT as multi-threaded DLL.
 - Press the <i>Configure</i> button. When prompted, select your version of Visual Studio from the list. 
   If everything is OK, you should see the message "Configuring done".
 - Press the <i>Generate</i> button. This will generate project files to the directory you have specified. 
