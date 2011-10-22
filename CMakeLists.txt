@@ -63,8 +63,7 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
-# Tweaks CMake's default compiler/linker settings.
-# The macro is taken from Google Test code.
+# Modifies CMake's default compiler/linker settings.
 macro(fix_default_compiler_settings_)
 
 	if (MSVC)

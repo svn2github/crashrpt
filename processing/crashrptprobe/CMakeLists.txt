@@ -51,7 +51,7 @@ if(CRASHRPT_BUILD_SHARED_LIBS)
 
 else(CRASHRPT_BUILD_SHARED_LIBS)
 
-	set_target_properties(CrashRpt PROPERTIES 
+	set_target_properties(CrashRptProbe PROPERTIES 
 									DEBUG_POSTFIX LIBd 
 									RELEASE_POSTFIX LIB )
 
