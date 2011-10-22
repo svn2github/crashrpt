@@ -93,7 +93,10 @@ F7 to start building process.
 You can choose the current platform by opening menu Build->Configuration Manager... 
 and by selecting the desired platform from the 'Active solution platform:' combo box.
 
-Note, that you should have x64 compiler tools and SDK files properly installed 
+If you use CMake to generate project files, select a 64-bit compiler from the drop-down list 
+when configuring CMake. 
+
+You should have x64 compiler tools and SDK files properly installed 
 (ensure you have checked these components during Visual C++ installation).
 
 \section notes_about_evc Notes About Compiling in Visual C++ Express
