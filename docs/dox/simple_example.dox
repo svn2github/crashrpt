@@ -6,13 +6,13 @@ The following example shows how to use CrashRpt API functions and structures
 to enable crash reporting support. For additional information on CrashRpt API functions
 and structures, please refer to \ref using_crashrpt_api.
 
-First create a console WinAPI application and call it MyApp. Then configure the MyApp application
+First create a console Win32 application and call it MyApp. Then configure the MyApp application
 as described in \ref configuring_project.
 
 Let's assume the case when MyApp application has two threads. The first thread, the application thread,
 will be the main one. The \b main() function will be executed in this thread and interaction with user
-will also be done in this thread. The second thread, the worker thread, is 
-usually used when some time-consuming computational work is to be done without blocking the application thread.
+will also be performed in this thread. The second thread, the worker thread, is 
+typically used when some time-consuming computational work is to be done without blocking the application thread.
 
 The MyApp application will create a log file that will be included in error report on crash. The
 log file is typically helpful when debugging a crash.

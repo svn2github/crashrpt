@@ -34,7 +34,8 @@ Before you start using CrashRpt API functions in your program, do not forget to 
 You also need to add CrashRpt LIB file to the list of input libraries for your project.
 In the Solution Explorer window, right-click your project and choose Properties item from the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
-and then add \b CrashRpt.lib to the list of libraries. 
+and then add \b CrashRptXXXX.lib to the list of libraries (here XXXX should be replaced with CrashRpt
+version number. 
 
 \section crtdll Using CRT as Multi-Threaded DLL (/MD) in Release Configuration
 
@@ -64,7 +65,7 @@ to ensure the single version or CRT DLL is used.
 For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your 
 application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. 
 In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because error handlers 
-are installed by you program for CRT 8.0 only. 
+are installed for CRT 8.0 only. 
 
 \section prgdb Enabling Program Database (/Zi, /DEBUG) in Release Configuration
 
@@ -77,7 +78,7 @@ choose <b>Program Database (/Zi)</b>.
 -# Choose Configuration Properties->Linker->Debugging. In the <b>Generate Debug Info</b> field,
 choose <b>Yes (/DEBUG)</b>. 
 
-Steps 1 and 2 should be done for all projects in your solution that support program database 
+Steps 1 and 2 should be performed for all projects in your solution that support program database 
 (EXE, DLL).
 
 The steps 1 and 2 are presented on the figures below.
