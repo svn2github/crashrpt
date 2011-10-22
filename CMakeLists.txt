@@ -66,22 +66,31 @@ ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
 # Tweaks CMake's default compiler/linker settings.
 # The macro is taken from Google Test code.
 macro(fix_default_compiler_settings_)
-  if (MSVC)
-    # For MSVC, CMake sets certain flags to defaults we want to override.
-    # This replacement code is taken from sample in the CMake Wiki at
-    # http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace.
-    foreach (flag_var
-             CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-             CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-      if (NOT CRASHRPT_LINK_CRT_AS_DLL)        
-        string(REPLACE "/MD" "-MT" ${flag_var} "${${flag_var}}")
-      endif(NOT CRASHRPT_LINK_CRT_AS_DLL)        
 
-      # We prefer more strict warning checking.
-      # Replaces /W3 with /W4 in defaults.
-      string(REPLACE "/W3" "-W4" ${flag_var} "${${flag_var}}")
-    endforeach()
-  endif()
+	if (MSVC)
+		
+		# For MSVC, CMake sets certain flags to defaults we want to override.
+		# This replacement code is taken from sample in the CMake Wiki at
+		# http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace.
+		foreach (flag_var
+				CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+				CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE )
+			if (NOT CRASHRPT_LINK_CRT_AS_DLL)     					
+				string(REPLACE "/MD" "-MT" ${flag_var} "${${flag_var}}")			  
+			endif(NOT CRASHRPT_LINK_CRT_AS_DLL)        
+
+			# We prefer more strict warning checking.
+			# Replaces /W3 with /W4 in defaults.
+			string(REPLACE "/W3" "-W4" ${flag_var} "${${flag_var}}")
+		endforeach()
+		
+		#SET (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "MSVC C Debug MT flags " FORCE)    
+		#SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "MSVC CXX Debug MT flags " FORCE)
+		#SET (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}" CACHE STRING "MSVC C Release MT flags " FORCE)
+		#SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "MSVC CXX Release MT flags " FORCE)
+		
+    endif(MSVC)
+  
 endmacro()
 
 # Other CMakeLists are located in project subdirectories 
@@ -105,8 +114,11 @@ else(CMAKE_CL_64)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/thirdparty/lib)
 endif(CMAKE_CL_64)
 
+add_subdirectory("thirdparty/tinyxml")
 add_subdirectory("thirdparty/jpeg")
 add_subdirectory("thirdparty/libpng")
 add_subdirectory("thirdparty/minizip")
 add_subdirectory("thirdparty/zlib")
-add_subdirectory("thirdparty/tinyxml")
+
+
+
