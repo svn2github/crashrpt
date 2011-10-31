@@ -254,6 +254,9 @@ int _tmain(int argc, _TCHAR* argv[])
 }
 \endcode
 
+Do not forget to add <b>CrashRptXXXX.lib</b> file to the list of input libraries of your project 
+(XXXX is the placeholder for the version of CrashRpt). For additional info, see \ref configuring_project.
+
 Before running the application, you should place the following files to the directory 
 where your application executable file is located (for additional information, 
 see \ref preparing_to_software_release):

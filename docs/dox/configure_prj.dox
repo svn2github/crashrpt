@@ -35,7 +35,7 @@ You also need to add CrashRpt LIB file to the list of input libraries for your p
 In the Solution Explorer window, right-click your project and choose Properties item from the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRptXXXX.lib to the list of libraries (here XXXX should be replaced with CrashRpt
-version number. 
+version number). 
 
 \section crtdll Using CRT as Multi-Threaded DLL (/MD) in Release Configuration
 
