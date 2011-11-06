@@ -15,6 +15,9 @@ The top-level directory of CrashRpt distribution contains solution file
 for Visual Studio 2010 (<b>CrashRpt_vs2010.sln</b>). Open this solution file
 to compile CrashRpt in <b>Visual C++ 2010</b> or in <b>Visual C++ Express 2010</b>.
 
+To build the solution, choose the \b Release build configuration and press 
+F7 to start building process.
+
 If you use another version of Visual Studio, you can generate solution/project files
 for your version of Visual Studio using CMake. See below for instructions.
 
@@ -52,40 +55,42 @@ with CMake, do the following:
   If everything is OK, you should see the message "Generating done".
 - And finally, go to the directory you have specified in the <i>Where to build the binaries:</i> field. 
   You should see <b>CrashRpt.sln</b> file that you can use to compile CrashRpt.
-   
+
+\image html cmake.png "cmake-gui window" 
+  
 \section solution_structure CrashRpt Solution Structure
   
 There are several projects in CrashRpt solution.
 
-- \b CrashRpt project contains 
-  API implementation and provides functionality for intercepting exceptions.
-
-- \b CrashSender project contains functionality 
-  for displaying GUI, sending the error report and showing error report sending progress.
-
-- \b CrashRptTest is a GUI application that helps to test that 
-   CrashRpt API functions work as expected.
+\image html solution_explorer.png "Structure of CrashRpt solution as seen in Solution Explorer window" 
 
 - \b crashcon is a console application that helps to test how CrashRpt
   works with console applications.
 
-- \b zlib project contains file compression functionality.
-
-- \b libpng project contains PNG file management functionality.
-
-- \b jpeg project contains JPEG file management functionality.
-
-- \b minizip project contains ZIP file management functionality.
+- \b CrashRpt project contains 
+  API implementation and provides functionality for intercepting exceptions.
 
 - \b CrashRptProbe project contains functionality for processing error reports.
 
+- \b CrashRptTest is a GUI application that helps to test that 
+   CrashRpt API functions work as expected.
+
+- \b CrashSender project contains functionality 
+  for displaying GUI, sending the error report and showing error report sending progress.
+
 - \b crprober is a console tool for error reports processing.
+
+- \b jpeg project contains JPEG file management functionality.
+
+- \b libpng project contains PNG file management functionality.
+
+- \b minizip project contains ZIP file management functionality.
 
 - \b Tests project contains automated tests.
 
+- \b tinyxml project contains XML file management functionality.
 
-To build the solution, choose the \b Release build configuration and press 
-F7 to start building process.
+- \b zlib project contains file compression functionality.
 
 \section compiling_x64_platform Compilation for 64-bit (x64) Platform
 

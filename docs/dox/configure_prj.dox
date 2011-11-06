@@ -10,8 +10,15 @@ At this point you should have the CrashRpt source code compiled as described in
 To let your Visual C++ compiler and linker know about the
 location of CrashRpt include and lib files, do the following.
 
-In Visual Studio window, open Tools->
-Options->Projects and Solutions->VC++ Directories.
+If you use Visual Studio .NET 2003, 2005, or 2008, open menu <i>Tools->
+Options</i>. Then in appeared dialog, select <i>Projects and Solutions->VC++ Directories</i>.
+
+If you use Visual Studio 2010, open the Property Manager window, multi-select 
+all projects in CrashRpt solution and right click the selection. In the appeared 
+dialog, open <i>Configuration Properties->VC++ Directories</i>. 
+
+Finally,
+
 - In the 'Show directories for' combo box, select 'Include files', then add 
   the path to <i>[CRASHRPT_HOME]\\include</i> directory to the list.
 - In the 'Show directories for' combo box, select 'Library files', then add 
@@ -19,9 +26,6 @@ Options->Projects and Solutions->VC++ Directories.
 
 Here <i>[CRASHRPT_HOME]</i> should be replaced with the actual path of the 
 directory you unzipped CrashRpt distribution to.
-
-\note In previous versions, include files were stored in <i>[CRASHRPT_HOME]\\CrashRpt\\include</i>.
-<b>Since v1.2.0</b>, all include files are stored in <i>[CRASHRPT_HOME]\\include</i> directory.
 
 Before you start using CrashRpt API functions in your program, do not forget to include 
 \c CrashRpt.h header file in the beginning of your code: 
