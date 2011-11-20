@@ -79,8 +79,7 @@ button to continue.
 \image html vs_unhandled_exception.png "Unhandled Exception Message"
  
 In the <i>Output</i> window, you should be able to see the log of minidump loading progress. If you do not see 
-the <i>Output window</i>, open menu <i>View</i> and click the <i>Output</i> menu item. In the <i>Output</i> window,
-you can see what symbol files are loaded for each module. 
+the <i>Output window</i>, open menu <i>View</i> and click the <i>Output</i> menu item. 
 
 \image html output_window.png "Output Window"
 
@@ -102,7 +101,7 @@ type you use and on other factors, such as code optimizations.
 
 \image html code_line.png "Line of the code where exception occurred"
 
-If the reason of the crash is clear, you can even want to edit the source code right in place to fix the problem. 
+If the reason of the crash is clear, you even may edit the source code right in place to fix the problem. 
 But I wouldn't recommend to do this, because the code you are browsing is a 'snapshot', not a working copy. 
 And there is a bug in Visual Studio 2005 that makes a filename lowercase when you save the changes. 
 
@@ -135,10 +134,10 @@ automatically. But in general, there may be some problems with reading minidumps
 files. 
 
 In order to locate matching binaries, PDB files and source code files, Visual Studio uses the absolute paths embedded
-into the PDB file at the time of compilation and linking. So, when you do not delete/move/modify the files you used to build the
+into the executable file at the time of compilation and linking. So, when you do not delete/move/modify the files you used to build the
 solution, Visual Studio can locate them automatically. But, if you delete/move or modify those files, Visual Studio
 won't be able to locate them. In order to illustrate such case, I will remove the entire <i>D:\\Projects\\CrashRpt\\dmptest</i> 
-folder that contained CrashRpt source code I used in compilation, resulting binaries and PDB files. 
+folder that contained CrashRpt source code I used for compilation, resulting binaries and PDB files. 
 Then I open the minidump again and see the message 'No symbols are loaded for any stack frame. The source
 code can't be displayed' (see the figure below).  
 
@@ -146,7 +145,7 @@ code can't be displayed' (see the figure below).
 
 Also look at the <i>Modules</i> window - symbol status for <b>CrashRptTest.exe</b> and <b>CrashRpt.dll</b> modules shows that 
 there were no matching binaries found. In order to fix this, you should specify symbol search path
-manually. Open <i>Tools->Options->Debugging->Symbols</i> and enter the path to the directory where your PDB files 
+manually. Open menu <i>Tools->Options->Debugging->Symbols</i> and enter the path to the directory where your PDB files 
 are located (see the figure below for example). 
 
 \image html symbols_load_paths.png "Where to load symbols from"
@@ -157,18 +156,18 @@ In the <i>Call Stack</i> window, double-click the topmost stack frame. A dialog 
 will appear. In this dialog, browse to the <i>D:\\Projects\\CrashRptSaved\\src\\reporting\\crashrpt</i> folder. Now
 the correct source file should be displayed in Visual Studio source code window.
 
-At this point, you should be able to read the minidump correctly. If there are still problems, follow the 
+At this point, you should be able to read the minidump correctly. If there are still some problems, follow the 
 instructions below:                        
 
-- Maybe correct matching binaries and/or PDB files weren't saved. Ensure you save excatly the same binaries 
-  and PDB files that were generated during the linking process.
+- Maybe correct matching binaries and/or PDB files weren't saved after compilation. Ensure you save excatly the same binaries 
+  and PDB files that were generated during the compilation/linking process.
 
 - If symbols for some modules of your program are loaded, and you are still unable to read the stack trace, than
   there were no debugging symbols generated for the module where crash had occurred. Check that
   you set Program Database (/Zi) compiler flag and Generate Debug Info (/DEBUG) linker flag 
   for all modules of your application. For additional info, see \ref prgdb.
 
-- If the stack trace is not as accurate as you expect, the reason may be code optimizations.
+- If the stack trace is not as accurate as you expect, the reason may be the code optimizations.
   However, this is not the reason to turn the optimizations off. Instead, you can manage some 
   error log file which is not affected by optimizations. 
 
@@ -177,11 +176,11 @@ instructions below:
 You can use \b WinDbg program from <b>Microsoft Debugging Tools for Windows</b> for opening 
 crash minidumps. It is freely distributed. 
 
-Let's show how to use WinDbg using an example. Run the sample CrashRptTest application that presents in
-CrashRpt package, and then click the button to generate an exception. Then extract the crashdump.dmp file 
-from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D.
+Let's show how to use WinDbg using an example. Run the sample <i>CrashRptTest</i> application that presents in
+CrashRpt package, and then click the button to generate an exception. Then extract the <b>crashdump.dmp</b> file 
+from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D key combination.
 
-Next, you need to set the symbol path for WinDbg with the .sympath command. Switch 
+Next, you need to set the symbol path for WinDbg with the \c .sympath command. Switch 
 to the command window (ALT+1) and enter \c .sympath followed by a space followed by the 
 semi-colon delimited list of directories to search.
 
