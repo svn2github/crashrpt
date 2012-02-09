@@ -330,12 +330,40 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
 
     // Open parent process handle
     HANDLE hProcess = OpenProcess(
-        PROCESS_QUERY_INFORMATION, 
+        PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, 
         FALSE, 
         m_dwProcessId);
-
+		
     if(hProcess!=NULL)
-    {
+    {	
+		SIZE_T uBytesRead = 0;
+		BYTE buff[1024];
+		memset(&buff, 0, 1024);
+		
+		// Read exception information from process memory
+		if(m_pExInfo!=NULL)
+		{			
+			if(ReadProcessMemory(hProcess, m_pExInfo, &buff, sizeof(EXCEPTION_POINTERS), &uBytesRead) &&
+				uBytesRead==sizeof(EXCEPTION_POINTERS))
+			{
+				EXCEPTION_POINTERS* pExcPtrs = (EXCEPTION_POINTERS*)buff;
+
+				if(pExcPtrs->ExceptionRecord!=NULL)
+				{
+					DWORD64 dwExcRecordAddr = (DWORD64)pExcPtrs->ExceptionRecord;
+					if(ReadProcessMemory(hProcess, (LPCVOID)dwExcRecordAddr, &buff, sizeof(EXCEPTION_RECORD), &uBytesRead) &&
+						uBytesRead==sizeof(EXCEPTION_RECORD))
+					{
+						EXCEPTION_RECORD* pExcRec = (EXCEPTION_RECORD*)buff;
+
+						eri.m_dwExceptionAddress = (DWORD64)pExcRec->ExceptionAddress;
+					}
+				}				
+			}
+		}
+		else
+			eri.m_dwExceptionAddress = 0;
+
         // Get number of GUI resources in use  
         eri.m_dwGuiResources = GetGuiResources(hProcess, GR_GDIOBJECTS);
 

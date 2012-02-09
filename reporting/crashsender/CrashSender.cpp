@@ -44,7 +44,7 @@ CResendDlg dlgResend;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 { 
-    LPCWSTR szCommandLine = GetCommandLineW();
+	LPCWSTR szCommandLine = GetCommandLineW();
 
     // Split command line
     int argc = 0;

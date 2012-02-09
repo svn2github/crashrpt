@@ -163,7 +163,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>CrashRpt1300d.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CrashRpt1301d.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashRptTestd.pdb</ProgramDatabaseFile>
@@ -209,7 +209,7 @@ copy "dummy.log" "$(OutDir)"
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>CrashRpt1300.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CrashRpt1301.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashRptTest.pdb</ProgramDatabaseFile>
@@ -398,6 +398,7 @@ copy "dummy.log" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\CrashRptTest.ico" />
+    <None Include="res\Keys.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CrashRptTest.rc" />

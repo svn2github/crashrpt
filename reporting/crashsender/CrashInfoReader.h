@@ -75,6 +75,8 @@ struct ErrorReportInfo
         m_dwGuiResources = 0;
         m_dwProcessHandleCount = 0;
         m_uTotalSize = 0;
+		m_dwExceptionAddress = 0;
+		m_dwExceptionModuleBase = 0;
     }
 
     CString     m_sErrorReportDirName; // Name of the directory where error report files are located.
@@ -85,6 +87,10 @@ struct ErrorReportInfo
     CString     m_sEmailFrom;          // E-mail sender address.
     CString     m_sDescription;        // User-provided problem description.
     CString     m_sSystemTimeUTC;      // The time when crash occurred (UTC).
+	ULONG64     m_dwExceptionAddress;  // Exception address (taken from exception info structure).
+	CString     m_sExceptionModule;    // Module where exception occurred.
+	CString     m_sExceptionModuleVersion; // File version of the module where exception occurred
+	ULONG64     m_dwExceptionModuleBase; // Base address of the exception module.    
     DWORD       m_dwGuiResources;      // GUI resource count.
     DWORD       m_dwProcessHandleCount; // Process handle count.
     CString     m_sMemUsage;           // Memory usage.
@@ -149,7 +155,7 @@ public:
     DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
     DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
     PEXCEPTION_POINTERS m_pExInfo;      // Address of exception info (used for minidump generation).
-    int         m_nExceptionType;       // Exception type (what handler caught the exception).
+	int         m_nExceptionType;       // Exception type (what handler caught the exception).
     DWORD       m_dwExceptionCode;      // SEH exception code
     UINT        m_uFPESubcode;          // FPE exception subcode
     CString     m_sInvParamExpr;        // Invalid parameter expression

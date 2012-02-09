@@ -432,6 +432,31 @@ BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT Callb
             CString sMsg;
             sMsg.Format(_T("Dumping info for module %s"), 
                 strconv.w2t(CallbackInput->Module.FullPath));
+
+			ErrorReportInfo& eri = g_CrashInfo.GetReport(0);
+			if(eri.m_dwExceptionAddress!=0)
+			{
+				ULONG64 dwExcAddr = eri.m_dwExceptionAddress;
+				if(dwExcAddr>=CallbackInput->Module.BaseOfImage && 
+					dwExcAddr<=CallbackInput->Module.BaseOfImage+CallbackInput->Module.SizeOfImage)
+				{
+					eri.m_sExceptionModule = CallbackInput->Module.FullPath;
+					eri.m_dwExceptionModuleBase = CallbackInput->Module.BaseOfImage;
+
+					VS_FIXEDFILEINFO* fi = &CallbackInput->Module.VersionInfo;
+					if(fi)
+					{
+						WORD dwVerMajor = HIWORD(fi->dwProductVersionMS);
+						WORD dwVerMinor = LOWORD(fi->dwProductVersionMS);
+						WORD dwPatchLevel = HIWORD(fi->dwProductVersionLS);
+						WORD dwVerBuild = LOWORD(fi->dwProductVersionLS);
+
+						eri.m_sExceptionModuleVersion.Format(_T("%u.%u.%u.%u"), 
+									dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);  					
+					}
+				}
+			}
+
             m_Assync.SetProgress(sMsg, 0, true);
         }
         break;
@@ -645,8 +670,7 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
 
     TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
     doc.InsertBeforeChild(root, *decl);
-
-
+	
     AddElemToXML(_T("CrashGUID"), eri.m_sCrashGUID, root);
     AddElemToXML(_T("AppName"), eri.m_sAppName, root);
     AddElemToXML(_T("AppVersion"), eri.m_sAppVersion, root);  
@@ -659,6 +683,19 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
 
     AddElemToXML(_T("GeoLocation"), eri.m_sGeoLocation, root);
     AddElemToXML(_T("SystemTimeUTC"), eri.m_sSystemTimeUTC, root);
+		
+	if(eri.m_dwExceptionAddress!=0)
+	{
+		sNum.Format(_T("0x%I64x"), eri.m_dwExceptionAddress);
+		AddElemToXML(_T("ExceptionAddress"), sNum, root);
+
+		AddElemToXML(_T("ExceptionModule"), eri.m_sExceptionModule, root);
+
+		sNum.Format(_T("0x%I64x"), eri.m_dwExceptionModuleBase);
+		AddElemToXML(_T("ExceptionModuleBase"), sNum, root);
+
+		AddElemToXML(_T("ExceptionModuleVersion"), eri.m_sExceptionModuleVersion, root);
+	}
 
     sExceptionType.Format(_T("%d"), g_CrashInfo.m_nExceptionType);
     AddElemToXML(_T("ExceptionType"), sExceptionType, root);
@@ -1696,16 +1733,27 @@ BOOL CErrorReportSender::SendOverHTTP()
     CHttpRequest request;
     request.m_sUrl = g_CrashInfo.m_sUrl;  
 
-    request.m_aTextFields[_T("appname")] = strconv.t2a(g_CrashInfo.GetReport(m_nCurReport).m_sAppName);
-    request.m_aTextFields[_T("appversion")] = strconv.t2a(g_CrashInfo.GetReport(m_nCurReport).m_sAppVersion);
-    request.m_aTextFields[_T("crashguid")] = strconv.t2a(g_CrashInfo.GetReport(m_nCurReport).m_sCrashGUID);
-    request.m_aTextFields[_T("emailfrom")] = strconv.t2a(g_CrashInfo.GetReport(m_nCurReport).m_sEmailFrom);
-    request.m_aTextFields[_T("emailsubject")] = strconv.t2a(g_CrashInfo.m_sEmailSubject);
-    request.m_aTextFields[_T("description")] = strconv.t2a(g_CrashInfo.GetReport(m_nCurReport).m_sDescription);
+	ErrorReportInfo& eri = g_CrashInfo.GetReport(m_nCurReport);
+
+	CString sNum;
+	sNum.Format(_T("%d"), CRASHRPT_VER);
+	request.m_aTextFields[_T("crashrptver")] = strconv.t2utf8(sNum);
+    request.m_aTextFields[_T("appname")] = strconv.t2utf8(eri.m_sAppName);
+    request.m_aTextFields[_T("appversion")] = strconv.t2utf8(eri.m_sAppVersion);
+    request.m_aTextFields[_T("crashguid")] = strconv.t2utf8(eri.m_sCrashGUID);
+    request.m_aTextFields[_T("emailfrom")] = strconv.t2utf8(eri.m_sEmailFrom);
+    request.m_aTextFields[_T("emailsubject")] = strconv.t2utf8(g_CrashInfo.m_sEmailSubject);
+    request.m_aTextFields[_T("description")] = strconv.t2utf8(eri.m_sDescription);
+	request.m_aTextFields[_T("exceptionmodule")] = strconv.t2utf8(eri.m_sExceptionModule);
+	request.m_aTextFields[_T("exceptionmoduleversion")] = strconv.t2utf8(eri.m_sExceptionModuleVersion);	
+	sNum.Format(_T("%I64u"), eri.m_dwExceptionModuleBase);
+	request.m_aTextFields[_T("exceptionmodulebase")] = strconv.t2utf8(sNum);
+	sNum.Format(_T("%I64u"), eri.m_dwExceptionAddress);
+	request.m_aTextFields[_T("exceptionaddress")] = strconv.t2utf8(sNum);
 
     CString sMD5Hash;
     CalcFileMD5Hash(m_sZipName, sMD5Hash);
-    request.m_aTextFields[_T("md5")] = strconv.t2a(sMD5Hash);
+    request.m_aTextFields[_T("md5")] = strconv.t2utf8(sMD5Hash);
 
     if(g_CrashInfo.m_bHttpBinaryEncoding)
     {
