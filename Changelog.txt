@@ -1,5 +1,13 @@
 ======= Change History ========
 
+--- Ver. 1.3.1 ---
+
+- Added an ability to record what happened before crash on video using free VP8 codec from WebM Project.
+
+- Included WebM VP8 Codec to CrashRpt distribution.
+
+- New API function crRecordVideo() and structure CR_VIDEO_RECORDING_INFO.
+
 --- Ver. 1.3.0 ---
 
 - Added support of CMake - cross-plaform make system. Although CrashRpt doesn't support operating systems

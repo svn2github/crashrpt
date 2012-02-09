@@ -58,6 +58,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpeg", "thirdparty\jpeg\jpe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyxml", "thirdparty\tinyxml\tinyxml_vs2010.vcxproj", "{CCC76489-E12C-4744-B31F-0BACD6F0A1B2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "webm", "thirdparty\webm\webm_vs2010.vcxproj", "{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -212,6 +214,15 @@ Global
 		{CCC76489-E12C-4744-B31F-0BACD6F0A1B2}.Release|Win32.Build.0 = Release|Win32
 		{CCC76489-E12C-4744-B31F-0BACD6F0A1B2}.Release|x64.ActiveCfg = Release|x64
 		{CCC76489-E12C-4744-B31F-0BACD6F0A1B2}.Release|x64.Build.0 = Release|x64
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Debug|Win32.ActiveCfg = Debug|Win32
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Debug|Win32.Build.0 = Debug|Win32
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Debug|x64.ActiveCfg = Debug|x64
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Release LIB|Win32.ActiveCfg = Release|Win32
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Release LIB|Win32.Build.0 = Release|Win32
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Release LIB|x64.ActiveCfg = Release|Win32
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Release|Win32.ActiveCfg = Release|Win32
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Release|Win32.Build.0 = Release|Win32
+		{240BCE66-3A31-4FBB-B46F-4B5ECC63C986}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

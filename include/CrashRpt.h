@@ -66,7 +66,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CRASHRPTAPI(rettype) CRASHRPT_EXTERNC rettype WINAPI
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1300
+#define CRASHRPT_VER 1301
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
