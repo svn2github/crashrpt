@@ -186,6 +186,11 @@ in the table below.
 <td><a href="http://www.ijg.org/">Independent JPEG Group license</a>
 </table>
 
+<tr>
+<td><a href="http://www.webmproject.org/">WebM VP8 Codec</a>
+<td><a href="http://www.webmproject.org/license/">BSD License</a>
+</table>
+
 \section install_faq FAQ
 
 <b>Where do I look for answers to frequently asked questions about CrashRpt?</b>
