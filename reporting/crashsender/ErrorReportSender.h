@@ -47,131 +47,136 @@ enum ActionType
     SEND_REPORT        = 0x08  // Report should be sent
 };
 
-// The class that sends error reports
+// The class that collects crash report files, packs them 
+// into a ZIP archive and sends the error report.
 class CErrorReportSender
 {
 public:
 
-    // Construction/destruction
+    // Constructor.
     CErrorReportSender();
+
+	// Destructor.
     ~CErrorReportSender();
 
-    // Does an action assynchronously
+    // This method performs an action assynchronously.
     BOOL DoWork(int action);
 
-    // Allows to specify file name for exporting error report
+    // Allows to specify file name for exporting error report.
     void SetExportFlag(BOOL bExport, CString sExportFile);
 
-    // Blocks until an assync operation finishes
+    // Blocks until an assync operation finishes.
     void WaitForCompletion();
 
-    // Returns global status
+    // Returns global status.
     int GetGlobalStatus();
 
-    // Gets local operation status
+    // Gets local operation status.
     void GetStatus(int& nProgressPct, std::vector<CString>& msg_log);
 
-    // Cancels the assyn operation
+    // Cancels the assync operation.
     void Cancel();
 
-    // Unblocks waiting worker thread
+    // Unblocks waiting worker thread.
     void FeedbackReady(int code);
 
-    // Returns size in bytes of error report files
+    // Returns size in bytes of error report files.
     LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
 
-    // Returns current error report's index
+    // Returns current error report's index.
     int GetCurReport();
 
-    // Sets current error report's index
+    // Sets current error report's index.
     BOOL SetCurReport(int nCurReport);
 
-    // Sets log file name
+    // Sets log file name.
     BOOL SetLogFile(LPCTSTR szFileName);
 
-    // Cleans up all temp files and does other finalizing work
+    // Cleans up all temp files and does other finalizing work.
     BOOL Finalize();
 
 private:
 
-    // Runs an operation in assync mode
+    // Runs an operation in assync mode.
     void DoWorkAssync();
 
-    // Worker thread proc
+    // Worker thread proc.
     static DWORD WINAPI WorkerThread(LPVOID lpParam);  
 
-    // Collects crash report files
+    // Collects crash report files.
     BOOL CollectCrashFiles();  
 
-    // Calculates MD5 hash for a file
+    // Calculates MD5 hash for a file.
     int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
 
-    // Dumps registry key to the XML file
+    // Dumps registry key to the XML file.
     int DumpRegKey(CString sRegKey, CString sDestFile, CString& sErrorMsg);
 
-    // Used internally
+    // Used internally for dumping a registry key.
     int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
 
-    // Takes desktop screenshot
+    // Takes desktop screenshot.
     BOOL TakeDesktopScreenshot();
 
-    // Creates crash dump file
+    // Creates crash dump file.
     BOOL CreateMiniDump();  
 
-    // Creates crash description XML file
+    // Creates crash description XML file.
     BOOL CreateCrashDescriptionXML(ErrorReportInfo& eri);
-
-    // Adds an element to XML file
+	
+    // Adds an element to XML file.
     void AddElemToXML(CString sName, CString sValue, TiXmlNode* root);
 
-    // Minidump callback
+    // Minidump callback.
     static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,
         PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
 
-    // Minidump callback
+    // Minidump callback.
     BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
         PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
 
-    // Restarts the application
+    // Restarts the application.
     BOOL RestartApp();
 
-    // Packs error report files to ZIP archive
+    // Packs error report files to ZIP archive.
     BOOL CompressReportFiles(ErrorReportInfo& eri);
 
-    // Unblocks parent process
+    // Unblocks parent process.
     void UnblockParentProcess();
 
-    // Sends error report
+    // Sends error report.
     BOOL SendReport();
 
-    // Sends error report over HTTP
+    // Sends error report over HTTP.
     BOOL SendOverHTTP();
 
-    // Encodes attachment file with Base-64 encoding
+    // Encodes attachment file with Base-64 encoding.
     int Base64EncodeAttachment(CString sFileName, std::string& sEncodedFileData);
 
-    // Formats Email text
+    // Formats Email text.
     CString FormatEmailText();
 
-    // Sends error report over SMTP
+    // Sends error report over SMTP.
     BOOL SendOverSMTP();
 
-    // Sends error report over Simple MAPI
+    // Sends error report over Simple MAPI.
     BOOL SendOverSMAPI();
 
-    int m_nGlobalStatus;                // Global status
-    int m_nCurReport;                   // Index of current error report
-    HANDLE m_hThread;                   // Handle to the worker thread
-    int m_SendAttempt;                  // Number of current sending attempt
-    AssyncNotification m_Assync;        // Used for communication with the main thread
-    CEmailMessage m_EmailMsg;           // Email message to send
-    CSmtpClient m_SmtpClient;           // Used to send report over SMTP 
-    CHttpRequestSender m_HttpSender;    // Used to send report over HTTP
-    CMailMsg m_MapiSender;              // Used to send report over SMAPI
-    CString m_sZipName;                 // Name of the ZIP archive to send
-    int m_Action;                       // Current action
-    BOOL m_bExport;                     // If TRUE than export should be performed
-    CString m_sExportFileName;          // File name for exporting
+    int m_nGlobalStatus;                // Global status.
+    int m_nCurReport;                   // Index of current error report.
+    HANDLE m_hThread;                   // Handle to the worker thread.
+    int m_SendAttempt;                  // Number of current sending attempt.
+    AssyncNotification m_Assync;        // Used for communication with the main thread.
+    CEmailMessage m_EmailMsg;           // Email message to send.
+    CSmtpClient m_SmtpClient;           // Used to send report over SMTP.
+    CHttpRequestSender m_HttpSender;    // Used to send report over HTTP.
+    CMailMsg m_MapiSender;              // Used to send report over SMAPI.
+    CString m_sZipName;                 // Name of the ZIP archive to send.
+    int m_Action;                       // Current action.
+    BOOL m_bExport;                     // If TRUE than export should be performed.
+    CString m_sExportFileName;          // File name for exporting.
 };
 
+// A globally accessible error report sender object.
 extern CErrorReportSender g_ErrorReportSender;
+

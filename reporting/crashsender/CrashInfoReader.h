@@ -31,7 +31,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************************/
 
 // File: CrashInfoReader.h
-// Description: Retrieves crash information passed from CrashRpt.dll in form of XML files.
+// Description: Retrieves crash information passed from CrashRpt.dll.
 // Authors: zexspectrum
 // Date: 2010
 
@@ -44,32 +44,35 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // The structure describing a file item.
 struct ERIFileItem
 {
+	// Constructor.
     ERIFileItem()
     {
         m_bMakeCopy = FALSE;
     }
 
-    CString m_sDestFile;  // Destination file name (not including directory name).
-    CString m_sSrcFile;   // Absolute source file path.
-    CString m_sDesc;      // File description.
-    BOOL m_bMakeCopy;     // Should we copy source file to error report folder?
+    CString m_sDestFile;    // Destination file name (not including directory name).
+    CString m_sSrcFile;     // Absolute source file path.
+    CString m_sDesc;        // File description.
+    BOOL m_bMakeCopy;       // Should we copy source file to error report folder?
     CString m_sErrorStatus; // Empty if OK, non-empty if error occurred.
 };
 
-// Error report delivery status
+// Error report delivery statuses.
 enum DELIVERY_STATUS
 {  
-    PENDING    = 0,  // Status pending  
-    DELIVERED  = 1,  // Error report was delivered ok
-    FAILED     = 2,  // Error report delivery failed
-	DELETED    = 3   // Error report was deleted by user
+    PENDING    = 0,  // Status pending.
+    DELIVERED  = 1,  // Error report was delivered ok.
+    FAILED     = 2,  // Error report delivery failed.
+	DELETED    = 3   // Error report was deleted by user.
 };
 
-// Error report info
+// Error report info.
 struct ErrorReportInfo
 {
+	// Constructor.
     ErrorReportInfo()
     {
+		// Initialize variables.
         m_bSelected = TRUE;
         m_DeliveryStatus = PENDING;    
         m_dwGuiResources = 0;
@@ -79,32 +82,32 @@ struct ErrorReportInfo
 		m_dwExceptionModuleBase = 0;
     }
 
-    CString     m_sErrorReportDirName; // Name of the directory where error report files are located.
-    CString     m_sCrashGUID;          // Crash GUID.
-    CString     m_sAppName;            // Application name.
-    CString     m_sAppVersion;         // Application version.
-    CString     m_sImageName;          // Path to the application executable file.
-    CString     m_sEmailFrom;          // E-mail sender address.
-    CString     m_sDescription;        // User-provided problem description.
-    CString     m_sSystemTimeUTC;      // The time when crash occurred (UTC).
-	ULONG64     m_dwExceptionAddress;  // Exception address (taken from exception info structure).
-	CString     m_sExceptionModule;    // Module where exception occurred.
-	CString     m_sExceptionModuleVersion; // File version of the module where exception occurred
-	ULONG64     m_dwExceptionModuleBase; // Base address of the exception module.    
-    DWORD       m_dwGuiResources;      // GUI resource count.
-    DWORD       m_dwProcessHandleCount; // Process handle count.
-    CString     m_sMemUsage;           // Memory usage.
-    CString     m_sOSName;             // Operating system friendly name.
-    BOOL        m_bOSIs64Bit;          // Is operating system 64-bit?
-    CString     m_sGeoLocation;        // Geographic location.
-    ScreenshotInfo m_ScreenshotInfo;   // Screenshot info.
-    ULONG64     m_uTotalSize;          // Summary size of this (uncompressed) report.
-    BOOL        m_bSelected;           // Is this report selected for delivery.
-    DELIVERY_STATUS m_DeliveryStatus;  // Delivery status.
+    CString         m_sErrorReportDirName; // Name of the directory where error report files are located.
+    CString         m_sCrashGUID;          // Crash GUID.
+    CString         m_sAppName;            // Application name.
+    CString         m_sAppVersion;         // Application version.
+    CString         m_sImageName;          // Path to the application executable file.
+    CString         m_sEmailFrom;          // E-mail sender address.
+    CString         m_sDescription;        // User-provided problem description.
+    CString         m_sSystemTimeUTC;      // The time when crash occurred (UTC).
+	ULONG64         m_dwExceptionAddress;  // Exception address (taken from exception info structure).
+	CString         m_sExceptionModule;    // Module where exception occurred.
+	CString         m_sExceptionModuleVersion; // File version of the module where exception occurred
+	ULONG64         m_dwExceptionModuleBase; // Base address of the exception module.    
+    DWORD           m_dwGuiResources;      // GUI resource count.
+    DWORD           m_dwProcessHandleCount; // Process handle count.
+    CString         m_sMemUsage;           // Memory usage.
+    CString         m_sOSName;             // Operating system friendly name.
+    BOOL            m_bOSIs64Bit;          // Is operating system 64-bit?
+    CString         m_sGeoLocation;        // Geographic location.
+    ScreenshotInfo  m_ScreenshotInfo;   // Screenshot info.
+    ULONG64         m_uTotalSize;          // Summary size of this (uncompressed) report.
+    BOOL            m_bSelected;           // Is this report selected for delivery or not?
+    DELIVERY_STATUS m_DeliveryStatus;  // Error report delivery status.
 
-    std::map<CString, ERIFileItem>  m_FileItems; // The list of files that are included into this report.
-    std::map<CString, CString> m_RegKeys; // The list of registry keys
-    std::map<CString, CString> m_Props;   // The list of custom properties
+    std::map<CString, ERIFileItem>  m_FileItems; // The list of files that are included into this error report.
+    std::map<CString, CString> m_RegKeys; // The list of registry keys included into this error report.
+    std::map<CString, CString> m_Props;   // The list of custom properties included into this error report.
 };
 
 // Remind policy.
@@ -145,9 +148,9 @@ public:
     CString     m_sPrivacyPolicyURL;    // Privacy policy URL.
     BOOL        m_bGenerateMinidump;    // Should we generate crash minidump file?
     MINIDUMP_TYPE m_MinidumpType;       // Minidump type.
-    BOOL        m_bAddScreenshot;       // Should we add a desktop screenshot?
-    DWORD       m_dwScreenshotFlags;    // Screenshot options.
-    int         m_nJpegQuality;         // Jpeg image quality.
+    BOOL        m_bAddScreenshot;       // Should we add a desktop screenshot to error report?
+    DWORD       m_dwScreenshotFlags;    // Screenshot taking options.
+    int         m_nJpegQuality;         // Jpeg image quality (used when taking screenshot).
     CPoint      m_ptCursorPos;          // Mouse cursor position on crash.
     CRect       m_rcAppWnd;             // Rectangle of the application's main window.  
     BOOL        m_bQueueEnabled;        // Can reports be send later or not (queue enabled)?
@@ -156,87 +159,83 @@ public:
     DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
     PEXCEPTION_POINTERS m_pExInfo;      // Address of exception info (used for minidump generation).
 	int         m_nExceptionType;       // Exception type (what handler caught the exception).
-    DWORD       m_dwExceptionCode;      // SEH exception code
-    UINT        m_uFPESubcode;          // FPE exception subcode
-    CString     m_sInvParamExpr;        // Invalid parameter expression
-    CString     m_sInvParamFunction;    // Invalid parameter function
-    CString     m_sInvParamFile;        // Invalid parameter file
-    UINT        m_uInvParamLine;        // Invalid parameter line
+    DWORD       m_dwExceptionCode;      // SEH exception code.
+    UINT        m_uFPESubcode;          // FPE exception subcode.
+    CString     m_sInvParamExpr;        // Invalid parameter expression.
+    CString     m_sInvParamFunction;    // Invalid parameter function.
+    CString     m_sInvParamFile;        // Invalid parameter file.
+    UINT        m_uInvParamLine;        // Invalid parameter line.
 
     /* Member functions */
 
-    // Gets crash info from shared memory
+    // Gets crash info from shared memory.
     int Init(LPCTSTR szFileMappingName);
 
-    // Loads custom icon (if defined)
+    // Loads custom icon (if defined).
     HICON GetCustomIcon();
 
-    // Returns report by its index in the list
+    // Returns report by its index in the list.
     ErrorReportInfo& GetReport(int nIndex);
 
-    // Returns count of error reports
+    // Returns count of error reports.
     int GetReportCount();
 
-	// Deletes n-th report
+	// Deletes n-th report.
 	void DeleteReport(int nIndex);
 
-	// Deletes all reports
+	// Deletes all reports.
 	void DeleteAllReports();
 
-    // Returns TRUE if it is time to remind user
+    // Returns TRUE if it is time to remind user.
     BOOL IsRemindNowOK();
 
-    // Sets remind policy
+    // Sets remind policy.
     BOOL SetRemindPolicy(REMIND_POLICY Policy);
 
-    // Updates last remind date
+    // Updates last remind date.
     BOOL SetLastRemindDateToday();
 
-    // Adds user information
+    // Adds user information.
     BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
 
 private:
 
-    // Retrieves some crash info from crash description XML
+    // Retrieves some crash info from crash description XML.
     int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
 
-    // Adds the list of files
+    // Adds the list of files.
     BOOL AddFilesToCrashDescriptionXML(std::vector<ERIFileItem>);
 
-    // Returns last remind date
+    // Returns last remind date.
     BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
 
-    // Returns current remind policy
+    // Returns current remind policy.
     REMIND_POLICY GetRemindPolicy();
 
-    // Unpacks crash description from shared memory
+    // Unpacks crash description from shared memory.
     int UnpackCrashDescription(ErrorReportInfo& eri);
 
-    // Unpacks string
+    // Unpacks a string.
     int UnpackString(DWORD dwOffset, CString& str);
 
-    // Collects misc info about the crash
+    // Collects misc info about the crash.
     void CollectMiscCrashInfo(ErrorReportInfo& eri);
 
-    // Gets the list of file items 
+    // Gets the list of file items. 
     int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
-    // Gets the list of registry keys
+    // Gets the list of registry keys.
     int ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
     // Calculates size of an uncompressed error report.
     LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
 
-    // Array of error reports
-    std::vector<ErrorReportInfo> m_Reports;
-
-    // Path to ~CrashRpt.ini file.
-    CString m_sINIFile; 
-
-    CSharedMem m_SharedMem;          // Shared memory
-    CRASH_DESCRIPTION* m_pCrashDesc; // Pointer to crash descritpion
+    std::vector<ErrorReportInfo> m_Reports; // Array of error reports.   
+    CString m_sINIFile;                     // Path to ~CrashRpt.ini file.
+    CSharedMem m_SharedMem;                 // Shared memory
+    CRASH_DESCRIPTION* m_pCrashDesc;        // Pointer to crash descritpion
 };
 
-// Declare globally available object.
+// Declare globally accessible crash info reader object.
 extern CCrashInfoReader g_CrashInfo;
 

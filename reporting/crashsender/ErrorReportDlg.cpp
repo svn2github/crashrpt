@@ -52,39 +52,42 @@ BOOL CErrorReportDlg::OnIdle()
 
 LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
-    // Mirror this window if RTL language is in use
+    // Mirror this window if RTL language is in use.
     CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
     {
         Utility::SetLayoutRTL(m_hWnd);
     }
 
+	// Set dialog caption.
     SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("DlgCaption")));
 
-    // Center the dialog on the screen
+    // Center the dialog on the screen.
     CenterWindow();
 
     HICON hIcon = NULL;
 
-    // Get custom icon
+    // Get custom icon.
     hIcon = g_CrashInfo.GetCustomIcon();
     if(hIcon==NULL)
     {
-        // Use default icon
+        // Use default icon, if custom icon is not provided.
         hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
     }
 
-    // Set window icon
+    // Set window icon.
     SetIcon(hIcon, 0);
 
-    // Get the first icon in the EXE image
+    // Get the first icon in the EXE image and use it for header.
     m_HeadingIcon = ExtractIcon(NULL, g_CrashInfo.GetReport(0).m_sImageName, 0);
 
-    // If there is no icon in crashed EXE module, use IDI_APPLICATION system icon
+    // If there is no icon in crashed EXE module, use default IDI_APPLICATION system icon.
     if(m_HeadingIcon == NULL)
     {
         m_HeadingIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
     }  
+
+	// Init controls.
 
     m_statSubHeader = GetDlgItem(IDC_SUBHEADER);
 
@@ -117,7 +120,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
     m_statConsent = GetDlgItem(IDC_CONSENT);
 
-    // Init font for consent string
+    // Init font for consent string.
     LOGFONT lf;
     memset(&lf, 0, sizeof(LOGFONT));
     lf.lfHeight = 11;
@@ -256,10 +259,11 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 }
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-    // Show popup menu on "Other actions..." button click
+{    
     if(g_CrashInfo.m_bQueueEnabled)
     {    
+		// Show popup menu on "Other actions..." button click.
+
         CPoint pt;
         GetCursorPos(&pt);
         CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
@@ -284,7 +288,7 @@ LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
     }  
     else
     {
-        // Close dialog
+        // Close dialog.
         CloseDialog(wID);  
     }
 
@@ -293,6 +297,9 @@ LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
 
 LRESULT CErrorReportDlg::OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	// User has clicked the popup menu's "Close the program and send report later".
+
+	// Update our remind policy to "Remind me later".
     g_CrashInfo.SetRemindPolicy(REMIND_LATER);
 
     CloseDialog(wID);  
@@ -301,8 +308,7 @@ LRESULT CErrorReportDlg::OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, 
 
 LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-    // If needed, restart the application
-    g_ErrorReportSender.DoWork(RESTART_APP);
+	// User has clicked the popup menu's "Close the program".
 
     CloseDialog(wID);  
     return 0;
