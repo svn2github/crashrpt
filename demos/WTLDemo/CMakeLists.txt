@@ -35,8 +35,8 @@ ADD_CUSTOM_COMMAND(
     TARGET WTLDemo
     POST_BUILD
     COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/bin\\dbghelp.dll\" \"${CMAKE_BINARY_DIR}/bin\\x64\""
-    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/reporting/crashrpttest\\dummy.ini\" \"${CMAKE_BINARY_DIR}/bin\\x64\""
-    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/reporting/crashrpttest\\dummy.log\" \"${CMAKE_BINARY_DIR}/bin\\x64\""
+    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/demos/WTLDemo\\dummy.ini\" \"${CMAKE_BINARY_DIR}/bin\\x64\""
+    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/demos/WTLDemo\\dummy.log\" \"${CMAKE_BINARY_DIR}/bin\\x64\""
     COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/lang_files\\crashrpt_lang_EN.ini\" \"${CMAKE_BINARY_DIR}/bin\\x64\\crashrpt_lang.ini\""
 )
 else(CMAKE_CL_64)
@@ -44,8 +44,8 @@ ADD_CUSTOM_COMMAND(
     TARGET WTLDemo
     POST_BUILD
     COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/bin\\dbghelp.dll\" \"${CMAKE_BINARY_DIR}/bin\""
-    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/reporting/crashrpttest\\dummy.ini\" \"${CMAKE_BINARY_DIR}/bin\""
-    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/reporting/crashrpttest\\dummy.log\" \"${CMAKE_BINARY_DIR}/bin\""
+    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/demos/WTLDemo\\dummy.ini\" \"${CMAKE_BINARY_DIR}/bin\""
+    COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/demos/WTLDemo\\dummy.log\" \"${CMAKE_BINARY_DIR}/bin\""
     COMMAND copy ARGS "\"${CMAKE_SOURCE_DIR}/lang_files\\crashrpt_lang_EN.ini\" \"${CMAKE_BINARY_DIR}/bin\\crashrpt_lang.ini\""
 )
 endif(CMAKE_CL_64)

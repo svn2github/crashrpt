@@ -94,9 +94,10 @@ endmacro()
 
 # Other CMakeLists are located in project subdirectories 
 
-add_subdirectory("reporting/crashcon")
+add_subdirectory("demos/ConsoleDemo")
+add_subdirectory("demos/WTLDemo")
+
 add_subdirectory("reporting/crashrpt")
-add_subdirectory("reporting/crashrpttest")
 add_subdirectory("reporting/crashsender")
 
 add_subdirectory("processing/crashrptprobe")

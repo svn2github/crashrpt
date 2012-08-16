@@ -37,7 +37,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}</ProjectGuid>
     <RootNamespace>CrashRptTest</RootNamespace>
-    <ProjectName>CrashRptTest</ProjectName>
+    <ProjectName>WTLDemo</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'" Label="Configuration">
@@ -378,7 +378,6 @@ copy "dummy.log" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CrashRptTest.cpp" />
     <ClCompile Include="CrashThread.cpp" />
     <ClCompile Include="MainDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -389,6 +388,7 @@ copy "dummy.log" "$(OutDir)"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="WTLDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CrashThread.h" />
@@ -397,11 +397,11 @@ copy "dummy.log" "$(OutDir)"</Command>
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\CrashRptTest.ico" />
     <None Include="res\Keys.ico" />
+    <None Include="res\WTLDemo.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="CrashRptTest.rc" />
+    <ResourceCompile Include="WTLDemo.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
