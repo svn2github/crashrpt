@@ -450,6 +450,35 @@ int CCrashHandler::Init(
         m_pTmpSharedMem = &m_SharedMem;
     }
 
+	// The following code is intended to fix the issue with 32-bit applications in 64-bit environment.
+	// http://support.microsoft.com/kb/976038/en-us
+	// http://code.google.com/p/crashrpt/issues/detail?id=104
+
+	typedef BOOL (WINAPI * SETPROCESSUSERMODEEXCEPTIONPOLICY)(DWORD dwFlags);
+	typedef BOOL (WINAPI * GETPROCESSUSERMODEEXCEPTIONPOLICY)(LPDWORD lpFlags);
+	#define PROCESS_CALLBACK_FILTER_ENABLED     0x1
+
+	HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
+	if(hKernel32!=NULL)
+	{
+		SETPROCESSUSERMODEEXCEPTIONPOLICY pfnSetProcessUserModeExceptionPolicy = 
+			(SETPROCESSUSERMODEEXCEPTIONPOLICY)GetProcAddress(hKernel32, "SetProcessUserModeExceptionPolicy");
+		GETPROCESSUSERMODEEXCEPTIONPOLICY pfnGetProcessUserModeExceptionPolicy = 
+			(GETPROCESSUSERMODEEXCEPTIONPOLICY)GetProcAddress(hKernel32, "GetProcessUserModeExceptionPolicy");
+
+		if(pfnSetProcessUserModeExceptionPolicy!=NULL && 
+			pfnGetProcessUserModeExceptionPolicy!=NULL)
+		{
+			DWORD dwFlags = 0;
+			if(pfnGetProcessUserModeExceptionPolicy(&dwFlags))
+			{
+				pfnSetProcessUserModeExceptionPolicy(dwFlags & ~PROCESS_CALLBACK_FILTER_ENABLED); 
+			}
+		}
+
+		FreeLibrary(hKernel32);
+	}
+
     // Initialization OK.
     m_bInitialized = TRUE;
     crSetErrorMsg(_T("Success."));
