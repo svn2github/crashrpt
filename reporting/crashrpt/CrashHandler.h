@@ -39,8 +39,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _CRASHHANDLER_H_
 
 #include "stdafx.h"
-#include <signal.h>
-#include <exception>
 #include "CrashRpt.h"      
 #include "Utility.h"
 #include "CritSec.h"
@@ -69,14 +67,20 @@ struct ThreadExceptionHandlers
 // Sets the last error message (for the caller thread).
 int crSetErrorMsg(PTSTR pszErrorMsg);
 
+// This structure describes a file item (a file included into crash report).
 struct FileItem
 {
     CString m_sSrcFilePath; // Path to the original file. 
-    CString m_sDstFileName; // Destination file name.
+    CString m_sDstFileName; // Destination file name (as seen in ZIP archive).
     CString m_sDescription; // Description.
     BOOL m_bMakeCopy;       // Should we make a copy of this file on crash?
+							// If set, the file will be copied to crash report folder and that copy will be included into crash report,
+							// otherwise the file will be included from its original location (not guaranteing that file is the same it was
+							// at the moment of crash).
 };
 
+// This class is used to set exception handlers, catch exceptions
+// and launch crash report sender process.
 class CCrashHandler  
 {
 public:
@@ -84,8 +88,10 @@ public:
     // Default constructor.
     CCrashHandler();
 
+	// Destructor.
     virtual ~CCrashHandler();
 
+	// Initializes the crash handler object.
     int Init(
         __in_opt LPCTSTR lpcszAppName = NULL,
         __in_opt LPCTSTR lpcszAppVersion = NULL,
@@ -106,13 +112,15 @@ public:
         __in_opt LPCTSTR lpcszSmtpProxy = NULL,
         __in_opt LPCTSTR lpcszCustomSenderIcon = NULL);
 
+	// Returns TRUE if object was initialized.
     BOOL IsInitialized();
 
+	// Frees all used resources.
     int Destroy();
-
-
+	
     // Adds a file to the crash report
-    int AddFile(__in_z LPCTSTR lpFile, __in_opt LPCTSTR lpDestFile, __in_opt LPCTSTR lpDesc, DWORD dwFlags);
+    int AddFile(__in_z LPCTSTR lpFile, __in_opt LPCTSTR lpDestFile, 
+				__in_opt LPCTSTR lpDesc, DWORD dwFlags);
 
     // Adds a named text property to the report
     int AddProperty(CString sPropName, CString sPropValue);
@@ -120,13 +128,13 @@ public:
     // Adds desktop screenshot on crash
     int AddScreenshot(DWORD dwFlags, int nJpegQuality);
 
-    // Adds a registry key 
+    // Adds a registry key on crash
     int AddRegKey(__in_z LPCTSTR szRegKey, __in_z LPCTSTR szDstFileName, DWORD dwFlags);
 
-    // Generates error report
+    // Generates error report	
     int GenerateErrorReport(__in_opt PCR_EXCEPTION_INFO pExceptionInfo = NULL);
 
-    // Sets/unsets exception handlers for the current process
+    // Sets/unsets exception handlers for the entire process
     int SetProcessExceptionHandlers(DWORD dwFlags);
     int UnSetProcessExceptionHandlers();
 
@@ -134,34 +142,41 @@ public:
     int SetThreadExceptionHandlers(DWORD dwFlags);   
     int UnSetThreadExceptionHandlers();
 
-    // Returns the crash handler object if such object was 
-    // created for the current process
+    // Returns the crash handler object (returns singleton)
     static CCrashHandler* GetCurrentProcessCrashHandler();
     static void ReleaseCurrentProcessCrashHandler();
 
     /* Exception handler functions. */
 
+	// Structured exception handler (SEH handler)
     static LONG WINAPI SehHandler(__in PEXCEPTION_POINTERS pExceptionPtrs);
+	// C++ terminate handler
     static void __cdecl TerminateHandler();
+	// C++ unexpected handler
     static void __cdecl UnexpectedHandler();
 
 #if _MSC_VER>=1300
+	// C++ pure virtual call handler
     static void __cdecl PureCallHandler();
 #endif 
 
 #if _MSC_VER>=1300 && _MSC_VER<1400
+	// Buffer overrun handler (deprecated in newest versions of Visual C++).
     static void __cdecl SecurityHandler(int code, void *x);
 #endif
 
 #if _MSC_VER>=1400
+	// C++ Invalid parameter handler.
     static void __cdecl InvalidParameterHandler(const wchar_t* expression, 
         const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved);
 #endif
 
 #if _MSC_VER>=1300
+	// C++ new operator fault (memory exhaustion) handler
     static int __cdecl NewHandler(size_t);
 #endif
 
+	// Signal handlers
     static void SigabrtHandler(int);
     static void SigfpeHandler(int /*code*/, int subcode);
     static void SigintHandler(int);
@@ -201,9 +216,11 @@ public:
 
     /* Private member variables. */
 
-    static CCrashHandler* m_pProcessCrashHandler; // Singleton of the CCrashHandler class.
+	// Singleton of the CCrashHandler class.
+    static CCrashHandler* m_pProcessCrashHandler; 
 
-    LPTOP_LEVEL_EXCEPTION_FILTER  m_oldSehHandler;  // previous SEH exception filter.
+	// Previous SEH exception filter.
+    LPTOP_LEVEL_EXCEPTION_FILTER  m_oldSehHandler;  
 
 #if _MSC_VER>=1300
     _purecall_handler m_prevPurec;   // Previous pure virtual call exception filter.
@@ -222,7 +239,7 @@ public:
     void (__cdecl *m_prevSigINT)(int);  // Previous SIGINT handler.
     void (__cdecl *m_prevSigTERM)(int); // Previous SIGTERM handler.
 
-    // List of exception handlers installed for worker threads of current process.
+    // List of exception handlers installed for worker threads of this process.
     std::map<DWORD, ThreadExceptionHandlers> m_ThreadExceptionHandlers;
     CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers.
 
@@ -233,7 +250,7 @@ public:
     CString m_sImageName;          // Process image name.
     DWORD m_dwFlags;               // Flags.
     MINIDUMP_TYPE m_MinidumpType;  // Minidump type.
-    //BOOL m_bAppRestart;            // This is packed into dwFlags
+    //BOOL m_bAppRestart;          // This is packed into dwFlags
     CString m_sRestartCmdLine;     // App restart command line.
     CString m_sUrl;                // Url to use when sending error report over HTTP.  
     CString m_sEmailTo;            // E-mail recipient.
@@ -251,7 +268,7 @@ public:
     LPGETLOGFILE m_lpfnCallback;   // Client crash callback.    
     BOOL m_bAddScreenshot;         // Should we add screenshot?
     DWORD m_dwScreenshotFlags;     // Screenshot flags.
-    int m_nJpegQuality;
+    int m_nJpegQuality;            // Quality of JPEG screenshot images.
     CString m_sCustomSenderIcon;   // Resource name that can be used as custom Error Report dialog icon.
     std::map<CString, FileItem> m_files; // File items to include.
     std::map<CString, CString> m_props;  // User-defined properties to include.
@@ -260,8 +277,8 @@ public:
     HANDLE m_hEvent;               // Event used to synchronize CrashRpt.dll with CrashSender.exe.
     CSharedMem m_SharedMem;        // Shared memory.  
     CRASH_DESCRIPTION* m_pCrashDesc; // Pointer to crash description shared mem view.
-    CSharedMem* m_pTmpSharedMem;        // Used temporary
-    CRASH_DESCRIPTION* m_pTmpCrashDesc; // Used temporary
+    CSharedMem* m_pTmpSharedMem;   // Used temporarily
+    CRASH_DESCRIPTION* m_pTmpCrashDesc; // Used temporarily
 };
 
 

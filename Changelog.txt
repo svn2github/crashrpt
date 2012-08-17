@@ -3,6 +3,7 @@
 --- Ver. 1.3.1 ---
 
 - Reorganized demos (moved to demos folder and renamed CrashRptTest=>WTLDemo, crashcon=>ConsoleDemo).
+- Fixed: Impossible to send Crash reports in Windows 7 64bits (issue 104).
 
 
 --- Ver. 1.3.0 ---

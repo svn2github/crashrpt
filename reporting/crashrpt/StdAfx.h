@@ -32,7 +32,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // stdafx.h : include file for standard system include files,
 //  or project specific include files that are used frequently, but
-//      are changed infrequently
+//  are changed infrequently
 //
 
 #pragma once
@@ -79,11 +79,9 @@ namespace ATL
 #include <atlapp.h>
 extern CAppModule _Module;
 #include <atlwin.h>
-
 // CString-related includes
 #define _WTL_USE_CSTRING
 #include <atlmisc.h>
-
 #include <new.h>
 #include <map>
 #include <set>
@@ -95,7 +93,14 @@ extern CAppModule _Module;
 #include <Psapi.h>
 #include <time.h>
 #include <shellapi.h>
+#include <signal.h>
+#include <exception>
+#include <sys/stat.h>
+#include <psapi.h>
+#include <rtcapi.h>
 
+// Below are some macro definitions expanding into secured functions for newer versions of Visual C++
+// and into insecure functions for old versions of Visual C++
 #if _MSC_VER<1400
 #define _TCSCPY_S(strDestination, numberOfElements, strSource) _tcscpy(strDestination, strSource)
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy(strDest, strSource, count)

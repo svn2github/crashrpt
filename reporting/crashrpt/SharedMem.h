@@ -30,6 +30,11 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************************/
 
+// File: SharedMem.h
+// Description: Shared memory class. Used for transferring data from crashed app to crash sender process.
+// Authors: zexspectrum
+// Date: 2010
+
 #pragma once
 #include "stdafx.h"
 #include "CritSec.h"
@@ -145,20 +150,22 @@ public:
 
     // Returns file mapping name
     CString GetName(); 
+
     // Returns file mapping size
     ULONG64 GetSize();
 
     // Creates a view and returns its start pointer
     LPBYTE CreateView(DWORD dwOffset, DWORD dwLength);
+
     // Destroys a view
     void DestroyView(LPBYTE pViewPtr);
 
 private:
 
     CString m_sName;            // Name of the file mapping.
-    HANDLE m_hFileMapping;		  // Memory mapped object
+    HANDLE m_hFileMapping;		// Memory mapped object
     DWORD m_dwAllocGranularity; // System allocation granularity  	  
-    ULONG64 m_uSize;	      	  // Size of the file mapping.		  
+    ULONG64 m_uSize;	      	// Size of the file mapping.		  
     std::map<LPBYTE, LPBYTE> m_aViewStartPtrs; // Base of the view of the file mapping.    
 };
 

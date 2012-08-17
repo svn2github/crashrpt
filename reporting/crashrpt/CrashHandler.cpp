@@ -39,11 +39,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CrashHandler.h"
 #include "Utility.h"
 #include "resource.h"
-#include <sys/stat.h>
-#include <psapi.h>
 #include "strconv.h"
-#include <rtcapi.h>
-#include <Shellapi.h>
 
 #ifndef _AddressOfReturnAddress
 
@@ -68,8 +64,7 @@ CCrashHandler::CCrashHandler()
     // Init member variables to their defaults
     m_bInitialized = FALSE;  
     m_dwFlags = 0;
-    m_MinidumpType = MiniDumpNormal;
-    //m_bAppRestart = FALSE;  
+    m_MinidumpType = MiniDumpNormal;    
     m_nSmtpPort = 25;
     m_nSmtpProxyPort = 2525;
     memset(&m_uPriorities, 0, 3*sizeof(UINT));    
@@ -91,27 +86,28 @@ CCrashHandler::~CCrashHandler()
 }
 
 int CCrashHandler::Init(
-                        LPCTSTR lpcszAppName,
-                        LPCTSTR lpcszAppVersion,
-                        LPCTSTR lpcszCrashSenderPath,
-                        LPGETLOGFILE lpfnCallback, 
-                        LPCTSTR lpcszTo, 
-                        LPCTSTR lpcszSubject,
-                        LPCTSTR lpcszUrl,
-                        UINT (*puPriorities)[5],
-                        DWORD dwFlags,
-                        LPCTSTR lpcszPrivacyPolicyURL,
-                        LPCTSTR lpcszDebugHelpDLLPath,
-                        MINIDUMP_TYPE MiniDumpType,
-                        LPCTSTR lpcszErrorReportSaveDir,
-                        LPCTSTR lpcszRestartCmdLine,
-                        LPCTSTR lpcszLangFilePath,
-                        LPCTSTR lpcszEmailText,
-                        LPCTSTR lpcszSmtpProxy,
-                        LPCTSTR lpcszCustomSenderIcon)
+        LPCTSTR lpcszAppName,
+        LPCTSTR lpcszAppVersion,
+        LPCTSTR lpcszCrashSenderPath,
+        LPGETLOGFILE lpfnCallback, 
+        LPCTSTR lpcszTo, 
+        LPCTSTR lpcszSubject,
+        LPCTSTR lpcszUrl,
+        UINT (*puPriorities)[5],
+        DWORD dwFlags,
+        LPCTSTR lpcszPrivacyPolicyURL,
+        LPCTSTR lpcszDebugHelpDLLPath,
+        MINIDUMP_TYPE MiniDumpType,
+        LPCTSTR lpcszErrorReportSaveDir,
+        LPCTSTR lpcszRestartCmdLine,
+        LPCTSTR lpcszLangFilePath,
+        LPCTSTR lpcszEmailText,
+        LPCTSTR lpcszSmtpProxy,
+        LPCTSTR lpcszCustomSenderIcon)
 { 
     crSetErrorMsg(_T("Unspecified error."));
 
+	// Save flags
     m_dwFlags = dwFlags;
 
     // Save minidump type  
@@ -149,8 +145,10 @@ int CCrashHandler::Init(
     // Get process image name
     m_sImageName = Utility::GetModuleName(NULL);
 
+	// Save custom Crash Report dialog icon
     m_sCustomSenderIcon = lpcszCustomSenderIcon;
 
+	// If the custom icon path specified, parse the path (extract resource file name and icon index)
     if(!m_sCustomSenderIcon.IsEmpty())
     {
         CString sResourceFile;
@@ -181,7 +179,7 @@ int CCrashHandler::Init(
 
     }
 
-    // Save URL to send reports via HTTP
+    // Save URL to send reports via HTTP/HTTPS
     if(lpcszUrl!=NULL)
     {
         m_sUrl = CString(lpcszUrl);
@@ -199,7 +197,7 @@ int CCrashHandler::Init(
     // Save restart command line
     m_sRestartCmdLine = lpcszRestartCmdLine;
 
-    // Save Email recipient address
+    // Save E-mail recipient address
     m_sEmailTo = lpcszTo;
     m_nSmtpPort = 25;
 
@@ -242,7 +240,7 @@ int CCrashHandler::Init(
     // Save Email text.
     m_sEmailText = lpcszEmailText;
 
-    // Save report sending priorities
+    // Save crash report delivery priorities
     if(puPriorities!=NULL)
         memcpy(&m_uPriorities, puPriorities, 3*sizeof(UINT));
     else
@@ -326,6 +324,7 @@ int CCrashHandler::Init(
         return 1; // Language INI file has wrong version!
     }
 
+	// If path to dbghelp.dll not provided, use the default one
     if(lpcszDebugHelpDLLPath==NULL)
     {
         // By default assume that debughlp.dll is located in the same dir as CrashRpt.dll    
@@ -341,8 +340,9 @@ int CCrashHandler::Init(
     if(m_sPathToDebugHelpDll.Right(1)!='\\')
         m_sPathToDebugHelpDll+="\\";
 
+	// Load dbghelp.dll library
     HANDLE hDbgHelpDll = LoadLibrary(m_sPathToDebugHelpDll+sDebugHelpDLL_name);    
-
+	// and check result
     if(!hDbgHelpDll)
     {
         //try again ... fallback to dbghelp.dll in path
@@ -384,7 +384,7 @@ int CCrashHandler::Init(
 
     if(lpcszErrorReportSaveDir==NULL)
     {
-        // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName_AppVer folder.
+        // Create %LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\AppName_AppVer folder.
         CString sLocalAppDataFolder;
         DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;
         Utility::GetSpecialFolder(dwCSIDL, sLocalAppDataFolder);
@@ -432,7 +432,7 @@ int CCrashHandler::Init(
     // It will be passed to CrashSender.exe later.
     m_pCrashDesc = PackCrashInfoIntoSharedMem(&m_SharedMem, FALSE);
 
-    // If client wants us to send pending error reports that were queued recently,
+    // If user wants us to send pending error reports that were queued recently,
     // launch the CrashSender.exe and make it to alert user and send the reports.
     if(dwFlags&CR_INST_SEND_QUEUED_REPORTS)
     {
@@ -526,8 +526,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_nSmtpPort = m_nSmtpPort;
     m_pTmpCrashDesc->m_nSmtpProxyPort = m_nSmtpProxyPort;
     m_pTmpCrashDesc->m_bAddScreenshot = m_bAddScreenshot;
-    m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;  
-    //m_pTmpCrashDesc->m_bAppRestart = m_bAppRestart;
+    m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;      
     memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
 
     m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
@@ -1061,7 +1060,7 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
 
 // Generates error report
 int CCrashHandler::GenerateErrorReport(
-                                       PCR_EXCEPTION_INFO pExceptionInfo)
+        PCR_EXCEPTION_INFO pExceptionInfo)
 {  
     crSetErrorMsg(_T("Unspecified error."));
 
@@ -1318,8 +1317,8 @@ int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE*
     return 0;
 }
 
-// Acquires the crash lock. Other threads that may crash will
-// wait until we unlock.
+// Acquires the crash lock. Other threads that may crash while we are inside of a crash handler function,
+// will wait until we unlock.
 void CCrashHandler::CrashLock(BOOL bLock)
 {
     if(bLock)
