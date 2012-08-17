@@ -30,6 +30,11 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************************/
 
+// File: CrashSender.cpp
+// Description: Entry point to the application. 
+// Authors: zexspectrum
+// Date: 2010
+
 #include "stdafx.h"
 #include "resource.h"
 #include "ErrorReportDlg.h"
@@ -53,8 +58,9 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 
     // Check parameter count.
     if(argc!=2)
-        return 1; // No arguments passed
+        return 1; // No arguments passed, exit.
 
+	// Extract file mapping name from command line arg.
     // Read crash information from the file mapping object.
     CString sFileMappingName = CString(argv[1]);
     int nInit = g_CrashInfo.Init(sFileMappingName.GetBuffer(0));

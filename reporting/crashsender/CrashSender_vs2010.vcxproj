@@ -443,6 +443,7 @@
     <ClInclude Include="ResendDlg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScreenCap.h" />
+    <ClInclude Include="SequenceLayout.h" />
     <ClInclude Include="smtpclient.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

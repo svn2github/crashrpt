@@ -45,11 +45,6 @@ BOOL CErrorReportDlg::PreTranslateMessage(MSG* pMsg)
     return CWindow::IsDialogMessage(pMsg);
 }
 
-BOOL CErrorReportDlg::OnIdle()
-{
-    return FALSE;
-}
-
 LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
     // Mirror this window if RTL language is in use.
@@ -163,6 +158,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     _TCSCPY_S(lf.lfFaceName, 32, _T("Tahoma"));
     m_HeadingFont.CreateFontIndirect(&lf);
 
+	// Init control positions
     m_Layout.SetContainerWnd(m_hWnd);
     m_Layout.Insert(m_linkMoreInfo);
     m_Layout.Insert(m_statIndent);
@@ -178,8 +174,10 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     m_Layout.Insert(m_btnOk);
     m_Layout.Insert(m_btnCancel, TRUE);
 
+	// Initially, hide the email & description fields
     ShowMoreInfo(FALSE);
 
+	// Create progress dialog
     m_dlgProgress.Create(m_hWnd);
     m_dlgProgress.Start(TRUE);
 
@@ -188,8 +186,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     ATLASSERT(pLoop != NULL);
     if(pLoop)
     {
-        pLoop->AddMessageFilter(this);
-        pLoop->AddIdleHandler(this);
+        pLoop->AddMessageFilter(this);        
     }
 
     UIAddChildWindowContainer(m_hWnd);
@@ -197,10 +194,10 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     return TRUE;
 }
 
-
-
 void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
 {
+	// Hide/show email & description fields
+
     CRect rc1, rc2;
 
     m_statEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
@@ -219,6 +216,8 @@ void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
 
 LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	// Here we want to draw a white header of the dialog
+
     CDCHandle dc((HDC)wParam);
 
     RECT rcClient;
@@ -242,14 +241,17 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
     rcHeading.left = 60;
     rcHeading.right -= 10;
 
+	// Draw header text over background
     CString sHeading;
     sHeading.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("HeaderText")), g_CrashInfo.m_sAppName);
     dc.SelectFont(m_HeadingFont);
     dc.DrawTextEx(sHeading.GetBuffer(0), sHeading.GetLength(), &rcHeading, 
         DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);  
 
+	// Check if we should draw the icon on the header area
     if(m_HeadingIcon)
     {
+		// Draw the icon left to the text
         ICONINFO ii;
         m_HeadingIcon.GetIconInfo(&ii);
         dc.DrawIcon(16, rcHeading.bottom/2 - ii.yHotspot, m_HeadingIcon);
@@ -259,11 +261,13 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 }
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{    
+{   
+	// This method is called when user clicks "Close the program" or "Other actions..." button 
+	// (the button is the same, its caption may differ)
+
     if(g_CrashInfo.m_bQueueEnabled)
     {    
 		// Show popup menu on "Other actions..." button click.
-
         CPoint pt;
         GetCursorPos(&pt);
         CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
@@ -286,7 +290,7 @@ LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
 
         submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);    
     }  
-    else
+    else // "Close the program" button clicked
     {
         // Close dialog.
         CloseDialog(wID);  
@@ -316,6 +320,9 @@ LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, 
 
 LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {  
+	// This method is called when the worker thread has finished with collection
+	// of crash report data.
+
     if(!g_CrashInfo.m_bSilentMode) // If in GUI mode
     {
         if(g_CrashInfo.m_bSendErrorReport) // If we should send error report now
@@ -353,6 +360,7 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
 
 LRESULT CErrorReportDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
+	// This method is called when user clicks the close (x) button 
     CloseDialog(0);  
     return 0;
 }
@@ -368,7 +376,9 @@ void CErrorReportDlg::CloseDialog(int nVal)
 
 LRESULT CErrorReportDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
-    // Show "Error Report Details" dialog
+	// This method is called when user clicks the "Provide additional info (recommended)" link
+    
+	// Show "Error Report Details" dialog.
     CDetailDlg dlg;
     dlg.m_nCurReport = 0;
     dlg.DoModal();
@@ -387,6 +397,7 @@ LRESULT CErrorReportDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWN
 
 LRESULT CErrorReportDlg::OnRestartClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
+	// This method is called when user clicks the "Restart the application" checkbox
     BOOL bRestart = m_chkRestart.GetCheck()==BST_CHECKED?TRUE:FALSE;
     g_CrashInfo.m_bAppRestart = bRestart;
 
@@ -395,6 +406,7 @@ LRESULT CErrorReportDlg::OnRestartClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT CErrorReportDlg::OnEmailKillFocus(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 { 
+	// This method is called when user removes focus from "Your E-mail" field.
     HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
     HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
     int      nEmailLen = ::GetWindowTextLength(hWndEmail);
@@ -431,27 +443,29 @@ LRESULT CErrorReportDlg::OnEmailKillFocus(WORD /*wNotifyCode*/, WORD /*wID*/, HW
     return 0;
 }
 
-LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnSendClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
+	// This method is called when user clicks the "Send Report" button
+
     HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
     HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
     int      nEmailLen = ::GetWindowTextLength(hWndEmail);
     int      nDescLen = ::GetWindowTextLength(hWndDesc);
 
+	// Get E-mail field's text
     LPTSTR lpStr = g_CrashInfo.GetReport(0).m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
     ::GetWindowText(hWndEmail, lpStr, nEmailLen+1);
     g_CrashInfo.GetReport(0).m_sEmailFrom.ReleaseBuffer();
 
+	// Get description field's text
     lpStr = g_CrashInfo.GetReport(0).m_sDescription.GetBufferSetLength(nDescLen+1);
     ::GetWindowText(hWndDesc, lpStr, nDescLen+1);
     g_CrashInfo.GetReport(0).m_sDescription.ReleaseBuffer();
 
-    //
     // If an email address was entered, verify that
     // it [1] contains a @ and [2] the last . comes
     // after the @.
-    //
-
+    
     if (g_CrashInfo.GetReport(0).m_sEmailFrom.GetLength() &&
         (g_CrashInfo.GetReport(0).m_sEmailFrom.Find(_T('@')) < 0 ||
         g_CrashInfo.GetReport(0).m_sEmailFrom.ReverseFind(_T('.')) < 
@@ -478,12 +492,14 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
     g_CrashInfo.AddUserInfoToCrashDescriptionXML(
         g_CrashInfo.GetReport(0).m_sEmailFrom, g_CrashInfo.GetReport(0).m_sDescription);
 
+	// Hide the dialog
     ShowWindow(SW_HIDE);
+	// Display tray icon
     CreateTrayIcon(true, m_hWnd);
-    g_ErrorReportSender.SetExportFlag(FALSE, _T(""));
+    
+	g_ErrorReportSender.SetExportFlag(FALSE, _T(""));
     g_ErrorReportSender.DoWork(COMPRESS_REPORT|RESTART_APP|SEND_REPORT);
-    m_dlgProgress.Start(FALSE);    
-    SetTimer(0, 500);
+    m_dlgProgress.Start(FALSE);        
 
     // Notify user has confirmed error report submission
     g_ErrorReportSender.FeedbackReady(0);
@@ -491,18 +507,10 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
     return 0;
 }
 
-LRESULT CErrorReportDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
-    if(WaitForSingleObject(m_hSenderThread, 0)==WAIT_OBJECT_0 )
-    {
-        KillTimer(0);    
-    }
-
-    return 0;
-}
-
 LRESULT CErrorReportDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	// This method is used to set background and text color for m_statIcon control
+
     if((HWND)lParam!=m_statIcon)
         return 0;
 
@@ -514,6 +522,9 @@ LRESULT CErrorReportDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM l
 
 int CErrorReportDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 {
+	// This method creates (bCreate==TRUE) or destroys (bCreate==FALSE)
+	// the tray icon.
+
     NOTIFYICONDATA nf;
     memset(&nf,0,sizeof(NOTIFYICONDATA));
     nf.cbSize = sizeof(NOTIFYICONDATA);
@@ -547,12 +558,17 @@ int CErrorReportDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 
 LRESULT CErrorReportDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	// This method is called when user does something with (e.g. clicks) the tray icon.
+
     UINT uMouseMsg = (UINT)lParam; 
 
     if(uMouseMsg==WM_LBUTTONDBLCLK)
     {
+		// User clicked the left mouse button over the icon,
+		// so we need to show the dialog if it is hidden and set focus on it
         m_dlgProgress.ShowWindow(SW_SHOW);  	
         m_dlgProgress.SetFocus();
     }	
+
     return 0;
 }

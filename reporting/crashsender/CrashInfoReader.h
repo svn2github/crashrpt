@@ -41,7 +41,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SharedMem.h"
 #include "ScreenCap.h"
 
-// The structure describing a file item.
+// The structure describing a file item contained in crash report.
 struct ERIFileItem
 {
 	// Constructor.
@@ -51,7 +51,7 @@ struct ERIFileItem
     }
 
     CString m_sDestFile;    // Destination file name (not including directory name).
-    CString m_sSrcFile;     // Absolute source file path.
+    CString m_sSrcFile;     // Absolute path to source file.
     CString m_sDesc;        // File description.
     BOOL m_bMakeCopy;       // Should we copy source file to error report folder?
     CString m_sErrorStatus; // Empty if OK, non-empty if error occurred.
@@ -100,24 +100,24 @@ struct ErrorReportInfo
     CString         m_sOSName;             // Operating system friendly name.
     BOOL            m_bOSIs64Bit;          // Is operating system 64-bit?
     CString         m_sGeoLocation;        // Geographic location.
-    ScreenshotInfo  m_ScreenshotInfo;   // Screenshot info.
+    ScreenshotInfo  m_ScreenshotInfo;      // Screenshot info.
     ULONG64         m_uTotalSize;          // Summary size of this (uncompressed) report.
     BOOL            m_bSelected;           // Is this report selected for delivery or not?
-    DELIVERY_STATUS m_DeliveryStatus;  // Error report delivery status.
+    DELIVERY_STATUS m_DeliveryStatus;      // Error report delivery status.
 
     std::map<CString, ERIFileItem>  m_FileItems; // The list of files that are included into this error report.
     std::map<CString, CString> m_RegKeys; // The list of registry keys included into this error report.
     std::map<CString, CString> m_Props;   // The list of custom properties included into this error report.
 };
 
-// Remind policy.
+// Remind policy. Defines the way user is notified about recently queued crash reports.
 enum REMIND_POLICY 
 {
     REMIND_LATER,   // Remind later.
     NEVER_REMIND    // Never remind.
 };
 
-// Class responsible for reading the crash info.
+// Class responsible for reading the crash info passed by the crashed application.
 class CCrashInfoReader
 {
 public:
@@ -186,7 +186,7 @@ public:
 	// Deletes all reports.
 	void DeleteAllReports();
 
-    // Returns TRUE if it is time to remind user.
+    // Returns TRUE if it is time to remind user about recently queued error reports.
     BOOL IsRemindNowOK();
 
     // Sets remind policy.

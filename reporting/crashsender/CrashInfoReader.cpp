@@ -843,7 +843,8 @@ BOOL CCrashInfoReader::IsRemindNowOK()
     // Get last remind date
     SYSTEMTIME LastRemind;
     if(!GetLastRemindDate(LastRemind))
-    {    
+    {   
+		// We never reminded user - its time to remind now!
         return TRUE;
     }
 
@@ -858,14 +859,18 @@ BOOL CCrashInfoReader::IsRemindNowOK()
     double dDiffTime = (double)(uCurTime-uLastRemindTime)*10E-08;
     if(dDiffTime<7*24*60*60)
     {
+		// Now, wait more time
         return FALSE;
     }
 
+	// Remind now
     return TRUE;
 }
 
 LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
 {
+	// Calculate summary size of all files included into crash report
+
     LONG64 lTotalSize = 0;
     std::map<CString, ERIFileItem>::iterator it;
     HANDLE hFile = INVALID_HANDLE_VALUE;  
@@ -873,14 +878,18 @@ LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
     BOOL bGetSize = FALSE;
     LARGE_INTEGER lFileSize;
 
+	// Walk through all files in the crash report
     for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
     {   
+		// Get file name
         CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
+		// Check file exists
         hFile = CreateFile(sFileName, 
             GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
         if(hFile==INVALID_HANDLE_VALUE)
-            continue;
+            continue; // File does not exist
 
+		// Get file size
         bGetSize = GetFileSizeEx(hFile, &lFileSize);
         if(!bGetSize)
         {
@@ -888,25 +897,35 @@ LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
             continue;
         }
 
+		// Add to the sum
         lTotalSize += lFileSize.QuadPart;
+
+		// Clean up
         CloseHandle(hFile);
         hFile = INVALID_HANDLE_VALUE;
     }
 
+	// Return summary size
     return lTotalSize;
 }
 
 HICON CCrashInfoReader::GetCustomIcon()
 {
+	// This method extracts custom icon from the specified resource file.
+	// If the custom icon not specified, NULL is returned.
+
     if(!g_CrashInfo.m_sCustomSenderIcon.IsEmpty())
     {
+		// First parse the path (the path is in form of <filename>[,<icon_index>])
         CString sResourceFile;
         CString sIconIndex;
         int nIconIndex = 0;
 
+		// Get position of comma
         int nComma = g_CrashInfo.m_sCustomSenderIcon.ReverseFind(',');    
         if(nComma>=0)
         {
+			// Split resource file path and icon index
             sResourceFile = g_CrashInfo.m_sCustomSenderIcon.Left(nComma);      
             sIconIndex = g_CrashInfo.m_sCustomSenderIcon.Mid(nComma+1);
             sIconIndex.TrimLeft();
@@ -915,6 +934,7 @@ HICON CCrashInfoReader::GetCustomIcon()
         }
         else
         {
+			// There is no icon index, just resource file path
             sResourceFile = g_CrashInfo.m_sCustomSenderIcon;
         }
 
@@ -929,11 +949,14 @@ HICON CCrashInfoReader::GetCustomIcon()
         HICON hIcon = ExtractIcon(NULL, sResourceFile, nIconIndex);
         if(hIcon==NULL || hIcon==(HICON)1)
         { 
+			// Failure
             return NULL;
         }
 
+		// Return icon handle
         return hIcon;
     }
 
+	// Return NULL to indicate custom icon not specified
     return NULL;
 }
