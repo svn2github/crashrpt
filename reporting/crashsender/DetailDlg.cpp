@@ -39,93 +39,86 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	// The dialog will be resizable, init resize map now.
     DlgResize_Init();
 
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
     // Mirror this window if RTL language is in use
-    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("Settings"), _T("RTLReading"));
+	CString sRTL = pSender->GetLangStr(_T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
     {
         Utility::SetLayoutRTL(m_hWnd);
     }
 
-    SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("DetailDlg"), _T("DlgCaption")));
+	// Set dialog caption text.
+    SetWindowText(pSender->GetLangStr(_T("DetailDlg"), _T("DlgCaption")));
 
+	// Set up file preview control.
     m_previewMode = PREVIEW_AUTO;
     m_filePreview.SubclassWindow(GetDlgItem(IDC_PREVIEW));
     m_filePreview.SetBytesPerLine(10);
-    m_filePreview.SetEmptyMessage(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("DetailDlg"), _T("NoDataToDisplay")));
+	m_filePreview.SetEmptyMessage(pSender->GetLangStr(_T("DetailDlg"), _T("NoDataToDisplay")));
 
-    // Init "Privacy Policy" link
+    // Init "Privacy Policy" link.
     m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
-    m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
-    m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("DetailDlg"), _T("PrivacyPolicy")));
-
-    if(!g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
+	m_linkPrivacyPolicy.SetHyperLink(pSender->GetCrashInfo()->m_sPrivacyPolicyURL);
+	m_linkPrivacyPolicy.SetLabel(pSender->GetLangStr(_T("DetailDlg"), _T("PrivacyPolicy")));
+		
+	if(!pSender->GetCrashInfo()->m_sPrivacyPolicyURL.IsEmpty())
         m_linkPrivacyPolicy.ShowWindow(SW_SHOW);
     else
         m_linkPrivacyPolicy.ShowWindow(SW_HIDE);
 
+	// Set up header text
     CStatic statHeader = GetDlgItem(IDC_HEADERTEXT);
-    statHeader.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("DetailDlg"), _T("DoubleClickAnItem")));  
+	statHeader.SetWindowText(pSender->GetLangStr(_T("DetailDlg"), _T("DoubleClickAnItem")));  
 
+	// Set up the list control
     m_list = GetDlgItem(IDC_FILE_LIST);
     m_list.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
+	m_list.InsertColumn(0, pSender->GetLangStr(_T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 150);
+	m_list.InsertColumn(1, pSender->GetLangStr(_T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 180);
+	m_list.InsertColumn(3, pSender->GetLangStr(_T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 60);
 
-    m_list.InsertColumn(0, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 150);
-    m_list.InsertColumn(1, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 180);
-    m_list.InsertColumn(3, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-        _T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 60);
-
+	// Init icons for the list
     m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);
     m_list.SetImageList(m_iconList, LVSIL_SMALL);
 
-    // Insert items to the list
-    WIN32_FIND_DATA   findFileData   = {0};
-    HANDLE            hFind          = NULL;
-    CString           sSize;
-
+    // Insert items to the list    
+	// Walk through files included into error report
     std::map<CString, ERIFileItem>::iterator p;
     unsigned i;
-    for (i = 0, p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin(); 
-        p != g_CrashInfo.GetReport(m_nCurReport).m_FileItems.end(); p++, i++)
+    for (i = 0, p = pSender->GetCrashInfo()->GetReport(m_nCurReport).m_FileItems.begin(); 
+        p != pSender->GetCrashInfo()->GetReport(m_nCurReport).m_FileItems.end(); p++, i++)
     {     
         CString sDestFile = p->first;
         CString sSrcFile = p->second.m_sSrcFile;
         CString sFileDesc = p->second.m_sDesc;
-
-        SHFILEINFO sfi;
-        SHGetFileInfo(sSrcFile, 0, &sfi, sizeof(sfi),
-            SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_TYPENAME | SHGFI_SMALLICON);
+		HICON hIcon = NULL;
+		CString sTypeName;
+		LONGLONG lFileSize = 0;
+		CString sSize;
+        
+		// Get file info
+		p->second.GetFileInfo(hIcon, sTypeName, lFileSize);
 
         int iImage = -1;
-        if(sfi.hIcon)
+        if(hIcon!=NULL)
         {
-            iImage = m_iconList.AddIcon(sfi.hIcon);
-            DestroyIcon(sfi.hIcon);
+			// If icon loaded, add its copy to imagelist
+            iImage = m_iconList.AddIcon(hIcon);
+			// and destroy the original icon.
+            DestroyIcon(hIcon);
         }
 
+		// Insert an item to the list control
         int nItem = m_list.InsertItem(i, sDestFile, iImage);
-
-        CString sFileType = sfi.szTypeName;
+		        
         m_list.SetItemText(nItem, 1, sFileDesc);    
 
-        hFind = FindFirstFile(sSrcFile, &findFileData);
-        if (INVALID_HANDLE_VALUE != hFind)
-        {
-            FindClose(hFind);
-            ULARGE_INTEGER lFileSize;
-            lFileSize.LowPart = findFileData.nFileSizeLow;
-            lFileSize.HighPart = findFileData.nFileSizeHigh;
-            sSize = Utility::FileSizeToStr(lFileSize.QuadPart);
-            m_list.SetItemText(nItem, 2, sSize);
-        }    
+		sSize = Utility::FileSizeToStr(lFileSize);
+		m_list.SetItemText(nItem, 2, sSize);            
     }
 
     // Select the first list item
@@ -133,18 +126,15 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
     // Init "Preview" static control
     m_statPreview = GetDlgItem(IDC_PREVIEWTEXT);
-    m_statPreview.SetWindowText(Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Preview")));  
+	m_statPreview.SetWindowText(pSender->GetLangStr(_T("DetailDlg"), _T("Preview")));  
 
     // Init "OK" button
     m_btnClose = GetDlgItem(IDOK);
-    m_btnClose.SetWindowText(Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Close")));  
+	m_btnClose.SetWindowText(pSender->GetLangStr(_T("DetailDlg"), _T("Close")));  
 
     // Init "Export..." button
     m_btnExport = GetDlgItem(IDC_EXPORT);
-    m_btnExport.SetWindowText(Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Export")));  
+	m_btnExport.SetWindowText(pSender->GetLangStr(_T("DetailDlg"), _T("Export")));  
 
     // center the dialog on the screen
     CenterWindow();  
@@ -154,8 +144,8 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
 LRESULT CDetailDlg::OnItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
-    LPNMLISTVIEW lpItem           = (LPNMLISTVIEW)pnmh; 
-    int iItem                     = lpItem->iItem;
+    LPNMLISTVIEW lpItem = (LPNMLISTVIEW)pnmh; 
+    int iItem = lpItem->iItem;
 
     if (lpItem->uChanged & LVIF_STATE
         && lpItem->uNewState & LVIS_SELECTED)
@@ -168,17 +158,33 @@ LRESULT CDetailDlg::OnItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled
 
 LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
+	// This method is called when user double-clicks an item in the list control.
+	// We need to open the file with an appropriate program.
+
     LPNMLISTVIEW lpItem           = (LPNMLISTVIEW)pnmh; 
     int iItem                     = lpItem->iItem;
     DWORD_PTR dwRet               = 0;
 
-    if (iItem < 0 || (int)g_CrashInfo.GetReport(m_nCurReport).m_FileItems.size() < iItem)
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
+
+	// Check if double-clicked on empty space.
+    if (iItem < 0 || 
+		(int)pCrashInfo->GetReport(m_nCurReport).m_FileItems.size() < iItem)
+	{
+		// Do nothing
         return 0;
+	}
 
-    std::map<CString, ERIFileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
-    for (int i = 0; i < iItem; i++, p++);
+	// Look for n-th item
+	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport).GetItemByIndex(iItem);
+	if(pFileItem==NULL)
+		return 0;
+    
+	// Get file name
+    CString sFileName = pFileItem->m_sSrcFile;
 
-    CString sFileName = p->second.m_sSrcFile;
+	// Open the file with shell-provided functionality
     dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
         0, 0, SW_SHOWNORMAL);
     ATLASSERT(dwRet > 32);
@@ -188,28 +194,43 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 
 void CDetailDlg::SelectItem(int iItem)
 {
-    // Sanity check  
-    if (iItem < 0 || (int)g_CrashInfo.GetReport(m_nCurReport).m_FileItems.size() < iItem)
-        return;
+	// This method is called when user selects an item.
+	// We need to open the item for preview.
 
-    std::map<CString, ERIFileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
-    for (int i = 0; i < iItem; i++, p++);
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
 
+    // Look for n-th item
+	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport).GetItemByIndex(iItem);
+	if(pFileItem==NULL)
+		return;
+    
+	// Update preview control
     m_previewMode = PREVIEW_AUTO;
     m_textEncoding = ENC_AUTO;
-    m_filePreview.SetFile(p->second.m_sSrcFile, m_previewMode);
+    m_filePreview.SetFile(pFileItem->m_sSrcFile, m_previewMode);
 }
 
 LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	// Close button clicked - close the dialog.
     EndDialog(0);
     return 0;
 }
 
 LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-    CString sFileName = g_CrashInfo.GetReport(m_nCurReport).m_sCrashGUID + _T(".zip");
+	// This method is called when user clicks the "Export" button. 
+	// We should export crash report contents as a ZIP archive to
+	// user-specified folder.
 
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
+
+	// Format file name for the output ZIP archive.
+    CString sFileName = pCrashInfo->GetReport(m_nCurReport).m_sCrashGUID + _T(".zip");
+
+	// Display "Save File" dialog.
     CFileDialog dlg(FALSE, _T("*.zip"), sFileName,
         OFN_PATHMUSTEXIST|OFN_OVERWRITEPROMPT,
         _T("ZIP Files (*.zip)\0*.zip\0All Files (*.*)\0*.*\0\0"), m_hWnd);
@@ -217,9 +238,12 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
     INT_PTR result = dlg.DoModal();
     if(result==IDOK)
     {
+		// Determine what destination user chosen
         CString sExportFileName = dlg.m_szFileName;
-        g_ErrorReportSender.SetExportFlag(TRUE, sExportFileName);
-        g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
+
+		// Export crash report assynchronously
+        pSender->SetExportFlag(TRUE, sExportFileName);
+        pSender->DoWork(COMPRESS_REPORT);    
     }
 
     return 0;
@@ -227,6 +251,11 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 {
+	// This method is called when user right-clicks the preview area.
+	// We need to display popup menu.
+
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	
     CPoint pt;
     GetCursorPos(&pt);
 
@@ -240,11 +269,11 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
     mii.fMask = MIIM_STRING;
 
     strconv_t strconv;
-    CString sAuto = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewAuto"));
-    CString sText = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewText"));
-    CString sHex = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewHex"));
-    CString sImage = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewImage"));
-    CString sEncoding = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Encoding"));
+	CString sAuto = pSender->GetLangStr(_T("DetailDlg"), _T("PreviewAuto"));
+	CString sText = pSender->GetLangStr(_T("DetailDlg"), _T("PreviewText"));
+	CString sHex = pSender->GetLangStr(_T("DetailDlg"), _T("PreviewHex"));
+	CString sImage = pSender->GetLangStr(_T("DetailDlg"), _T("PreviewImage"));
+	CString sEncoding = pSender->GetLangStr(_T("DetailDlg"), _T("Encoding"));
 
     mii.dwTypeData = sAuto.GetBuffer(0);  
     submenu.SetMenuItemInfo(ID_PREVIEW_AUTO, FALSE, &mii);
@@ -302,6 +331,9 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
 
 LRESULT CDetailDlg::OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	// User changes file preview mode.
+	// Update the preview control state.
+
     PreviewMode mode = PREVIEW_AUTO;
     if(wID==ID_PREVIEW_TEXT)
         mode = PREVIEW_TEXT;
@@ -317,6 +349,9 @@ LRESULT CDetailDlg::OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*
 
 LRESULT CDetailDlg::OnTextEncodingChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	// User changes file preview encoding (for text files).
+	// Update the preview control state.
+
     TextEncoding enc = ENC_AUTO;
     if(wID==ID_ENCODING_AUTO)
         enc = ENC_AUTO; 
@@ -332,3 +367,4 @@ LRESULT CDetailDlg::OnTextEncodingChanged(WORD /*wNotifyCode*/, WORD wID, HWND /
     m_filePreview.SetTextEncoding(enc);
     return 0;
 }
+

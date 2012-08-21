@@ -55,6 +55,9 @@ struct ERIFileItem
     CString m_sDesc;        // File description.
     BOOL m_bMakeCopy;       // Should we copy source file to error report folder?
     CString m_sErrorStatus; // Empty if OK, non-empty if error occurred.
+
+	// Retrieves file information, such as type and size.
+	BOOL GetFileInfo(HICON& hIcon, CString& sTypeName, LONGLONG& lSize);
 };
 
 // Error report delivery statuses.
@@ -81,6 +84,18 @@ struct ErrorReportInfo
 		m_dwExceptionAddress = 0;
 		m_dwExceptionModuleBase = 0;
     }
+
+	// Helper method that retrieves a file item by zero-based index.
+	ERIFileItem* GetItemByIndex(int nItem)
+	{
+		if(nItem<0 || nItem>=(int)m_FileItems.size())
+			return NULL; // No such item
+
+		// Look for n-th item
+		std::map<CString, ERIFileItem>::iterator p = m_FileItems.begin();
+		for (int i = 0; i < nItem; i++, p++);
+		return &p->second;
+	}
 
     CString         m_sErrorReportDirName; // Name of the directory where error report files are located.
     CString         m_sCrashGUID;          // Crash GUID.
@@ -122,7 +137,7 @@ class CCrashInfoReader
 {
 public:
 
-    /* Member variables. */
+    /* Public member variables. */
 
     int         m_nCrashRptVersion;     // CrashRpt version sent through shared memory
     CString     m_sUnsentCrashReportsFolder; // Path to UnsentCrashReports folder for the application.
@@ -179,7 +194,7 @@ public:
 
     // Returns count of error reports.
     int GetReportCount();
-
+		
 	// Deletes n-th report.
 	void DeleteReport(int nIndex);
 
@@ -194,9 +209,13 @@ public:
 
     // Updates last remind date.
     BOOL SetLastRemindDateToday();
-
-    // Adds user information.
-    BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
+	    
+	// Returns last error message.
+	CString GetErrorMsg();
+	
+	// Validates and updates user Email and and problem description.
+	// Returns TRUE if validated successfully, otherwise FALSE.
+    BOOL UpdateUserInfo(CString sEmail, CString sDesc);
 
 private:
 
@@ -206,7 +225,10 @@ private:
     // Adds the list of files.
     BOOL AddFilesToCrashDescriptionXML(std::vector<ERIFileItem>);
 
-    // Returns last remind date.
+	// Adds user information.
+    BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
+
+	// Returns last remind date.
     BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
 
     // Returns current remind policy.
@@ -234,8 +256,6 @@ private:
     CString m_sINIFile;                     // Path to ~CrashRpt.ini file.
     CSharedMem m_SharedMem;                 // Shared memory
     CRASH_DESCRIPTION* m_pCrashDesc;        // Pointer to crash descritpion
+	CString m_sErrorMsg;                    // Last error message.
 };
-
-// Declare globally accessible crash info reader object.
-extern CCrashInfoReader g_CrashInfo;
 

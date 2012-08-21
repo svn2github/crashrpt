@@ -44,11 +44,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utility.h"
 
 CAppModule _Module;             // WTL's application module.
-CErrorReportDlg dlgErrorReport; // "Error Report" dialog.
-CResendDlg dlgResend;           // "Send Error Reports" dialog.
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 { 
+	int nRet = 0; // Return code
+	CErrorReportDlg dlgErrorReport; // Error Report dialog
+	CResendDlg dlgResend; // Resend dialog
+
 	// Get command line parameters.
 	LPCWSTR szCommandLine = GetCommandLineW();
 
@@ -60,77 +62,67 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
     if(argc!=2)
         return 1; // No arguments passed, exit.
 
-	// Extract file mapping name from command line arg.
-    // Read crash information from the file mapping object.
+	// Extract file mapping name from command line arg.    
     CString sFileMappingName = CString(argv[1]);
-    int nInit = g_CrashInfo.Init(sFileMappingName.GetBuffer(0));
-    if(nInit!=0)
+	
+	ATLASSERT(0);
+
+	// Create the sender model that will collect crash report data 
+	// and send error report(s).
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// Init the sender object
+	BOOL bInit = pSender->Init(sFileMappingName.GetBuffer(0));
+	if(!bInit)
     {
-        MessageBox(NULL, _T("Couldn't initialize!"), _T("CrashSender.exe"), MB_ICONERROR);
-        return 1;
-    }
+		// Failed to init        
+        return 0;
+    }      
+	    
+	// Determine what to do next 
+	// (either run in GUI more or run in silent mode).
+	if(!pSender->GetCrashInfo()->m_bSilentMode)
+	{
+		// GUI mode.
+		// Create message loop.
+		CMessageLoop theLoop;
+		_Module.AddMessageLoop(&theLoop);
 
-    if(!g_CrashInfo.m_bSendRecentReports)
-    {
-        // Do the crash info collection work assynchronously
-        g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
-    }
+		if(!pSender->GetCrashInfo()->m_bSendRecentReports)
+		{
+			// Create "Error Report" dialog			
+			if(dlgErrorReport.Create(NULL) == NULL)
+			{
+				ATLTRACE(_T("Error report dialog creation failed!\n"));
+				return 1;
+			}			
+		}
+		else
+		{        
+			// Create "Send Error Reports" dialog.					
+			if(dlgResend.Create(NULL) == NULL)
+			{
+				ATLTRACE(_T("Resend dialog creation failed!\n"));
+				return 1;
+			}			
+		}
 
-    // Check window mirroring settings 
-    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
-    if(sRTL.CompareNoCase(_T("1"))==0)
-    {
-        SetProcessDefaultLayout(LAYOUT_RTL);  
-    }  
-
-    CMessageLoop theLoop;
-    _Module.AddMessageLoop(&theLoop);
-
-    if(!g_CrashInfo.m_bSendRecentReports)
-    {
-        // Create "Error Report" dialog
-        if(dlgErrorReport.Create(NULL) == NULL)
-        {
-            ATLTRACE(_T("Error report dialog creation failed!\n"));
-            return 0;
-        }
-    }
-    else
-    {
-        // Check if another instance of CrashSender.exe is running.
-        ::CreateMutex( NULL, FALSE,_T("Local\\43773530-129a-4298-88f2-20eea3e4a59b"));
-        if (::GetLastError() == ERROR_ALREADY_EXISTS)
-        {		
-            // Another CrashSender.exe already tries to resend recent reports; exit.
-            return 0;
-        }
-
-        if(g_CrashInfo.GetReportCount()==0)
-            return 0; // There are no reports for us to send.
-
-        // Check if it is ok to remind user now.
-        if(!g_CrashInfo.IsRemindNowOK())
-            return 0;
-
-		// Create "Send Error Reports" dialog.
-        if(dlgResend.Create(NULL) == NULL)
-        {
-            ATLTRACE(_T("Resend dialog creation failed!\n"));
-            return 0;
-        }
-    }
-
-    // Process window messages.
-    int nRet = theLoop.Run();
-
-    // Wait until the worker thread is exited. 
-    g_ErrorReportSender.WaitForCompletion();
-    nRet = g_ErrorReportSender.GetGlobalStatus();
-
-    // Remove temporary files we might create and perform other finalizing work.
-    g_ErrorReportSender.Finalize();
-
-    _Module.RemoveMessageLoop();
+		// Process window messages.
+		nRet = theLoop.Run();	    
+		_Module.RemoveMessageLoop();
+	}
+	else
+	{
+		// Silent (non-GUI mode).
+		// Run the sender and wait until it exits.
+		pSender->Run();
+		pSender->WaitForCompletion();
+		// Get return status
+		nRet = pSender->GetGlobalStatus();
+	}
+    
+	// Delete sender object.
+	delete pSender;
 
 	// Exit.
     return nRet;

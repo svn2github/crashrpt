@@ -37,13 +37,20 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define WM_COMPLETECOLLECT (WM_APP+1)
 
-class CProgressDlg : public CDialogImpl<CProgressDlg>,
+class CProgressDlg : 
+	public CDialogImpl<CProgressDlg>,
     public CDialogResize<CProgressDlg>
 {
 public:
-    enum { IDD = IDD_PROGRESSDLG };
 
-    enum ActionOnCancel{DONT_CLOSE, CLOSE_MYSELF, CLOSE_MYSELF_AND_PARENT};
+    enum { IDD = IDD_PROGRESSDLG };
+		
+    enum ActionOnCancel
+	{
+		DONT_CLOSE, 
+		CLOSE_MYSELF, 
+		CLOSE_MYSELF_AND_PARENT
+	};
 
     CProgressBarCtrl m_prgProgress;
     CListViewCtrl m_listView;
@@ -81,14 +88,21 @@ public:
     LRESULT OnCopySel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
     LRESULT OnCopyLog(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
 
-
+	// Displays the dialog and starts the timer.
     void Start(BOOL bCollectInfo, BOOL bMakeVisible=TRUE);
+
+	// Stops the timer.
     void Stop();
+
+	// Closes the dialog.
     void CloseDialog(int nVal);
+
+	// This method places the data to clipboard.
     int SetClipboard(CString& sData);
 
-    ActionOnCancel m_ActionOnCancel;  
-    ActionOnCancel m_ActionOnClose;  
+	// Internal variables.
+    ActionOnCancel m_ActionOnCancel;  // What to do on cancel.
+    ActionOnCancel m_ActionOnClose;   // What to do on close.
 };
 
 

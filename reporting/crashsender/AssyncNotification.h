@@ -31,7 +31,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************************/
 
 // File: AssyncNotification.h
-// Description: Provides a way to communicate between sender thread and the main thread.
+// Description: Provides a way to communicate between worker thread and the main thread.
 // Authors: zexspectrum
 // Date: 2009
 
@@ -52,19 +52,19 @@ struct AssyncNotification
     // Sets the percent completed
     void SetProgress(int percentCompleted, bool bRelative=true);
 
-    // Returns the current assynchronious operation progress
+    // Returns the current assynchronous operation progress
     void GetProgress(int& nProgressPct, std::vector<CString>& msg_log);
 
-    // Notifies about assynchronious operation completion
+    // Notifies about assynchronous operation completion
     void SetCompleted(int nCompletionStatus);
 
-    // Blocks until assynchronious operation is completed
+    // Blocks until assynchronous operation is completed
     int WaitForCompletion();
 
-    // Cancels the assynchronious operation
+    // Cancels the assynchronous operation
     void Cancel();
 
-    // Determines if the assynchronious operation was cancelled
+    // Determines if the assynchronous operation was cancelled
     bool IsCancelled();
 
     // Waits until the feedback is received
@@ -79,7 +79,7 @@ private:
     int m_nCompletionStatus;      // Completion status of the assync operation
     HANDLE m_hCompletionEvent;    // Completion event
     HANDLE m_hCancelEvent;        // Cancel event
-    HANDLE m_hFeedbackEvent;      // Feddback event
+    HANDLE m_hFeedbackEvent;      // Feedback event
     int m_nPercentCompleted;      // Percent completed
     std::vector<CString> m_statusLog; // Status log
 };

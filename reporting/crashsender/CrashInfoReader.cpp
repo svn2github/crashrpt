@@ -43,8 +43,39 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utility.h"
 #include "SharedMem.h"
 
-// Define global CCrashInfoReader object
-CCrashInfoReader g_CrashInfo;
+BOOL ERIFileItem::GetFileInfo(HICON& hIcon, CString& sTypeName, LONGLONG& lSize)
+{
+	hIcon = NULL;
+	sTypeName = _T("Unknown");
+	lSize = 0;
+	SHFILEINFO sfi;
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+
+    SHGetFileInfo(m_sSrcFile, 0, &sfi, sizeof(sfi),
+        SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_TYPENAME | SHGFI_SMALLICON);
+
+	hIcon = sfi.hIcon;
+	sTypeName = sfi.szTypeName;
+
+	// Open file for reading
+    hFile = CreateFile(m_sSrcFile, 
+            GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
+    if(hFile!=INVALID_HANDLE_VALUE)
+	{
+		// Get file size
+		LARGE_INTEGER lFileSize;
+        BOOL bGetSize = GetFileSizeEx(hFile, &lFileSize);
+        if(bGetSize)
+        {            
+			lSize = lFileSize.QuadPart; 
+        }
+
+		// Clean up
+		CloseHandle(hFile);
+	}
+
+	return TRUE;
+}
 
 int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
 { 
@@ -654,13 +685,48 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
     return 0;
 }
 
+BOOL CCrashInfoReader::UpdateUserInfo(CString sEmail, CString sDesc)
+{
+	// This method validates user-provided Email and problem description
+	// and (if valid) uptdates internal fields.
+	BOOL bResult = TRUE;
+
+	// If an email address was entered, verify that
+    // it [1] contains a @ and [2] the last . comes
+    // after the @.
+    
+    if (sEmail.GetLength()!=0 &&
+        (sEmail.Find(_T('@')) < 0 ||
+        sEmail.ReverseFind(_T('.')) < 
+        sEmail.Find(_T('@'))))
+    {
+        // Invalid email            
+		bResult = FALSE;
+    }
+	else
+	{
+		// Update email
+		GetReport(0).m_sEmailFrom = sEmail;
+	}
+
+	// Update problem description
+	GetReport(0).m_sDescription = sDesc;	
+
+    // Write user email and problem description to XML
+    AddUserInfoToCrashDescriptionXML(
+        GetReport(0).m_sEmailFrom, 
+        GetReport(0).m_sDescription);
+
+	return bResult;
+}
+
 BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc)
 { 
     strconv_t strconv;
 
     TiXmlDocument doc;
 
-    CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
+    CString sFileName = m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
 
     FILE* f = NULL; 
 #if _MSC_VER<1400
@@ -723,7 +789,7 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> Fi
 
     TiXmlDocument doc;
 
-    CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
+    CString sFileName = m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
 
     FILE* f = NULL; 
 #if _MSC_VER<1400
@@ -914,7 +980,7 @@ HICON CCrashInfoReader::GetCustomIcon()
 	// This method extracts custom icon from the specified resource file.
 	// If the custom icon not specified, NULL is returned.
 
-    if(!g_CrashInfo.m_sCustomSenderIcon.IsEmpty())
+    if(!m_sCustomSenderIcon.IsEmpty())
     {
 		// First parse the path (the path is in form of <filename>[,<icon_index>])
         CString sResourceFile;
@@ -922,12 +988,12 @@ HICON CCrashInfoReader::GetCustomIcon()
         int nIconIndex = 0;
 
 		// Get position of comma
-        int nComma = g_CrashInfo.m_sCustomSenderIcon.ReverseFind(',');    
+        int nComma = m_sCustomSenderIcon.ReverseFind(',');    
         if(nComma>=0)
         {
 			// Split resource file path and icon index
-            sResourceFile = g_CrashInfo.m_sCustomSenderIcon.Left(nComma);      
-            sIconIndex = g_CrashInfo.m_sCustomSenderIcon.Mid(nComma+1);
+            sResourceFile = m_sCustomSenderIcon.Left(nComma);      
+            sIconIndex = m_sCustomSenderIcon.Mid(nComma+1);
             sIconIndex.TrimLeft();
             sIconIndex.TrimRight();
             nIconIndex = _ttoi(sIconIndex);      
@@ -935,7 +1001,7 @@ HICON CCrashInfoReader::GetCustomIcon()
         else
         {
 			// There is no icon index, just resource file path
-            sResourceFile = g_CrashInfo.m_sCustomSenderIcon;
+            sResourceFile = m_sCustomSenderIcon;
         }
 
         sResourceFile.TrimRight();        
@@ -959,4 +1025,10 @@ HICON CCrashInfoReader::GetCustomIcon()
 
 	// Return NULL to indicate custom icon not specified
     return NULL;
+}
+
+// Returns last error message.
+CString CCrashInfoReader::GetErrorMsg()
+{
+	return m_sErrorMsg;
 }

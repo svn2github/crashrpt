@@ -36,7 +36,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MailMsg.h"
 #include "FilePreviewCtrl.h"
 
-class CDetailDlg : public CDialogImpl<CDetailDlg>,
+class CDetailDlg : 
+	public CDialogImpl<CDetailDlg>,
     public CDialogResize<CDetailDlg>
 {
 public:

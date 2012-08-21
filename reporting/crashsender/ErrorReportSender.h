@@ -47,7 +47,7 @@ enum ActionType
     SEND_REPORT        = 0x08  // Report should be sent
 };
 
-// The class that collects crash report files, packs them 
+// The main class that collects crash report files, packs them 
 // into a ZIP archive and sends the error report.
 class CErrorReportSender
 {
@@ -58,6 +58,27 @@ public:
 
 	// Destructor.
     ~CErrorReportSender();
+
+	// Returns singleton of this class.
+	static CErrorReportSender* GetInstance();
+
+	// Performs initialization	
+	BOOL Init(LPCTSTR szFileMappingName);
+
+	// Destroys the object and frees all used resources.
+	void Destroy();
+
+	// Returns pointer to object containing crash information.
+	CCrashInfoReader* GetCrashInfo();
+	
+	// Returns last error message.
+	CString GetErrorMsg();
+
+	// Set the window that will receive notifications from this object.
+	void SetNotificationWindow(HWND hWnd);
+
+	// Compresses and sends the report(s).
+	BOOL Run();
 
     // This method performs an action assynchronously.
     BOOL DoWork(int action);
@@ -95,6 +116,9 @@ public:
     // Cleans up all temp files and does other finalizing work.
     BOOL Finalize();
 
+	// Returns a localized string from lang file.
+	CString GetLangStr(LPCTSTR szSection, LPCTSTR szName);
+
 private:
 
     // Runs an operation in assync mode.
@@ -108,13 +132,7 @@ private:
 
     // Calculates MD5 hash for a file.
     int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
-
-    // Dumps registry key to the XML file.
-    int DumpRegKey(CString sRegKey, CString sDestFile, CString& sErrorMsg);
-
-    // Used internally for dumping a registry key.
-    int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
-
+	    
     // Takes desktop screenshot.
     BOOL TakeDesktopScreenshot();
 
@@ -137,6 +155,12 @@ private:
 
     // Restarts the application.
     BOOL RestartApp();
+
+	// Dumps registry key to the XML file.
+    int DumpRegKey(CString sRegKey, CString sDestFile, CString& sErrorMsg);
+	
+	// Used internally for dumping a registry key.
+    int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
 
     // Packs error report files to ZIP archive.
     BOOL CompressReportFiles(ErrorReportInfo& eri);
@@ -162,6 +186,10 @@ private:
     // Sends error report over Simple MAPI.
     BOOL SendOverSMAPI();
 
+	static CErrorReportSender* m_pInstance; // Singleton
+	CCrashInfoReader m_CrashInfo;       // Contains crash information.
+	CString m_sErrorMsg;                // Last error message.
+	HWND m_hWndNotify;                  // Notification window.
     int m_nGlobalStatus;                // Global status.
     int m_nCurReport;                   // Index of current error report.
     HANDLE m_hThread;                   // Handle to the worker thread.
@@ -177,6 +205,4 @@ private:
     CString m_sExportFileName;          // File name for exporting.
 };
 
-// A globally accessible error report sender object.
-extern CErrorReportSender g_ErrorReportSender;
 

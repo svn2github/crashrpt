@@ -42,20 +42,27 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 LRESULT CActionProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
-    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// Determine window mirroring settings.
+	CString sRTL = pSender->GetLangStr(_T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
     {
         Utility::SetLayoutRTL(m_hWnd);
     }
 
+	// The dialog will be resizable, so init resize map now.
     DlgResize_Init(false);
 
+	// Init "current action" static
     m_statCurAction = GetDlgItem(IDC_CURRENTACTION);
     m_statCurAction.SetWindowText(
-        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("CurrentAction")));
+		pSender->GetLangStr(_T("ResendDlg"), _T("CurrentAction")));
 
+	// Init "description" static
     m_statActionDesc = GetDlgItem(IDC_ACTIONDESC);
 
+	// Init progress bar.
     m_prgProgress = GetDlgItem(IDC_PROGRESS);
     m_prgProgress.SetRange(0, 100);
 
@@ -75,22 +82,26 @@ BOOL CResendDlg::PreTranslateMessage(MSG* pMsg)
 
 LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 { 
-    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// Determine window mirroring settings.
+	CString sRTL = pSender->GetLangStr(_T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
     {
         Utility::SetLayoutRTL(m_hWnd);
     }
 
+	// Set dialog caption
     CString sTitle;
-    sTitle.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), 
-        g_CrashInfo.m_sAppName);
+	sTitle.Format(pSender->GetLangStr(_T("ResendDlg"), _T("DlgCaption")), 
+		pSender->GetCrashInfo()->m_sAppName);
     SetWindowText(sTitle);
 
     // center the dialog on the screen
     CenterWindow();
 
     // Set window icon
-    HICON hIcon = g_CrashInfo.GetCustomIcon();
+	HICON hIcon = pSender->GetCrashInfo()->GetCustomIcon();
     if(!hIcon)
         hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
     SetIcon(hIcon, 0);
@@ -100,40 +111,37 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     ATLASSERT(pLoop != NULL);
     pLoop->AddMessageFilter(this);
 
+	// Set up controls
     m_statText = GetDlgItem(IDC_TEXT);
-    m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ClickForDetails")));
+	m_statText.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("ClickForDetails")));
 
     m_statSize = GetDlgItem(IDC_SELSIZE);
-    m_statSize.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SelectedSize")));
+	m_statSize.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("SelectedSize")));
 
     m_btnSendNow = GetDlgItem(IDOK);
-    m_btnSendNow.SetWindowText(Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SendNow")));
+	m_btnSendNow.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("SendNow")));
 
     m_btnOtherActions = GetDlgItem(IDC_OTHERACTIONS);
-    m_btnOtherActions.SetWindowText(Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));  
+	m_btnOtherActions.SetWindowText(pSender->GetLangStr(_T("MainDlg"), _T("OtherActions")));  
 
     m_btnShowLog = GetDlgItem(IDC_SHOWLOG);
-    m_btnShowLog.SetWindowText(Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ShowLog")));
+	m_btnShowLog.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("ShowLog")));
     m_btnShowLog.ShowWindow(SW_HIDE);
 
     // Init list control
     m_listReportsSort.SubclassWindow(GetDlgItem(IDC_LIST));  
     m_listReports.SubclassWindow(m_listReportsSort.m_hWnd);
-    m_listReports.InsertColumn(0, Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 170);
-    m_listReports.InsertColumn(1, Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 90);
-    m_listReports.InsertColumn(2, Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnStatus")), LVCFMT_LEFT, 170);
+	m_listReports.InsertColumn(0, pSender->GetLangStr(_T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 170);
+	m_listReports.InsertColumn(1, pSender->GetLangStr(_T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 90);
+	m_listReports.InsertColumn(2, pSender->GetLangStr(_T("ResendDlg"), _T("ColumnStatus")), LVCFMT_LEFT, 170);
     m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT);
     m_listReportsSort.SetSortColumn(0); // Sort by creation date
+
+	// Add items to the list.
     int i;
-    for(i=0; i<g_CrashInfo.GetReportCount(); i++)
+	for(i=0; i<pSender->GetCrashInfo()->GetReportCount(); i++)
     {
-        ErrorReportInfo& eri = g_CrashInfo.GetReport(i);
+        ErrorReportInfo& eri = pSender->GetCrashInfo()->GetReport(i);
 
         SYSTEMTIME st;
         Utility::UTC2SystemTime(eri.m_sSystemTimeUTC, st);
@@ -155,6 +163,7 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
     m_statConsent = GetDlgItem(IDC_CONSENT);
 
+	// Create font used for the static
     LOGFONT lf;
     memset(&lf, 0, sizeof(LOGFONT));
     lf.lfHeight = 11;
@@ -165,61 +174,65 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     hConsentFont.CreateFontIndirect(&lf);
     m_statConsent.SetFont(hConsentFont);
 
-    if(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
+	if(pSender->GetCrashInfo()->m_sPrivacyPolicyURL.IsEmpty())
     {
-        m_statConsent.SetWindowText(
-            Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent2")));
+		m_statConsent.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("MyConsent2")));
     }
     else
     {
-        m_statConsent.SetWindowText(
-            Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent")));
+		m_statConsent.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("MyConsent")));
     }
 
+	// Init Privacy Policy link
     m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
-    m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
-    m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("PrivacyPolicy")));
-    m_linkPrivacyPolicy.ShowWindow(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty()?SW_HIDE:SW_SHOW);
+	m_linkPrivacyPolicy.SetHyperLink(pSender->GetCrashInfo()->m_sPrivacyPolicyURL);
+	m_linkPrivacyPolicy.SetLabel(pSender->GetLangStr(_T("MainDlg"), _T("PrivacyPolicy")));
+    m_linkPrivacyPolicy.ShowWindow(pSender->GetCrashInfo()->m_sPrivacyPolicyURL.IsEmpty()?SW_HIDE:SW_SHOW);
 
+	// Init progress bar
     m_dlgProgress.Create(m_hWnd);
     m_dlgProgress.ShowWindow(SW_HIDE);
 
+	// Init child dialog
     m_dlgActionProgress.m_pParent = this;
     m_dlgActionProgress.Create(m_hWnd);
     m_dlgActionProgress.SetWindowLong(GWL_ID, IDD_PROGRESSMULTI); 
 
+	// Position child dialog.
     CRect rc;
     m_listReports.GetWindowRect(&rc);
     ScreenToClient(&rc);
     m_dlgActionProgress.SetWindowPos(HWND_TOP, rc.left, rc.bottom, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
 
+	// Init resize map.
     DlgResize_Init();
 
+	// Init flags.
     m_bSendingNow = FALSE;
     m_bCancelled = FALSE;
     m_MailClientConfirm = NOT_CONFIRMED_YET;
 
+	// Init handle to log file
     m_fileLog = NULL;
 
+	// By default, we will exit if user closes the dialog.
     m_ActionOnClose = EXIT;
 
-    if(g_CrashInfo.m_bSilentMode)
-    {
-        BOOL bHandled;
-        OnSendNow(0, 0, 0, bHandled);
-    }
-    else
-    {
-        // Show balloon in 3 seconds.
-        m_nTick = 0;
-        SetTimer(0, 3000);
-    }
-
+	// Show balloon in 3 seconds.
+    m_nTick = 0;
+    SetTimer(0, 3000);
+    
     return TRUE;
 }
 
 LRESULT CResendDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	// This method is called when user clicks the tray icon.
+
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// If user clicks or right-clicks the tray icon or clicks the balloon,
+	// then show the dialog.
     if(LOWORD(lParam)==WM_LBUTTONDOWN || 
         LOWORD(lParam)==WM_LBUTTONDBLCLK ||
         LOWORD(lParam)==NIN_BALLOONUSERCLICK)
@@ -228,6 +241,7 @@ LRESULT CResendDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
         ShowWindow(SW_SHOW);
     }
 
+	// If user right-clicks the icon, display context menu.
     if(LOWORD(lParam)==WM_RBUTTONDOWN)
     {
         CPoint pt;
@@ -236,8 +250,8 @@ LRESULT CResendDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
         CMenu submenu = menu.GetSubMenu(2);
 
         strconv_t strconv;
-        CString sShow = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupShow"));
-        CString sExit = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupExit"));
+		CString sShow = pSender->GetLangStr(_T("ResendDlg"), _T("PopupShow"));
+		CString sExit = pSender->GetLangStr(_T("ResendDlg"), _T("PopupExit"));
 
         MENUITEMINFO mii;
         memset(&mii, 0, sizeof(MENUITEMINFO));
@@ -258,6 +272,7 @@ LRESULT CResendDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
 
 void CResendDlg::CloseDialog(int nVal)
 {
+	// Close the dialog and exit message loop.
     DestroyWindow();
     AddTrayIcon(FALSE);
 
@@ -268,6 +283,8 @@ void CResendDlg::CloseDialog(int nVal)
 
 LRESULT CResendDlg::OnPopupShow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	// User chosen "Show" item from the popup menu.
+	// Show the dialog.
     KillTimer(0);
     ShowWindow(SW_SHOW);
     return 0;
@@ -275,6 +292,8 @@ LRESULT CResendDlg::OnPopupShow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT CResendDlg::OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	// User chosen "Exit" item from the popup menu.
+	// Exit the app.
     KillTimer(0);
     CloseDialog(0);
 
@@ -283,18 +302,27 @@ LRESULT CResendDlg::OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT CResendDlg::OnListItemChanging(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {  
+	// User clicks a list item's checkbox.
+	// Depending on current state, we should
+	// either allow or prevent changing the item
     NMLISTVIEW* pnmlv = (NMLISTVIEW *)pnmh;
     if(pnmlv->iItem>=0 && (pnmlv->uChanged&LVIF_STATE) && 
         ((pnmlv->uNewState&LVIS_STATEIMAGEMASK)!=(pnmlv->uOldState&LVIS_STATEIMAGEMASK)))
     {
+		// If we are currently send error reports, than prevent 
+		// modifying check box state.
         if(m_bSendingNow)
             return TRUE;    
     }
+
+	// Allow modifying item state
     return 0;
 }
 
 LRESULT CResendDlg::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {  
+	// User clicks a list item's checkbox.
+	// We need to update total size of selected crash reports.
     NMLISTVIEW* pnmlv = (NMLISTVIEW *)pnmh;
     if(pnmlv->iItem>=0 && (pnmlv->uChanged&LVIF_STATE) && 
         ((pnmlv->uNewState&LVIS_STATEIMAGEMASK)!=(pnmlv->uOldState&LVIS_STATEIMAGEMASK)))
@@ -306,8 +334,11 @@ LRESULT CResendDlg::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHan
 
 LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
+	// User double-clicks a list item.
+	// We need to open details dialog for the selected crash report.
+
     if(m_bSendingNow)
-        return 0;
+        return 0; // Do nothing if in progress of sending
 
     NMITEMACTIVATE* pia = (NMITEMACTIVATE*)pnmh;
     if(pia->iItem>=0)
@@ -327,16 +358,18 @@ LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
 
 LRESULT CResendDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 {
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
 	CPoint pt;
     GetCursorPos(&pt);
     CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));  
     CMenu submenu = menu.GetSubMenu(5);
 
     strconv_t strconv;
-    CString sSelectAll = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SelectAll"));
-    CString sDeselectAll = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeselectAll"));
-	CString sDeleteSelected = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeleteSelected"));
-	CString sDeleteAll = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeleteAll"));
+	CString sSelectAll = pSender->GetLangStr(_T("ResendDlg"), _T("SelectAll"));
+	CString sDeselectAll = pSender->GetLangStr(_T("ResendDlg"), _T("DeselectAll"));
+	CString sDeleteSelected = pSender->GetLangStr(_T("ResendDlg"), _T("DeleteSelected"));
+	CString sDeleteAll = pSender->GetLangStr(_T("ResendDlg"), _T("DeleteAll"));
 
     MENUITEMINFO mii;
     memset(&mii, 0, sizeof(MENUITEMINFO));
@@ -405,6 +438,8 @@ LRESULT CResendDlg::OnPopupDeselectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CResendDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
 	// Walk through error reports
 	int i;
     for(i=0; i<m_listReports.GetItemCount(); i++)
@@ -416,7 +451,7 @@ LRESULT CResendDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 			int nReport = (int)m_listReports.GetItemData(i);
 
 			// Delete report
-			g_CrashInfo.DeleteReport(nReport);   			
+			pSender->GetCrashInfo()->DeleteReport(nReport);   			
 		}
     }
 
@@ -446,7 +481,8 @@ LRESULT CResendDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 LRESULT CResendDlg::OnPopupDeleteAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	// Delete all error reports
-	g_CrashInfo.DeleteAllReports();               		
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	pSender->GetCrashInfo()->DeleteAllReports();               		
     
 	// Delete all list items
 	m_listReports.DeleteAllItems();
@@ -457,7 +493,11 @@ LRESULT CResendDlg::OnPopupDeleteAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-    if(!m_bSendingNow)
+	// User clicked "Send Now"/"Cancel" button.
+
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+    if(!m_bSendingNow) // "Send Now" clicked.
     {
         int i;
         for(i=0; i<m_listReports.GetItemCount(); i++)
@@ -466,10 +506,10 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
             if(bSelected)
             {
                 int nReport = (int)m_listReports.GetItemData(i);        
-                if(g_CrashInfo.GetReport(nReport).m_DeliveryStatus == PENDING)
+				if(pSender->GetCrashInfo()->GetReport(nReport).m_DeliveryStatus == PENDING)
                 {
                     m_listReports.SetItemText(i, 2, 
-                        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusPending")));
+						Utility::GetINIString(pSender->GetCrashInfo()->m_sLangFileName, _T("ResendDlg"), _T("StatusPending")));
                 }
             }      
         }
@@ -479,8 +519,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
         m_bErrors = FALSE;
         m_ActionOnClose = HIDE;
 
-        m_statText.SetWindowText(
-            Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryingReports")));
+		m_statText.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("DeliveryingReports")));
 
         m_statSize.ShowWindow(SW_HIDE);
         m_statConsent.ShowWindow(SW_HIDE);
@@ -488,8 +527,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
         m_btnOtherActions.ShowWindow(SW_HIDE);
         m_btnShowLog.ShowWindow(SW_HIDE);
         m_dlgActionProgress.ShowWindow(SW_SHOW);  
-        m_btnSendNow.SetWindowText(
-            Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
+		m_btnSendNow.SetWindowText(pSender->GetLangStr(_T("ProgressDlg"), _T("Cancel")));
 
         SetTimer(1, 250); // Update this dialog every 250 ms
         SetTimer(2, 3000); // Hide this dialog in 3 sec.
@@ -500,7 +538,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
         Utility::GetSystemTimeUTC(sCurTime);
         sCurTime.Replace(':', '-');
         m_sLogFile.Format(_T("%s\\CrashRpt-Log-%s.txt"), 
-            g_CrashInfo.m_sUnsentCrashReportsFolder, sCurTime);
+			pSender->GetCrashInfo()->m_sUnsentCrashReportsFolder, sCurTime);
 #if _MSC_VER<1400
         m_fileLog = _tfopen(m_sLogFile, _T("wt"));
 #else
@@ -510,12 +548,12 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
         SendNextReport();
     }
-    else
+    else // "Cancel" clicked
     {
         m_bCancelled = TRUE;
         m_btnSendNow.EnableWindow(0);
         KillTimer(2); // Don't hide window 
-        g_ErrorReportSender.Cancel();    
+        pSender->Cancel();    
     }
 
     return 0;
@@ -544,6 +582,8 @@ int CResendDlg::FindListItemByReportIndex(int nReport)
 
 BOOL CResendDlg::SendNextReport()
 {  
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
     if(!m_bSendingNow)
         return FALSE;
 
@@ -557,18 +597,17 @@ BOOL CResendDlg::SendNextReport()
             {
                 int nReport = (int)m_listReports.GetItemData(i);
 
-                DELIVERY_STATUS status = g_CrashInfo.GetReport(nReport).m_DeliveryStatus;
+				DELIVERY_STATUS status = pSender->GetCrashInfo()->GetReport(nReport).m_DeliveryStatus;
                 if(status!=PENDING)
                     continue;
 
                 m_nCurReport = nReport;
-                m_listReports.SetItemText(i, 2, 
-                    Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusInProgress")));
+				m_listReports.SetItemText(i, 2, pSender->GetLangStr(_T("ResendDlg"), _T("StatusInProgress")));
                 m_listReports.EnsureVisible(i, TRUE);
                 m_listReports.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
 
-                g_ErrorReportSender.SetCurReport(nReport);
-                g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);      
+                pSender->SetCurReport(nReport);
+                pSender->DoWork(COMPRESS_REPORT|SEND_REPORT);      
                 return TRUE;
             }
         }
@@ -583,6 +622,7 @@ BOOL CResendDlg::SendNextReport()
     KillTimer(1);
     KillTimer(2);
 
+	// Update control states.
     m_btnSendNow.EnableWindow(1);
     m_btnOtherActions.ShowWindow(SW_SHOW);
     m_btnShowLog.ShowWindow(SW_SHOW);  
@@ -591,11 +631,10 @@ BOOL CResendDlg::SendNextReport()
     m_linkPrivacyPolicy.ShowWindow(SW_SHOW);  
     m_btnOtherActions.ShowWindow(SW_SHOW);
     m_dlgActionProgress.ShowWindow(SW_HIDE);  
-    m_btnSendNow.SetWindowText(
-        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SendNow")));
-    m_statText.SetWindowText(
-        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ClickForDetails")));
+    m_btnSendNow.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("SendNow")));
+	m_statText.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("ClickForDetails")));
 
+	// Update Status column of the list view
     int i;
     for(i=0; i<m_listReports.GetItemCount(); i++)
     {
@@ -604,29 +643,29 @@ BOOL CResendDlg::SendNextReport()
         {
             int nReport = (int)m_listReports.GetItemData(i);
 
-            DELIVERY_STATUS status = g_CrashInfo.GetReport(nReport).m_DeliveryStatus;
+			DELIVERY_STATUS status = pSender->GetCrashInfo()->GetReport(nReport).m_DeliveryStatus;
             if(status==PENDING)
             {
                 m_listReports.SetItemText(i, 2, _T(""));
             }
             else if(status!=DELIVERED)
             {
-                g_CrashInfo.GetReport(nReport).m_DeliveryStatus = PENDING;
+				pSender->GetCrashInfo()->GetReport(nReport).m_DeliveryStatus = PENDING;
             }
         }
     }
 
 
     DWORD dwFlags = 0;
-    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+	CString sRTL = pSender->GetLangStr(_T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
         dwFlags = MB_RTLREADING;
 
     CString sCaption;
-    sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), 
-        g_CrashInfo.m_sAppName);
+	sCaption.Format(pSender->GetLangStr(_T("ResendDlg"), _T("DlgCaption")), 
+		pSender->GetCrashInfo()->m_sAppName);
 
-    if(m_bErrors && !g_CrashInfo.m_bSilentMode)
+    if(m_bErrors && !pSender->GetCrashInfo()->m_bSilentMode)
     {
         ShowWindow(SW_SHOW);
         SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
@@ -634,8 +673,7 @@ BOOL CResendDlg::SendNextReport()
         RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);
         m_listReports.RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);  
 
-        MessageBox(      
-            Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryFailed")), 
+		MessageBox(pSender->GetLangStr(_T("ResendDlg"), _T("DeliveryFailed")), 
             sCaption, 
             MB_OK|MB_ICONINFORMATION|dwFlags);  
 
@@ -644,8 +682,7 @@ BOOL CResendDlg::SendNextReport()
     {
         if(IsWindowVisible())
         {
-            MessageBox(      
-                Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliverySucceeded")), 
+            MessageBox(pSender->GetLangStr(_T("ResendDlg"), _T("DeliverySucceeded")), 
                 sCaption, 
                 MB_OK|MB_ICONINFORMATION|dwFlags);
         }
@@ -658,16 +695,16 @@ BOOL CResendDlg::SendNextReport()
 
 LRESULT CResendDlg::OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
     CPoint pt;
     GetCursorPos(&pt);
     CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));  
     CMenu submenu = menu.GetSubMenu(3);
 
     strconv_t strconv;
-    CString sRemindLater = Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupRemindLater"));
-    CString sNeverRemind = Utility::GetINIString(
-        g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupNeverRemind"));
+	CString sRemindLater = pSender->GetLangStr(_T("ResendDlg"), _T("PopupRemindLater"));
+	CString sNeverRemind = pSender->GetLangStr(_T("ResendDlg"), _T("PopupNeverRemind"));
 
     MENUITEMINFO mii;
     memset(&mii, 0, sizeof(MENUITEMINFO));
@@ -686,10 +723,11 @@ LRESULT CResendDlg::OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
     if(m_ActionOnClose==EXIT)
-    {
-        //AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND);     
-        g_CrashInfo.SetLastRemindDateToday();
+    {        
+		pSender->GetCrashInfo()->SetLastRemindDateToday();
         CloseDialog(0);
         return 0;
     }
@@ -704,8 +742,9 @@ LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 LRESULT CResendDlg::OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
-    g_CrashInfo.SetLastRemindDateToday();
-    g_CrashInfo.SetRemindPolicy(REMIND_LATER);
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+    pSender->GetCrashInfo()->SetLastRemindDateToday();
+    pSender->GetCrashInfo()->SetRemindPolicy(REMIND_LATER);
 
     KillTimer(0);
     CloseDialog(0);
@@ -714,8 +753,9 @@ LRESULT CResendDlg::OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT CResendDlg::OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-    g_CrashInfo.SetLastRemindDateToday();
-    g_CrashInfo.SetRemindPolicy(NEVER_REMIND);
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	pSender->GetCrashInfo()->SetLastRemindDateToday();
+	pSender->GetCrashInfo()->SetRemindPolicy(NEVER_REMIND);
 
     KillTimer(0);
     CloseDialog(0);
@@ -724,7 +764,9 @@ LRESULT CResendDlg::OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 void CResendDlg::AddTrayIcon(BOOL bAdd)
 {
-    NOTIFYICONDATA nf;
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+    
+	NOTIFYICONDATA nf;
     memset(&nf,0,sizeof(NOTIFYICONDATA));
     nf.cbSize = sizeof(NOTIFYICONDATA);
     nf.hWnd = m_hWnd;
@@ -737,22 +779,22 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
         nf.uVersion = NOTIFYICON_VERSION;
 
         CString sTip; 
-        sTip.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), g_CrashInfo.m_sAppName);
+		sTip.Format(pSender->GetLangStr(_T("ResendDlg"), _T("DlgCaption")), pSender->GetCrashInfo()->m_sAppName);
         _TCSCPY_S(nf.szTip, 64, sTip);
-        HICON hIcon = g_CrashInfo.GetCustomIcon();
+		HICON hIcon = pSender->GetCrashInfo()->GetCustomIcon();
         if(!hIcon)
             hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));    
         nf.hIcon = hIcon;
 
 
         CString sInfo;
-        sInfo.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("BalloonText")), 
-            g_CrashInfo.m_sAppName, g_CrashInfo.m_sAppName);
+		sInfo.Format(pSender->GetLangStr(_T("ResendDlg"), _T("BalloonText")), 
+			pSender->GetCrashInfo()->m_sAppName, pSender->GetCrashInfo()->m_sAppName);
         _TCSCPY_S(nf.szInfo, 200, sInfo.GetBuffer(0));
 
         CString sInfoTitle;
-        sInfoTitle.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("BalloonCaption")), 
-            g_CrashInfo.m_sAppName);
+		sInfoTitle.Format(pSender->GetLangStr(_T("ResendDlg"), _T("BalloonCaption")), 
+			pSender->GetCrashInfo()->m_sAppName);
         _TCSCPY_S(nf.szInfoTitle, 64, sInfoTitle.GetBuffer(0));
 
         Shell_NotifyIcon(NIM_ADD,&nf);
@@ -765,6 +807,7 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
 
 void CResendDlg::UpdateSelectionSize()
 {
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
     int nItemsSelected = 0;
     ULONG64 uSelectedFilesSize = 0;
 
@@ -776,12 +819,12 @@ void CResendDlg::UpdateSelectionSize()
             int nReport = (int)m_listReports.GetItemData(i);
 
             nItemsSelected++;
-            uSelectedFilesSize += g_CrashInfo.GetReport(nReport).m_uTotalSize;
+			uSelectedFilesSize += pSender->GetCrashInfo()->GetReport(nReport).m_uTotalSize;
         }
     }
 
     CString sText;
-    sText.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SelectedSize")), nItemsSelected, 
+	sText.Format(pSender->GetLangStr(_T("ResendDlg"), _T("SelectedSize")), nItemsSelected, 
         Utility::FileSizeToStr(uSelectedFilesSize).GetBuffer(0));
     m_statSize.SetWindowText(sText);
 
@@ -823,10 +866,12 @@ void CResendDlg::DoBalloonTimer()
 
 void CResendDlg::DoProgressTimer()
 {   
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
     // Get current progress
     int nProgressPct = 0;
     std::vector<CString> messages;
-    g_ErrorReportSender.GetStatus(nProgressPct, messages);
+    pSender->GetStatus(nProgressPct, messages);
 
     // Update progress bar
     m_dlgActionProgress.m_prgProgress.SetPos(nProgressPct);
@@ -850,7 +895,7 @@ void CResendDlg::DoProgressTimer()
         if(messages[i].CompareNoCase(_T("[status_success]"))==0)
         {
             m_listReports.SetItemText(nCurItem, 2, 
-                Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusSucceeded")));
+				pSender->GetLangStr(_T("ResendDlg"), _T("StatusSucceeded")));
 
             SendNextReport();
         }
@@ -858,7 +903,7 @@ void CResendDlg::DoProgressTimer()
         {
             m_bErrors = TRUE;
             m_listReports.SetItemText(nCurItem, 2, 
-                Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusFailed")));
+				pSender->GetLangStr(_T("ResendDlg"), _T("StatusFailed")));
             SendNextReport();
         }
         else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
@@ -877,7 +922,7 @@ void CResendDlg::DoProgressTimer()
         else if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
         {       
             KillTimer(0);        
-            if(!g_CrashInfo.m_bSilentMode)
+			if(!pSender->GetCrashInfo()->m_bSilentMode)
             {
                 if(m_MailClientConfirm==NOT_CONFIRMED_YET)
                 {
@@ -889,18 +934,18 @@ void CResendDlg::DoProgressTimer()
                     m_listReports.RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);  
 
                     DWORD dwFlags = 0;
-                    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+					CString sRTL = Utility::GetINIString(pSender->GetCrashInfo()->m_sLangFileName, _T("Settings"), _T("RTLReading"));
                     if(sRTL.CompareNoCase(_T("1"))==0)
                         dwFlags = MB_RTLREADING;
 
                     CString sMailClientName;        
                     CMailMsg::DetectMailClient(sMailClientName);
                     CString msg;
-                    msg.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
+					msg.Format(pSender->GetLangStr(_T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
 
-                    CString sCaption = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("DlgCaption"));
+                    CString sCaption = pSender->GetLangStr(_T("ProgressDlg"), _T("DlgCaption"));
                     CString sTitle;
-                    sTitle.Format(sCaption, g_CrashInfo.m_sAppName);
+					sTitle.Format(sCaption, pSender->GetCrashInfo()->m_sAppName);
                     INT_PTR result = MessageBox(msg, 
                         sTitle,
                         MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
@@ -912,18 +957,18 @@ void CResendDlg::DoProgressTimer()
                     else
                         m_MailClientConfirm = NOT_ALLOWED;
 
-                    g_ErrorReportSender.FeedbackReady(result==IDOK?0:1);       
+                    pSender->FeedbackReady(result==IDOK?0:1);       
                     ShowWindow(bVisible?SW_SHOW:SW_HIDE);
                 }
                 else
                 {
-                    g_ErrorReportSender.FeedbackReady(m_MailClientConfirm==ALLOWED?0:1);       
+                    pSender->FeedbackReady(m_MailClientConfirm==ALLOWED?0:1);       
                 }
             }      
             else
             { 
                 // In silent mode, assume user provides his/her consent
-                g_ErrorReportSender.FeedbackReady(0);       
+                pSender->FeedbackReady(0);       
             }        
         }    
     }
@@ -931,7 +976,8 @@ void CResendDlg::DoProgressTimer()
 
 void CResendDlg::DoHideWindowTimer()
 {
-    if(!g_CrashInfo.m_bSilentMode)
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	if(!pSender->GetCrashInfo()->m_bSilentMode)
     {
         AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND);         
     }
