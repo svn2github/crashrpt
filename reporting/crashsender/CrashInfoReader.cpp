@@ -753,19 +753,49 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
 
     // Write user e-mail
 
-    TiXmlElement* email = new TiXmlElement("UserEmail");
-    root->LinkEndChild(email);
-
-    TiXmlText* email_text = new TiXmlText(strconv.t2utf8(sEmail));
-    email->LinkEndChild(email_text);              
-
+    TiXmlHandle hEmail = NULL;
+	
+	hEmail = root->FirstChild("UserEmail");
+	if(hEmail.ToElement()==NULL)
+	{
+		hEmail = new TiXmlElement("UserEmail");
+		root->LinkEndChild(hEmail.ToElement());		
+	}
+		
+	TiXmlText* email_text = NULL;
+	if(hEmail.FirstChild().ToText()!=NULL)
+	{
+		email_text = hEmail.FirstChild().ToText();
+		email_text->SetValue(strconv.w2utf8(sEmail));
+	}
+	else
+	{
+		email_text = new TiXmlText(strconv.t2utf8(sEmail));
+		hEmail.ToElement()->LinkEndChild(email_text);              
+	}
+	
     // Write problem description
 
-    TiXmlElement* desc = new TiXmlElement("ProblemDescription");
-    root->LinkEndChild(desc);
+    TiXmlHandle hDesc = NULL;
+	
+	hDesc = root->FirstChild("ProblemDescription");
+	if(hDesc.ToElement()==NULL)
+	{
+		hDesc = new TiXmlElement("ProblemDescription");
+		root->LinkEndChild(hDesc.ToElement());
+	}
 
-    TiXmlText* desc_text = new TiXmlText(strconv.t2utf8(sDesc));
-    desc->LinkEndChild(desc_text);              
+    TiXmlText* desc_text = NULL;
+	if(hDesc.FirstChild().ToText()!=NULL)
+	{
+		desc_text = hDesc.FirstChild().ToText();
+		desc_text->SetValue(strconv.w2utf8(sDesc));
+	}
+	else
+	{
+		desc_text = new TiXmlText(strconv.t2utf8(sDesc));
+		hDesc.ToElement()->LinkEndChild(desc_text);              
+	}
 
 #if _MSC_VER<1400
     f = _tfopen(sFileName, _T("w"));

@@ -63,6 +63,7 @@ CErrorReportSender::CErrorReportSender()
 // Destructor
 CErrorReportSender::~CErrorReportSender()
 {
+	Destroy();
 }
 
 CErrorReportSender* CErrorReportSender::GetInstance()
@@ -157,14 +158,14 @@ void CErrorReportSender::SetNotificationWindow(HWND hWnd)
 BOOL CErrorReportSender::Run()
 {
 	// Wait for completion of crash info collector.
-	//m_Assync.WaitForCompletion();
+	WaitForCompletion();
 
 	// Determine whether to send crash report now 
 	// or to exit without sending report.
 	if(m_CrashInfo.m_bSendErrorReport) // If we should send error report now
     {
         // Compress report files and send the report
-		SetExportFlag(TRUE, _T(""));
+		SetExportFlag(FALSE, _T(""));
         DoWork(COMPRESS_REPORT|SEND_REPORT);    
     }
     else // If we shouldn't send error report now
@@ -229,7 +230,7 @@ DWORD WINAPI CErrorReportSender::WorkerThread(LPVOID lpParam)
     // Delegate the action to the CErrorReportSender::DoWorkAssync() method
     CErrorReportSender* pSender = (CErrorReportSender*)lpParam;
     pSender->DoWorkAssync();
-
+	pSender->m_hThread = NULL; // clean up
     // Exit code can be ignored
     return 0;
 }
@@ -353,8 +354,9 @@ void CErrorReportSender::SetExportFlag(BOOL bExport, CString sExportFile)
 
 // This method blocks until worker thread is exited
 void CErrorReportSender::WaitForCompletion()
-{
-    WaitForSingleObject(m_hThread, INFINITE);
+{	
+	if(m_hThread!=NULL)
+		WaitForSingleObject(m_hThread, INFINITE);	
 }
 
 // Gets status of the local operation

@@ -91,6 +91,11 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
         Utility::SetLayoutRTL(m_hWnd);
     }
 
+	// Init flags.
+    m_bSendingNow = FALSE;
+    m_bCancelled = FALSE;
+    m_MailClientConfirm = NOT_CONFIRMED_YET;
+
 	// Set dialog caption
     CString sTitle;
 	sTitle.Format(pSender->GetLangStr(_T("ResendDlg"), _T("DlgCaption")), 
@@ -155,8 +160,7 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
         m_listReports.SetItemText(nItem, 1, sTotalSize);
 
-        if(eri.m_bSelected)
-            m_listReports.SetCheckState(nItem, TRUE);
+        m_listReports.SetCheckState(nItem, eri.m_bSelected);
     }
 
     UpdateSelectionSize();
@@ -175,14 +179,10 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     m_statConsent.SetFont(hConsentFont);
 
 	if(pSender->GetCrashInfo()->m_sPrivacyPolicyURL.IsEmpty())
-    {
-		m_statConsent.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("MyConsent2")));
-    }
+    	m_statConsent.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("MyConsent2")));
     else
-    {
-		m_statConsent.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("MyConsent")));
-    }
-
+    	m_statConsent.SetWindowText(pSender->GetLangStr(_T("ResendDlg"), _T("MyConsent")));
+    
 	// Init Privacy Policy link
     m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
 	m_linkPrivacyPolicy.SetHyperLink(pSender->GetCrashInfo()->m_sPrivacyPolicyURL);
@@ -206,12 +206,7 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
 	// Init resize map.
     DlgResize_Init();
-
-	// Init flags.
-    m_bSendingNow = FALSE;
-    m_bCancelled = FALSE;
-    m_MailClientConfirm = NOT_CONFIRMED_YET;
-
+	
 	// Init handle to log file
     m_fileLog = NULL;
 

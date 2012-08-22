@@ -457,12 +457,7 @@ LRESULT CErrorReportDlg::OnEmailKillFocus(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 LRESULT CErrorReportDlg::OnSendClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
 	// This method is called when user clicks the "Send Report" button
-
-    HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
-    HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
-    int      nEmailLen = ::GetWindowTextLength(hWndEmail);
-    int      nDescLen = ::GetWindowTextLength(hWndDesc);
-
+	    
 	TCHAR szBuffer[1024] = _T("");
     CString sEmail;	
 	CString sDesc;
