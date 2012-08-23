@@ -41,11 +41,23 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Action type
 enum ActionType  
 {
-    COLLECT_CRASH_INFO = 0x01, // Crash info should be collected
-    COMPRESS_REPORT    = 0x02, // Error report files should be packed into ZIP archive
-    RESTART_APP        = 0x04, // Crashed app should be restarted
-    SEND_REPORT        = 0x08  // Report should be sent
+    COLLECT_CRASH_INFO  = 0x01, // Crash info should be collected.
+    COMPRESS_REPORT     = 0x02, // Error report files should be packed into ZIP archive.
+    RESTART_APP         = 0x04, // Crashed app should be restarted.
+    SEND_REPORT         = 0x08, // Report should be sent.
+	SEND_RECENT_REPORTS = 0x10  // Recent crash reports should be sent.
 };
+
+// Mail client launch confirmation status
+enum eMailClientConfirm
+{
+    NOT_CONFIRMED_YET, // User didn't confirm yet
+    ALLOWED,           // User allowed mail client launch
+    NOT_ALLOWED        // User didn't allow mail client launch
+};
+
+#define WM_ITEM_STATUS_CHANGED (WM_USER+1024)
+#define WM_DELIVERY_COMPLETE   (WM_USER+1025)
 
 // The main class that collects crash report files, packs them 
 // into a ZIP archive and sends the error report.
@@ -64,9 +76,9 @@ public:
 
 	// Performs initialization	
 	BOOL Init(LPCTSTR szFileMappingName);
-
-	// Destroys the object and frees all used resources.
-	void Destroy();
+		
+	// Cleans up all temp files and does other finalizing work.
+    BOOL Finalize();
 
 	// Returns pointer to object containing crash information.
 	CCrashInfoReader* GetCrashInfo();
@@ -79,25 +91,19 @@ public:
 
 	// Compresses and sends the report(s).
 	BOOL Run();
-
-    // This method performs an action assynchronously.
-    BOOL DoWork(int action);
-
-    // Allows to specify file name for exporting error report.
-    void SetExportFlag(BOOL bExport, CString sExportFile);
-
+	    
     // Blocks until an assync operation finishes.
     void WaitForCompletion();
 
-    // Returns global status.
-    int GetGlobalStatus();
-
-    // Gets local operation status.
-    void GetStatus(int& nProgressPct, std::vector<CString>& msg_log);
-
-    // Cancels the assync operation.
+	// Cancels the assync operation.
     void Cancel();
 
+    // Returns error report sending status.
+    int GetStatus();
+
+    // Gets local operation status.
+    void GetCurOpStatus(int& nProgressPct, std::vector<CString>& msg_log);
+	    
     // Unblocks waiting worker thread.
     void FeedbackReady(int code);
 
@@ -107,25 +113,37 @@ public:
     // Returns current error report's index.
     int GetCurReport();
 
-    // Sets current error report's index.
-    BOOL SetCurReport(int nCurReport);
-
     // Sets log file name.
     BOOL SetLogFile(LPCTSTR szFileName);
-
-    // Cleans up all temp files and does other finalizing work.
-    BOOL Finalize();
-
+	    
 	// Returns a localized string from lang file.
 	CString GetLangStr(LPCTSTR szSection, LPCTSTR szName);
 
+	// Allows to specify file name for exporting error report.
+    void SetExportFlag(BOOL bExport, CString sExportFile);
+
+	// Exports crash report to disc as a ZIP archive.
+	void ExportReport(LPCTSTR szOutFileName);
+
+	// Returns TRUE if currently sending error report(s)
+	BOOL IsSendingNow();
+
+	// Returns TRUE if there were errors
+	BOOL HasErrors();
+
+	// Returns path to log file
+	CString GetLogFilePath();
+
 private:
 
-    // Runs an operation in assync mode.
-    void DoWorkAssync();
-
+	// This method performs an action or several actions.
+    BOOL DoWork(int Action);
+	    
     // Worker thread proc.
     static DWORD WINAPI WorkerThread(LPVOID lpParam);  
+
+	// Runs an action or several actions in assync mode.
+    BOOL DoWorkAssync(int Action);
 
     // Collects crash report files.
     BOOL CollectCrashFiles();  
@@ -186,11 +204,16 @@ private:
     // Sends error report over Simple MAPI.
     BOOL SendOverSMAPI();
 
+	BOOL SendRecentReports();
+
+	BOOL SendNextReport();
+    
+
 	static CErrorReportSender* m_pInstance; // Singleton
 	CCrashInfoReader m_CrashInfo;       // Contains crash information.
 	CString m_sErrorMsg;                // Last error message.
 	HWND m_hWndNotify;                  // Notification window.
-    int m_nGlobalStatus;                // Global status.
+    int m_nStatus;                      // Error report sending status.
     int m_nCurReport;                   // Index of current error report.
     HANDLE m_hThread;                   // Handle to the worker thread.
     int m_SendAttempt;                  // Number of current sending attempt.
@@ -203,6 +226,9 @@ private:
     int m_Action;                       // Current action.
     BOOL m_bExport;                     // If TRUE than export should be performed.
     CString m_sExportFileName;          // File name for exporting.
+	eMailClientConfirm m_MailClientConfirm;  
+    BOOL m_bSendingNow;
+	BOOL m_bErrors;
 };
 
 

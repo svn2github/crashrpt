@@ -39,14 +39,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stdafx.h"
 #include "ProgressDlg.h"
 
-// Mail client launch confirmation status
-enum eMailClientConfirm
-{
-    NOT_CONFIRMED_YET, // User didn't confirm yet
-    ALLOWED,           // User allowed mail client launch
-    NOT_ALLOWED        // User didn't allow mail client launch
-};
-
 // Notification code of tray icon
 #define WM_RESENDTRAYICON (WM_USER+500)
 
@@ -72,11 +64,6 @@ public:
         CHAIN_MSG_MAP(CDialogResize<CActionProgressDlg>)
     END_MSG_MAP()
 
-    // Handler prototypes (uncomment arguments if needed):
-    //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-    //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-    //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);      
     LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
 
@@ -99,6 +86,12 @@ class CResendDlg :
 public:
     enum { IDD = IDD_RESEND };
 
+	enum eActionOnClose 
+	{
+		HIDE, 
+		EXIT
+	};
+
     virtual BOOL PreTranslateMessage(MSG* pMsg);
 
     BEGIN_DLGRESIZE_MAP(CResendDlg)    
@@ -120,6 +113,8 @@ public:
         MESSAGE_HANDLER(WM_CLOSE, OnClose)
         MESSAGE_HANDLER(WM_TIMER, OnTimer)
         MESSAGE_HANDLER(WM_RESENDTRAYICON, OnTrayIcon)    
+		MESSAGE_HANDLER(WM_ITEM_STATUS_CHANGED, OnItemStatusChanged)    
+		MESSAGE_HANDLER(WM_DELIVERY_COMPLETE, OnDeliveryComplete)    
         COMMAND_ID_HANDLER(IDOK, OnSendNow)
         COMMAND_ID_HANDLER(IDC_OTHERACTIONS, OnOtherActions)
         COMMAND_ID_HANDLER(IDC_SHOWLOG, OnShowLog)
@@ -139,15 +134,12 @@ public:
         CHAIN_MSG_MAP(CDialogResize<CResendDlg>)
     END_MSG_MAP()
 
-    // Handler prototypes (uncomment arguments if needed):
-    //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-    //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-    //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);  
     LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
     LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
-    LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+    LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
+	LRESULT OnItemStatusChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);  
+	LRESULT OnDeliveryComplete(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);  
     LRESULT OnPopupShow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnListItemChanging(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
@@ -164,14 +156,28 @@ public:
 	LRESULT OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPopupDeleteAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
+	// This method closes the dialog and exits the app
     void CloseDialog(int nVal);
+
+	// Adds or removes tray icon
     void AddTrayIcon(BOOL bAdd);
+
+	// Calculates size of selected error reports and updates the text.
     void UpdateSelectionSize();
-    BOOL SendNextReport();
+
+	// Shows the balloon
     void DoBalloonTimer();
+
+	// Updates window periodically
     void DoProgressTimer();
+
+	// Hides the window
     void DoHideWindowTimer();
+
+	// Determines what list item is associated with given error report
     int FindListItemByReportIndex(int nReport);
+
+	/* Internal variables */
 
     CStatic m_statText;
     CCheckListViewCtrl m_listReports;
@@ -185,14 +191,7 @@ public:
     CActionProgressDlg m_dlgActionProgress;
     CProgressDlg m_dlgProgress;
 
-    int m_nTick;
-    BOOL m_bSendingNow;
-    BOOL m_bCancelled;
-    BOOL m_bErrors;
-    int m_nCurReport;  
-    eMailClientConfirm m_MailClientConfirm;  
-    CString m_sLogFile;
-    FILE* m_fileLog;
-
-    enum eActionOnClose {HIDE, EXIT} m_ActionOnClose;
+    int m_nTimerTick; // Timer tick counter     
+	eActionOnClose m_ActionOnClose; // What to do on dialog close
 };
+

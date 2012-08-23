@@ -64,9 +64,10 @@ struct ERIFileItem
 enum DELIVERY_STATUS
 {  
     PENDING    = 0,  // Status pending.
-    DELIVERED  = 1,  // Error report was delivered ok.
-    FAILED     = 2,  // Error report delivery failed.
-	DELETED    = 3   // Error report was deleted by user.
+	INPROGRESS = 1,  // Error report is being sent.
+    DELIVERED  = 2,  // Error report was delivered ok.
+    FAILED     = 3,  // Error report delivery failed.
+	DELETED    = 4   // Error report was deleted by user.
 };
 
 // Error report info.
@@ -96,7 +97,7 @@ struct ErrorReportInfo
 		for (int i = 0; i < nItem; i++, p++);
 		return &p->second;
 	}
-
+		
     CString         m_sErrorReportDirName; // Name of the directory where error report files are located.
     CString         m_sCrashGUID;          // Crash GUID.
     CString         m_sAppName;            // Application name.

@@ -242,8 +242,7 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
         CString sExportFileName = dlg.m_szFileName;
 
 		// Export crash report assynchronously
-        pSender->SetExportFlag(TRUE, sExportFileName);
-        pSender->DoWork(COMPRESS_REPORT);    
+        pSender->ExportReport(sExportFileName);
     }
 
     return 0;

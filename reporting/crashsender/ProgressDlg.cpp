@@ -213,7 +213,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         // Get current progress
         int nProgressPct = 0;
         std::vector<CString> messages;
-        pSender->GetStatus(nProgressPct, messages);
+        pSender->GetCurOpStatus(nProgressPct, messages);
 
         // Update progress bar
         m_prgProgress.SetPos(nProgressPct);

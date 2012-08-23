@@ -116,7 +116,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 		pSender->Run();
 		pSender->WaitForCompletion();
 		// Get return status
-		nRet = pSender->GetGlobalStatus();
+		nRet = pSender->GetStatus();
 	}
     
 	// Delete sender object.

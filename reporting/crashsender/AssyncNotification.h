@@ -41,7 +41,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct AssyncNotification
 {
     /* Constructor */
-    AssyncNotification();  
+    AssyncNotification(); 
+	~AssyncNotification(); 
+
+	void InitLogFile(LPCTSTR szFileName);
+	void CloseLogFile();
+
+	CString GetLogFilePath();
 
     // Resets the event
     void Reset();
@@ -82,4 +88,6 @@ private:
     HANDLE m_hFeedbackEvent;      // Feedback event
     int m_nPercentCompleted;      // Percent completed
     std::vector<CString> m_statusLog; // Status log
+	CString m_sLogFile;
+    FILE* m_fileLog;	
 };

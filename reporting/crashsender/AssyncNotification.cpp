@@ -32,6 +32,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stdafx.h"
 #include "AssyncNotification.h"
+#include "strconv.h"
 
 AssyncNotification::AssyncNotification()
 {
@@ -39,8 +40,41 @@ AssyncNotification::AssyncNotification()
     m_hCompletionEvent = CreateEvent(0, FALSE, FALSE, 0);
     m_hCancelEvent = CreateEvent(0, FALSE, FALSE, 0);
     m_hFeedbackEvent = CreateEvent(0, FALSE, FALSE, 0);
-
+	// Init handle to log file
+    m_fileLog = NULL;
+	
     Reset();
+}
+
+AssyncNotification::~AssyncNotification()
+{
+	CloseLogFile();
+}
+
+void AssyncNotification::CloseLogFile()
+{
+	if(m_fileLog != NULL)
+	{
+		fclose(m_fileLog);
+		m_fileLog = NULL;
+	}
+}
+
+void AssyncNotification::InitLogFile(LPCTSTR szFileName)
+{
+	// Open log file
+    m_sLogFile = szFileName;
+#if _MSC_VER<1400
+    m_fileLog = _tfopen(m_sLogFile, _T("wt"));
+#else
+    _tfopen_s(&m_fileLog, m_sLogFile.GetBuffer(0), _T("wt"));
+#endif
+    fprintf(m_fileLog, "%c%c%c", 0xEF, 0xBB, 0xBF); // UTF-8 signature
+}
+
+CString AssyncNotification::GetLogFilePath()
+{
+	return m_sLogFile;
 }
 
 void AssyncNotification::Reset()
@@ -65,6 +99,14 @@ void AssyncNotification::SetProgress(CString sStatusMsg, int percentCompleted, b
     m_cs.Lock(); // Acquire lock
 
     m_statusLog.push_back(sStatusMsg);
+
+	if(m_fileLog)
+	{
+	    strconv_t strconv;
+	    LPCSTR szLine = strconv.t2utf8(sStatusMsg);
+	    fprintf(m_fileLog, szLine);
+	    fprintf(m_fileLog, "\n");
+	}
 
     if(bRelative) // Update progress relatively to its previous value
     {

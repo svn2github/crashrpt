@@ -52,18 +52,21 @@ CErrorReportSender* CErrorReportSender::m_pInstance = NULL;
 CErrorReportSender::CErrorReportSender()
 {
     // Init variables
-    m_nGlobalStatus = 0;
+    m_nStatus = 0;
     m_nCurReport = 0;
     m_hThread = NULL;
     m_SendAttempt = 0;
     m_Action=COLLECT_CRASH_INFO;
     m_bExport = FALSE;
+	m_MailClientConfirm = NOT_CONFIRMED_YET;	
+    m_bSendingNow = FALSE;        
+	m_bErrors = FALSE;
 }
 
 // Destructor
 CErrorReportSender::~CErrorReportSender()
 {
-	Destroy();
+	Finalize();
 }
 
 CErrorReportSender* CErrorReportSender::GetInstance()
@@ -77,7 +80,7 @@ CErrorReportSender* CErrorReportSender::GetInstance()
 BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 {
 	m_sErrorMsg = _T("Unspecified error.");
-	
+		
 	// Read crash information from the file mapping object.
     int nInit = m_CrashInfo.Init(szFileMappingName);
     if(nInit!=0)
@@ -85,7 +88,7 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
         m_sErrorMsg.Format(_T("Error reading crash info: %s"), m_CrashInfo.GetErrorMsg());
         return FALSE;
     }
-
+		
 	// Check window mirroring settings 
     CString sRTL = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
@@ -97,7 +100,7 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
     if(!m_CrashInfo.m_bSendRecentReports)
     {
         // Start crash info collection work assynchronously
-        DoWork(COLLECT_CRASH_INFO);
+        DoWorkAssync(COLLECT_CRASH_INFO);
     }
 	else
 	{
@@ -128,17 +131,6 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 	return TRUE;
 }
 
-void CErrorReportSender::Destroy()
-{
-	// Wait until the worker thread is exited. 
-    WaitForCompletion();
-    
-	//nRet = g_ErrorReportSender.GetGlobalStatus();
-
-    // Remove temporary files we might create and perform other finalizing work.
-    Finalize();
-}
-
 CCrashInfoReader* CErrorReportSender::GetCrashInfo()
 {
 	return &m_CrashInfo;
@@ -157,30 +149,38 @@ void CErrorReportSender::SetNotificationWindow(HWND hWnd)
 
 BOOL CErrorReportSender::Run()
 {
-	// Wait for completion of crash info collector.
-	WaitForCompletion();
+	if(m_CrashInfo.m_bSendRecentReports)
+	{
+		// We should send recently queued error reports.
+		DoWorkAssync(SEND_RECENT_REPORTS);    
+	}
+	else
+	{
+		// Wait for completion of crash info collector.
+		WaitForCompletion();
 
-	// Determine whether to send crash report now 
-	// or to exit without sending report.
-	if(m_CrashInfo.m_bSendErrorReport) // If we should send error report now
-    {
-        // Compress report files and send the report
-		SetExportFlag(FALSE, _T(""));
-        DoWork(COMPRESS_REPORT|SEND_REPORT);    
-    }
-    else // If we shouldn't send error report now
-    {      
-        // Exit        
+		// Determine whether to send crash report now 
+		// or to exit without sending report.
+		if(m_CrashInfo.m_bSendErrorReport) // If we should send error report now
+		{
+			// Compress report files and send the report
+			SetExportFlag(FALSE, _T(""));
+			DoWorkAssync(COMPRESS_REPORT|SEND_REPORT);    
+		}
+		else // If we shouldn't send error report now
+		{      
+			// Exit        
 
-    }    
+		}
+	}
 
 	return TRUE;
 }
 
-int CErrorReportSender::GetGlobalStatus()
+int CErrorReportSender::GetStatus()
 {
     // Return global error report delivery status
-    return m_nGlobalStatus;
+    return m_nStatus;
 }
 
 int CErrorReportSender::GetCurReport()
@@ -189,28 +189,28 @@ int CErrorReportSender::GetCurReport()
     return m_nCurReport;
 }
 
-BOOL CErrorReportSender::SetCurReport(int nCurReport)
-{
-	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
-
-    // Validate input params
-    if(nCurReport<0 || nCurReport>=pSender->GetCrashInfo()->GetReportCount())
-    {
-        ATLASSERT(0);
-        return FALSE;
-    }
-
-    // Update current report index
-    m_nCurReport = nCurReport;
-    return TRUE;
-}
+//BOOL CErrorReportSender::SetCurReport(int nCurReport)
+//{
+//	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+//
+//    // Validate input params
+//    if(nCurReport<0 || nCurReport>=pSender->GetCrashInfo()->GetReportCount())
+//    {
+//        ATLASSERT(0);
+//        return FALSE;
+//    }
+//		
+//    // Update current report index
+//    m_nCurReport = nCurReport;
+//    return TRUE;
+//}
 
 // This method performs crash files collection and/or
 // error report sending work in a worker thread.
-BOOL CErrorReportSender::DoWork(int action)
+BOOL CErrorReportSender::DoWorkAssync(int nAction)
 {
     // Save the action code
-    m_Action = action;
+    m_Action = nAction;
 
     // Create worker thread which will do all work assynchronously
     m_hThread = CreateThread(NULL, 0, WorkerThread, (LPVOID)this, 0, NULL);
@@ -229,7 +229,7 @@ DWORD WINAPI CErrorReportSender::WorkerThread(LPVOID lpParam)
 {
     // Delegate the action to the CErrorReportSender::DoWorkAssync() method
     CErrorReportSender* pSender = (CErrorReportSender*)lpParam;
-    pSender->DoWorkAssync();
+    pSender->DoWork(pSender->m_Action);
 	pSender->m_hThread = NULL; // clean up
     // Exit code can be ignored
     return 0;
@@ -253,21 +253,17 @@ void CErrorReportSender::UnblockParentProcess()
 
 // This method collects required crash report files (minidump, screenshot etc.)
 // and then sends the error report over the Internet.
-void CErrorReportSender::DoWorkAssync()
+BOOL CErrorReportSender::DoWork(int Action)
 {
     // Reset the completion event
     m_Assync.Reset();
 
-    if(m_CrashInfo.m_bSendRecentReports) // If we are currently sending pending error reports
+    if(Action&SEND_RECENT_REPORTS) // If we are currently sending pending error reports
     {
-        // Add a message to log
-        CString sMsg;
-        sMsg.Format(_T(">>> Performing actions with error report: '%s'"), 
-            m_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName);
-        m_Assync.SetProgress(sMsg, 0, false);
+		return SendRecentReports();		        
     }
 
-    if(m_Action&COLLECT_CRASH_INFO) // Collect crash report files
+    if(Action&COLLECT_CRASH_INFO) // Collect crash report files
     {
         // Add a message to log
         m_Assync.SetProgress(_T("Start collecting information about the crash..."), 0, false);
@@ -282,7 +278,7 @@ void CErrorReportSender::DoWorkAssync()
 
             // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
-            return;
+            return FALSE;
         }
 
         // Create crash dump.
@@ -295,7 +291,7 @@ void CErrorReportSender::DoWorkAssync()
 
             // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
-            return;
+            return FALSE;
         }
 
         // Notify the parent process that we have finished with minidump,
@@ -309,14 +305,14 @@ void CErrorReportSender::DoWorkAssync()
         {      
             // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
-            return;
+            return FALSE;
         }
 
         // Add a message to log
         m_Assync.SetProgress(_T("[confirm_send_report]"), 100, false);
     }
 
-    if(m_Action&COMPRESS_REPORT) // We have to compress error report file into ZIP archive
+    if(Action&COMPRESS_REPORT) // We have to compress error report file into ZIP archive
     { 
         // Compress error report files
         BOOL bCompress = CompressReportFiles(m_CrashInfo.GetReport(m_nCurReport));
@@ -324,24 +320,25 @@ void CErrorReportSender::DoWorkAssync()
         {
             // Add a message to log
             m_Assync.SetProgress(_T("[status_failed]"), 100, false);
-            return; // Error compressing files
+            return FALSE; // Error compressing files
         }
     }
 
-    if(m_Action&RESTART_APP) // We need to restart the parent process
+    if(Action&RESTART_APP) // We need to restart the parent process
     { 
         // Restart the application
         RestartApp();
     }
 
-    if(m_Action&SEND_REPORT) // We need to send the report over the Internet
+    if(Action&SEND_REPORT) // We need to send the report over the Internet
     {
         // Send the error report.
-        SendReport();
+        if(!SendReport())
+			return FALSE;
     }
 
     // Done
-    return;
+    return TRUE;
 }
 
 // Returns the export flag (the flag is set if we are exporting error report as a ZIP archive)
@@ -360,7 +357,7 @@ void CErrorReportSender::WaitForCompletion()
 }
 
 // Gets status of the local operation
-void CErrorReportSender::GetStatus(int& nProgressPct, std::vector<CString>& msg_log)
+void CErrorReportSender::GetCurOpStatus(int& nProgressPct, std::vector<CString>& msg_log)
 {
     m_Assync.GetProgress(nProgressPct, msg_log); 
 }
@@ -381,25 +378,32 @@ void CErrorReportSender::FeedbackReady(int code)
 // This method cleans up temporary files
 BOOL CErrorReportSender::Finalize()
 {  
+	// Wait until worker thread exits.
+	WaitForCompletion();
+
     if(m_CrashInfo.m_bSendErrorReport && !m_CrashInfo.m_bQueueEnabled)
     {
         // Remove report files if queue disabled
         Utility::RecycleFile(m_CrashInfo.GetReport(0).m_sErrorReportDirName, true);    
     }
 
+	if(m_CrashInfo.m_bSendRecentReports)
+	{
+		// Delete log file
+		Utility::RecycleFile(m_Assync.GetLogFilePath(), true);
+	}
+
     if(!m_CrashInfo.m_bSendErrorReport && 
         m_CrashInfo.m_bStoreZIPArchives) // If we should generate a ZIP archive
     {
         // Compress error report files
-        DoWork(COMPRESS_REPORT);    
-        WaitForCompletion();
+        DoWork(COMPRESS_REPORT);            
     }
 
     // If needed, restart the application
     if(!m_CrashInfo.m_bSendRecentReports)
     {
-        DoWork(RESTART_APP); 
-        WaitForCompletion();
+        DoWork(RESTART_APP);         
     }
 
     // Done OK
@@ -1919,9 +1923,9 @@ BOOL CErrorReportSender::SendReport()
     }
 
 	// Done
-    m_nGlobalStatus = status;
+    m_nStatus = status;
     m_Assync.SetCompleted(status);  
-    return 0;
+    return status==0?TRUE:FALSE;
 }
 
 // This method sends the report over HTTP request
@@ -2189,17 +2193,28 @@ BOOL CErrorReportSender::SendOverSMAPI()
     }
 
 	// Request user confirmation
-    if(m_SendAttempt!=0)
+    if(m_SendAttempt!=0 && m_MailClientConfirm==NOT_CONFIRMED_YET)
     {
         m_Assync.SetProgress(_T("[confirm_launch_email_client]"), 0);
         int confirm = 1;
         m_Assync.WaitForFeedback(confirm);
         if(confirm!=0)
         {
+			m_MailClientConfirm = NOT_ALLOWED;
             m_Assync.SetProgress(_T("Cancelled by user"), 100, false);
             return FALSE;
         }
+		else
+		{
+			m_MailClientConfirm = ALLOWED;
+		}
     }
+
+	if(m_MailClientConfirm != ALLOWED)
+	{
+		m_Assync.SetProgress(_T("Not allowed to launch E-mail client."), 100, false);
+		return FALSE;
+	}
 
 	// Detect mail client (Microsoft Outlook, Mozilla Thunderbird and so on)
     CString msg;
@@ -2257,5 +2272,113 @@ CString CErrorReportSender::GetLangStr(LPCTSTR szSection, LPCTSTR szName)
 	return Utility::GetINIString(m_CrashInfo.m_sLangFileName, szSection, szName);
 }
 
+void CErrorReportSender::ExportReport(LPCTSTR szOutFileName)
+{
+	SetExportFlag(TRUE, szOutFileName);
+    DoWork(COMPRESS_REPORT);    
+}
+
+BOOL CErrorReportSender::SendRecentReports()
+{
+	// This method sends all queued error reports in turn.
+		
+	m_bErrors = FALSE;
+
+	// Init log file	
+	CString sCurTime;
+    Utility::GetSystemTimeUTC(sCurTime);
+    sCurTime.Replace(':', '-');    
+	CString sLogFile;
+	sLogFile.Format(_T("%s\\CrashRpt-Log-%s.txt"), 
+		m_CrashInfo.m_sUnsentCrashReportsFolder, sCurTime);
+	m_Assync.InitLogFile(sLogFile);
+
+	// Send error reports in turn
+	BOOL bSend = TRUE;
+	while(bSend)
+	{
+		bSend = SendNextReport();
+	}
+	
+	// Close log
+	m_Assync.CloseLogFile();
+
+	// Notify GUI about completion
+	if(IsWindow(m_hWndNotify))
+		::PostMessage(m_hWndNotify, WM_DELIVERY_COMPLETE, 0, 0);	
+
+	// Done
+	m_bSendingNow = FALSE;
+    return TRUE;
+}
+
+BOOL CErrorReportSender::SendNextReport()
+{  	
+	if(m_Assync.IsCancelled())
+		return FALSE;	// Return FALSE to prevent sending next report
+
+	// Walk through error reports
+    int i;
+	for(i=0; i<m_CrashInfo.GetReportCount(); i++)
+    {
+		ErrorReportInfo& eri = m_CrashInfo.GetReport(i);
+			            
+		if(eri.m_DeliveryStatus==PENDING)
+        {                
+            // Save current report index
+			//SetCurReport(i);
+			m_nCurReport = i;
+
+			eri.m_DeliveryStatus = INPROGRESS;
+
+			// Notify GUI about current item change
+			if(IsWindow(m_hWndNotify))
+				::PostMessage(m_hWndNotify, WM_ITEM_STATUS_CHANGED, (WPARAM)m_nCurReport, (LPARAM)eri.m_DeliveryStatus);	
+						
+            // Add a message to log
+			CString sMsg;
+			sMsg.Format(_T(">>> Performing actions with error report: '%s'"), 
+			m_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName);
+			m_Assync.SetProgress(sMsg, 0, false);
+
+			// Send report
+            if(!DoWork(COMPRESS_REPORT|SEND_REPORT))
+			{
+				m_bErrors = TRUE;
+				eri.m_DeliveryStatus = FAILED;
+			}
+			else
+			{
+				eri.m_DeliveryStatus = DELIVERED;
+			}
+
+			// Notify GUI about current item change
+			if(IsWindow(m_hWndNotify))
+				::PostMessage(m_hWndNotify, WM_ITEM_STATUS_CHANGED, (WPARAM)m_nCurReport, (LPARAM)eri.m_DeliveryStatus);
+
+			// Return TRUE to indicate next report can be sent
+            return TRUE;
+        }
+    }    
+
+	// Return FALSE to prevent sending next report
+    return FALSE;
+}
+
+BOOL CErrorReportSender::IsSendingNow()
+{
+	// Return TRUE if currently sending error report(s)
+	return m_bSendingNow;
+}
 
 
+BOOL CErrorReportSender::HasErrors()
+{
+	return m_bErrors;
+}
+
+// Returns path to log file
+CString CErrorReportSender::GetLogFilePath()
+{
+	return m_Assync.GetLogFilePath();
+}
