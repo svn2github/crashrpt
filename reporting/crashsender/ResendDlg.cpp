@@ -145,21 +145,21 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     int i;
 	for(i=0; i<pSender->GetCrashInfo()->GetReportCount(); i++)
     {
-        ErrorReportInfo& eri = pSender->GetCrashInfo()->GetReport(i);
+        ErrorReportInfo* eri = pSender->GetCrashInfo()->GetReport(i);
 
         SYSTEMTIME st;
-        Utility::UTC2SystemTime(eri.m_sSystemTimeUTC, st);
+        Utility::UTC2SystemTime(eri->m_sSystemTimeUTC, st);
         CString sCreationDate;
         sCreationDate.Format(_T("%04d-%02d-%02d %02d:%02d:%02d"), 
             st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
         int nItem = m_listReports.InsertItem(i, sCreationDate);
         m_listReports.SetItemData(nItem, i);
 
-        CString sTotalSize = Utility::FileSizeToStr(eri.m_uTotalSize);
+        CString sTotalSize = Utility::FileSizeToStr(eri->m_uTotalSize);
 
         m_listReports.SetItemText(nItem, 1, sTotalSize);
 
-        m_listReports.SetCheckState(nItem, eri.m_bSelected);
+        m_listReports.SetCheckState(nItem, eri->m_bSelected);
     }
 
     UpdateSelectionSize();
@@ -340,13 +340,10 @@ LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
     {
         int nReport = (int)m_listReports.GetItemData(pia->iItem);
 
-        m_dlgProgress.Start(FALSE, FALSE);
-
+		// Show Error Report Details dialog
         CDetailDlg dlg;
         dlg.m_nCurReport = nReport;
-        dlg.DoModal(m_hWnd);
-
-        m_dlgProgress.Stop();
+        dlg.DoModal(m_hWnd);        
     }
     return 0;
 }
@@ -409,6 +406,10 @@ LRESULT CResendDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHand
 
 LRESULT CResendDlg::OnPopupSelectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	if(pSender->IsSendingNow())    
+        return 0; // Do nothing if in progress of sending
+
 	int i;
     for(i=0; i<m_listReports.GetItemCount(); i++)
     {
@@ -421,6 +422,10 @@ LRESULT CResendDlg::OnPopupSelectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 LRESULT CResendDlg::OnPopupDeselectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	if(pSender->IsSendingNow())    
+        return 0; // Do nothing if in progress of sending
+
 	int i;
     for(i=0; i<m_listReports.GetItemCount(); i++)
     {
@@ -433,7 +438,9 @@ LRESULT CResendDlg::OnPopupDeselectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CResendDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();	
+	if(pSender->IsSendingNow())    
+        return 0; // Do nothing if in progress of sending
 
 	// Walk through error reports
 	int i;
@@ -477,6 +484,10 @@ LRESULT CResendDlg::OnPopupDeleteAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 {
 	// Delete all error reports
 	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	if(pSender->IsSendingNow())    
+        return 0; // Do nothing if in progress of sending
+
 	pSender->GetCrashInfo()->DeleteAllReports();               		
     
 	// Delete all list items
@@ -497,16 +508,28 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
         int i;
         for(i=0; i<m_listReports.GetItemCount(); i++)
         {
-            BOOL bSelected = m_listReports.GetCheckState(i);
+			int nReport = (int)m_listReports.GetItemData(i);        
+			BOOL bSelected = m_listReports.GetCheckState(i);
+
+			ErrorReportInfo* eri = pSender->GetCrashInfo()->GetReport(nReport);            
+			eri->m_bSelected = bSelected;
+			
+			// Mark failed reports as pending to resend them
+			if(eri->m_DeliveryStatus == FAILED)
+				eri->m_DeliveryStatus = PENDING;
+
             if(bSelected)
-            {
-                int nReport = (int)m_listReports.GetItemData(i);        
-				if(pSender->GetCrashInfo()->GetReport(nReport).m_DeliveryStatus == PENDING)
+            {                
+				if(eri->m_DeliveryStatus == PENDING)
                 {
                     m_listReports.SetItemText(i, 2, 
 						Utility::GetINIString(pSender->GetCrashInfo()->m_sLangFileName, _T("ResendDlg"), _T("StatusPending")));
-                }
-            }      
+                }				
+            }    
+			else
+			{
+				m_listReports.SetItemText(i, 2, _T(""));
+			}
         }
 
         m_ActionOnClose = HIDE;
@@ -705,7 +728,7 @@ void CResendDlg::UpdateSelectionSize()
 			// Increment item counter
             nItemsSelected++;
 			// Update totals
-			uSelectedFilesSize += pSender->GetCrashInfo()->GetReport(nReport).m_uTotalSize;
+			uSelectedFilesSize += pSender->GetCrashInfo()->GetReport(nReport)->m_uTotalSize;
         }
     }
 
@@ -829,7 +852,9 @@ void CResendDlg::DoProgressTimer()
                 sTitle,
                 MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
 
-            RedrawWindow();
+			// Update window
+            RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);
+            m_listReports.RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);  
 			            
 			// Unblock worker thread.
             pSender->FeedbackReady(result==IDOK?0:1);       
@@ -838,6 +863,37 @@ void CResendDlg::DoProgressTimer()
             ShowWindow(bVisible?SW_SHOW:SW_HIDE);            
         }    
     }
+}
+
+LRESULT CResendDlg::OnNextItemHint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	// This method determines what error report should be sent next.
+	// Error reports are being sent in the order they appear in the list.
+	
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// Walk through items and look for pending one
+	int i;
+    for(i=0; i<m_listReports.GetItemCount(); i++)
+    {
+        if(m_listReports.GetCheckState(i)) // If item checked
+        {
+			// Determine the index of crash report associated with the item.
+            int nReport = (int)m_listReports.GetItemData(i);
+
+			ErrorReportInfo* pERI = pSender->GetCrashInfo()->GetReport(i);
+			if(pERI==NULL)
+				continue;
+
+			if(pERI->m_DeliveryStatus!=PENDING)
+				continue;
+			
+			return nReport;
+        }
+    }
+
+	// No pending items found
+	return -1;
 }
 
 LRESULT CResendDlg::OnItemStatusChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
@@ -898,7 +954,7 @@ LRESULT CResendDlg::OnDeliveryComplete(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
         {
             int nReport = (int)m_listReports.GetItemData(i);
 
-			DELIVERY_STATUS status = pSender->GetCrashInfo()->GetReport(nReport).m_DeliveryStatus;
+			DELIVERY_STATUS status = pSender->GetCrashInfo()->GetReport(nReport)->m_DeliveryStatus;
             if(status==PENDING)
             {
                 m_listReports.SetItemText(i, 2, _T(""));

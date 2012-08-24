@@ -77,7 +77,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     SetIcon(hIcon, 0);
 
     // Get the first icon in the EXE image and use it for header.
-    m_HeadingIcon = ExtractIcon(NULL, pCrashInfo->GetReport(0).m_sImageName, 0);
+    m_HeadingIcon = ExtractIcon(NULL, pCrashInfo->GetReport(0)->m_sImageName, 0);
 
     // If there is no icon in crashed EXE module, use default IDI_APPLICATION system icon.
     if(m_HeadingIcon == NULL)

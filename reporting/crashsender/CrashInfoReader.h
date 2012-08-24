@@ -191,7 +191,7 @@ public:
     HICON GetCustomIcon();
 
     // Returns report by its index in the list.
-    ErrorReportInfo& GetReport(int nIndex);
+    ErrorReportInfo* GetReport(int nIndex);
 
     // Returns count of error reports.
     int GetReportCount();

@@ -89,8 +89,8 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 	// Walk through files included into error report
     std::map<CString, ERIFileItem>::iterator p;
     unsigned i;
-    for (i = 0, p = pSender->GetCrashInfo()->GetReport(m_nCurReport).m_FileItems.begin(); 
-        p != pSender->GetCrashInfo()->GetReport(m_nCurReport).m_FileItems.end(); p++, i++)
+    for (i = 0, p = pSender->GetCrashInfo()->GetReport(m_nCurReport)->m_FileItems.begin(); 
+        p != pSender->GetCrashInfo()->GetReport(m_nCurReport)->m_FileItems.end(); p++, i++)
     {     
         CString sDestFile = p->first;
         CString sSrcFile = p->second.m_sSrcFile;
@@ -170,14 +170,14 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 
 	// Check if double-clicked on empty space.
     if (iItem < 0 || 
-		(int)pCrashInfo->GetReport(m_nCurReport).m_FileItems.size() < iItem)
+		(int)pCrashInfo->GetReport(m_nCurReport)->m_FileItems.size() < iItem)
 	{
 		// Do nothing
         return 0;
 	}
 
 	// Look for n-th item
-	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport).GetItemByIndex(iItem);
+	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport)->GetItemByIndex(iItem);
 	if(pFileItem==NULL)
 		return 0;
     
@@ -201,7 +201,7 @@ void CDetailDlg::SelectItem(int iItem)
 	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
 
     // Look for n-th item
-	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport).GetItemByIndex(iItem);
+	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport)->GetItemByIndex(iItem);
 	if(pFileItem==NULL)
 		return;
     
@@ -228,7 +228,7 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
 
 	// Format file name for the output ZIP archive.
-    CString sFileName = pCrashInfo->GetReport(m_nCurReport).m_sCrashGUID + _T(".zip");
+    CString sFileName = pCrashInfo->GetReport(m_nCurReport)->m_sCrashGUID + _T(".zip");
 
 	// Display "Save File" dialog.
     CFileDialog dlg(FALSE, _T("*.zip"), sFileName,

@@ -319,11 +319,12 @@ int CCrashInfoReader::UnpackString(DWORD dwOffset, CString& str)
     return 0;
 }
 
-ErrorReportInfo& CCrashInfoReader::GetReport(int nIndex)
+ErrorReportInfo* CCrashInfoReader::GetReport(int nIndex)
 { 
-	ATLASSERT(nIndex>=0 && nIndex<(int)m_Reports.size());
-	
-    return m_Reports[nIndex]; 
+	if(nIndex>=0 && nIndex<(int)m_Reports.size())
+		return &m_Reports[nIndex]; 
+
+	return NULL;
 }
 
 int CCrashInfoReader::GetReportCount()
@@ -706,16 +707,16 @@ BOOL CCrashInfoReader::UpdateUserInfo(CString sEmail, CString sDesc)
 	else
 	{
 		// Update email
-		GetReport(0).m_sEmailFrom = sEmail;
+		GetReport(0)->m_sEmailFrom = sEmail;
 	}
 
 	// Update problem description
-	GetReport(0).m_sDescription = sDesc;	
+	GetReport(0)->m_sDescription = sDesc;	
 
     // Write user email and problem description to XML
     AddUserInfoToCrashDescriptionXML(
-        GetReport(0).m_sEmailFrom, 
-        GetReport(0).m_sDescription);
+        GetReport(0)->m_sEmailFrom, 
+        GetReport(0)->m_sDescription);
 
 	return bResult;
 }

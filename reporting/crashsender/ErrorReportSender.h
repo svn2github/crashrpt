@@ -56,6 +56,8 @@ enum eMailClientConfirm
     NOT_ALLOWED        // User didn't allow mail client launch
 };
 
+// Messages sent to GUI buy the sender
+#define WM_NEXT_ITEM_HINT      (WM_USER+1023)
 #define WM_ITEM_STATUS_CHANGED (WM_USER+1024)
 #define WM_DELIVERY_COMPLETE   (WM_USER+1025)
 
@@ -74,7 +76,7 @@ public:
 	// Returns singleton of this class.
 	static CErrorReportSender* GetInstance();
 
-	// Performs initialization	
+	// Performs initialization.	
 	BOOL Init(LPCTSTR szFileMappingName);
 		
 	// Cleans up all temp files and does other finalizing work.
@@ -101,20 +103,20 @@ public:
     // Returns error report sending status.
     int GetStatus();
 
-    // Gets local operation status.
+    // Gets current operation status.
     void GetCurOpStatus(int& nProgressPct, std::vector<CString>& msg_log);
 	    
     // Unblocks waiting worker thread.
     void FeedbackReady(int code);
 
     // Returns size in bytes of error report files.
-    LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
+    LONG64 GetUncompressedReportSize(ErrorReportInfo* eri);
 
     // Returns current error report's index.
     int GetCurReport();
-
-    // Sets log file name.
-    BOOL SetLogFile(LPCTSTR szFileName);
+	    
+	// Returns path to log file.
+	CString GetLogFilePath();
 	    
 	// Returns a localized string from lang file.
 	CString GetLangStr(LPCTSTR szSection, LPCTSTR szName);
@@ -125,15 +127,12 @@ public:
 	// Exports crash report to disc as a ZIP archive.
 	void ExportReport(LPCTSTR szOutFileName);
 
-	// Returns TRUE if currently sending error report(s)
+	// Returns TRUE if currently sending error report(s).
 	BOOL IsSendingNow();
 
-	// Returns TRUE if there were errors
+	// Returns TRUE if there were errors.
 	BOOL HasErrors();
-
-	// Returns path to log file
-	CString GetLogFilePath();
-
+	
 private:
 
 	// This method performs an action or several actions.
@@ -181,7 +180,7 @@ private:
     int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
 
     // Packs error report files to ZIP archive.
-    BOOL CompressReportFiles(ErrorReportInfo& eri);
+    BOOL CompressReportFiles(ErrorReportInfo* eri);
 
     // Unblocks parent process.
     void UnblockParentProcess();
@@ -204,11 +203,13 @@ private:
     // Sends error report over Simple MAPI.
     BOOL SendOverSMAPI();
 
+	// Sends all recently queued error reports in turn.
 	BOOL SendRecentReports();
 
-	BOOL SendNextReport();
+	// Send the next queued report.
+	BOOL SendNextReport(int nReport);
     
-
+	// Internal variables
 	static CErrorReportSender* m_pInstance; // Singleton
 	CCrashInfoReader m_CrashInfo;       // Contains crash information.
 	CString m_sErrorMsg;                // Last error message.
@@ -226,9 +227,9 @@ private:
     int m_Action;                       // Current action.
     BOOL m_bExport;                     // If TRUE than export should be performed.
     CString m_sExportFileName;          // File name for exporting.
-	eMailClientConfirm m_MailClientConfirm;  
-    BOOL m_bSendingNow;
-	BOOL m_bErrors;
+	eMailClientConfirm m_MailClientConfirm;  // Mail program confirmation result.
+    BOOL m_bSendingNow;                 // TRUE if in progress of sending reports.
+	BOOL m_bErrors;                     // TRUE if there were errors.
 };
 
 
