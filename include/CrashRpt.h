@@ -173,8 +173,10 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 * 
 *    \b pszEmailTo [in, optional] 
 *
-*       This is the email address of the recipient of error reports, for example
-*       "name@example.com". If this equals to NULL, the crash report won't be sent using E-mail client.
+*       This is the email address of the recipient of error reports (or several E-mail adresses separated with semicolon), 
+*		for example "name@example.com" or "person1@example.com;person2@someserver.com". If several E-mail addresses are
+*       specified, error report will be delivered to each of them. If this parameter equals to NULL, 
+*       the crash report won't be sent using E-mail client.
 *
 *       Keep this NULL if you plan to use large error reports (more than several MB in size), because
 *       large emails may be rejected by the mail server. 

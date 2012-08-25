@@ -197,7 +197,7 @@ int CCrashHandler::Init(
     // Save restart command line
     m_sRestartCmdLine = lpcszRestartCmdLine;
 
-    // Save E-mail recipient address
+    // Save E-mail recipient(s) address
     m_sEmailTo = lpcszTo;
     m_nSmtpPort = 25;
 

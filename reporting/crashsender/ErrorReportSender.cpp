@@ -2112,8 +2112,19 @@ BOOL CErrorReportSender::SendOverSMTP()
     }
 
 	// Fill in email fields
-    m_EmailMsg.m_sFrom = (!m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom.IsEmpty())?
-        m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom:m_CrashInfo.m_sEmailTo;
+    // If the sender is not defined, use the first e-mail address from the recipient list.
+	if (m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom.IsEmpty()) 
+	{
+		// Force a copy of the string. Simple assignment just references the data of g_CrashInfo.m_sEmailTo. 
+		// The copy string will be modified by strtok.
+		CString copy((LPCTSTR)m_CrashInfo.m_sEmailTo, m_CrashInfo.m_sEmailTo.GetLength());
+		TCHAR   separators[] = _T(";, ");
+		TCHAR  *context		 = 0;
+		TCHAR  *to			 = _tcstok_s(const_cast<LPTSTR>((LPCTSTR)copy), separators, &context);
+	    m_EmailMsg.m_sFrom   = (to == 0 || *to == 0) ? m_CrashInfo.m_sEmailTo : to;
+	} 
+	else
+		m_EmailMsg.m_sFrom = m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom;
     m_EmailMsg.m_sTo = m_CrashInfo.m_sEmailTo;
     m_EmailMsg.m_nRecipientPort = m_CrashInfo.m_nSmtpPort;
     m_EmailMsg.m_sSubject = m_CrashInfo.m_sEmailSubject;

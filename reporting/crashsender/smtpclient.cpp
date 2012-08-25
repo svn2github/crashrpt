@@ -199,6 +199,8 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
     struct addrinfo *result = NULL;
     struct addrinfo *ptr = NULL;
     struct addrinfo hints;
+	//Vojtech: Lines of the "To:" and "Cc:" lines, that will become part of the e-mail header.
+	CString sBodyTo;
 
     int iResult = -1;  
     CString sPostServer;
@@ -320,14 +322,31 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
         goto exit;
     }
 
-    sMsg.Format(_T("RCPT TO:<%s>\r\n"), msg->m_sTo);
-    res=SendMsg(scn, sock, sMsg, response, 1024);
-    if(res!=250)
-    {
-        sStatusMsg = CString(response, 1024);
-        scn->SetProgress(sStatusMsg, 0);
-        goto exit;
-    }
+	//Vojtech: Process multiple e-mail recipients.
+	// E-mail addresses are separated by comma or semicolon.
+	{
+		// Force a copy of the string. Simple assignment just references the data of g_CrashInfo.m_sEmailTo. 
+		// The copy string will be modified by strtok.
+		CString copy		 = msg->m_sTo;
+		TCHAR   separators[] = _T(";, ");
+		TCHAR  *context		 = 0;
+		TCHAR  *to			 = _tcstok_s(const_cast<LPTSTR>((LPCTSTR)copy), separators, &context);
+		bool    first		 = true;
+		while (to != 0) {
+			sMsg.Format(first ? _T("To: <%s>\r\n") : _T("Cc: <%s>\r\n"), to);
+			sBodyTo += sMsg;
+			sMsg.Format(_T("RCPT TO:<%s>\r\n"), to);
+			res=SendMsg(scn, sock, sMsg, response, 1024);
+			if(res!=250)
+			{
+				sStatusMsg = CString(response, 1024);
+				scn->SetProgress(sStatusMsg, 0);
+				goto exit;
+			}
+			to=_tcstok_s(NULL, separators, &context);
+			first=false;
+		};
+	}
 
     sStatusMsg.Format(_T("Start sending email data"));
     scn->SetProgress(sStatusMsg, 1);
@@ -365,8 +384,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
     sMsg = str;
     str.Format(_T("From: <%s>\r\n"), msg->m_sFrom);
     sMsg  += str;
-    str.Format(_T("To: <%s>\r\n"), msg->m_sTo);
-    sMsg += str;
+    sMsg += sBodyTo;
     str.Format(_T("Subject: %s\r\n"), msg->m_sSubject);
     sMsg += str;
     sMsg += "MIME-Version: 1.0\r\n";
