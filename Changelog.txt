@@ -14,6 +14,8 @@
 - New: Added CR_INST_SEND_MANDATORY flag. This flag removes the "Close" and "Other actions" buttons 
        from Error Report dialog, thus making the sending procedure mandatory for user (issue 126).
 
+- Fixed: Support multiple crash reports per application instance (issue 127)
+
 --- Ver. 1.3.0 ---
 
 - Added support of CMake - cross-plaform make system. Although CrashRpt doesn't support operating systems

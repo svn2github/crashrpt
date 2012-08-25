@@ -1116,7 +1116,18 @@ int CCrashHandler::GenerateErrorReport(
     // the error report. 
 
     int result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
-    if(result!=0)
+    
+	// Generate new GUID for new crash report 
+	// (if, for example, user will generate new error report manually).
+    if(0!=Utility::GenerateGUID(m_sCrashGUID))
+    {
+        ATLASSERT(0);
+        crSetErrorMsg(_T("Couldn't generate crash GUID."));
+        return 1; 
+    }
+
+	// Check the result of launching the crash sender process
+	if(result!=0)
     {
         ATLASSERT(result==0);
         crSetErrorMsg(_T("Error launching CrashSender.exe"));
@@ -1130,7 +1141,7 @@ int CCrashHandler::GenerateErrorReport(
         MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
         return 3;
     }
-
+		
     // OK
     crSetErrorMsg(_T("Success."));
     return 0; 
