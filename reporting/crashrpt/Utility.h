@@ -117,6 +117,9 @@ namespace Utility
 
     // Formats a string of file size
     CString FileSizeToStr(ULONG64 uFileSize); 
+
+	// This helper function checks if the string is too long and truncates it with ellipsis (...).
+	CString AddEllipsis(LPCTSTR szString, int nMaxLength);
 };
 
 #endif	// _UTILITY_H_

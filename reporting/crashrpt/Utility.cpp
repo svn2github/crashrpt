@@ -566,3 +566,19 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
 
     return sFileSize;
 }
+
+CString Utility::AddEllipsis(LPCTSTR szString, int nMaxLength)
+{
+	if(szString==NULL)
+		return CString("");
+
+	CString sResult = szString;
+	if(sResult.GetLength()>nMaxLength)
+	{
+		if(nMaxLength>=3)
+			sResult = sResult.Mid(0, nMaxLength-3)+_T("...");		
+	}
+
+	return sResult;
+}
+
