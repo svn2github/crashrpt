@@ -76,7 +76,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 		// Failed to init        
         return 0;
     }      
-	    
+
 	// Determine what to do next 
 	// (either run in GUI more or run in silent mode).
 	if(!pSender->GetCrashInfo()->m_bSilentMode)

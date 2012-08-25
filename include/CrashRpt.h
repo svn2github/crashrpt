@@ -117,32 +117,33 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 #define CR_NEGATIVE_PRIORITY ((UINT)-1)
 
 // Flags for CR_INSTALL_INFO::dwFlags
-#define CR_INST_STRUCTURED_EXCEPTION_HANDLER   0x1    //!< Install SEH handler (deprecated name, use \ref CR_INST_SEH_EXCEPTION_HANDLER instead).
-#define CR_INST_SEH_EXCEPTION_HANDLER          0x1    //!< Install SEH handler.
-#define CR_INST_TERMINATE_HANDLER              0x2    //!< Install terminate handler.
-#define CR_INST_UNEXPECTED_HANDLER             0x4    //!< Install unexpected handler.
-#define CR_INST_PURE_CALL_HANDLER              0x8    //!< Install pure call handler (VS .NET and later).
-#define CR_INST_NEW_OPERATOR_ERROR_HANDLER     0x10   //!< Install new operator error handler (VS .NET and later).
-#define CR_INST_SECURITY_ERROR_HANDLER         0x20   //!< Install security error handler (VS .NET and later).
-#define CR_INST_INVALID_PARAMETER_HANDLER      0x40   //!< Install invalid parameter handler (VS 2005 and later).
-#define CR_INST_SIGABRT_HANDLER                0x80   //!< Install SIGABRT signal handler.
-#define CR_INST_SIGFPE_HANDLER                 0x100  //!< Install SIGFPE signal handler.   
-#define CR_INST_SIGILL_HANDLER                 0x200  //!< Install SIGILL signal handler.  
-#define CR_INST_SIGINT_HANDLER                 0x400  //!< Install SIGINT signal handler.  
-#define CR_INST_SIGSEGV_HANDLER                0x800  //!< Install SIGSEGV signal handler.
+#define CR_INST_STRUCTURED_EXCEPTION_HANDLER      0x1 //!< Install SEH handler (deprecated name, use \ref CR_INST_SEH_EXCEPTION_HANDLER instead).
+#define CR_INST_SEH_EXCEPTION_HANDLER             0x1 //!< Install SEH handler.
+#define CR_INST_TERMINATE_HANDLER                 0x2 //!< Install terminate handler.
+#define CR_INST_UNEXPECTED_HANDLER                0x4 //!< Install unexpected handler.
+#define CR_INST_PURE_CALL_HANDLER                 0x8 //!< Install pure call handler (VS .NET and later).
+#define CR_INST_NEW_OPERATOR_ERROR_HANDLER       0x10 //!< Install new operator error handler (VS .NET and later).
+#define CR_INST_SECURITY_ERROR_HANDLER           0x20 //!< Install security error handler (VS .NET and later).
+#define CR_INST_INVALID_PARAMETER_HANDLER        0x40 //!< Install invalid parameter handler (VS 2005 and later).
+#define CR_INST_SIGABRT_HANDLER                  0x80 //!< Install SIGABRT signal handler.
+#define CR_INST_SIGFPE_HANDLER                  0x100 //!< Install SIGFPE signal handler.   
+#define CR_INST_SIGILL_HANDLER                  0x200 //!< Install SIGILL signal handler.  
+#define CR_INST_SIGINT_HANDLER                  0x400 //!< Install SIGINT signal handler.  
+#define CR_INST_SIGSEGV_HANDLER                 0x800 //!< Install SIGSEGV signal handler.
 #define CR_INST_SIGTERM_HANDLER                0x1000 //!< Install SIGTERM signal handler.  
 
-#define CR_INST_ALL_POSSIBLE_HANDLERS          0x1FFF  //!< Install all possible exception handlers.
-#define CR_INST_ALL_EXCEPTION_HANDLERS         0       //!< Deprecated, not recommended to use. Use \ref CR_INST_ALL_POSSIBLE_HANDLERS instead.
-#define CR_INST_CRT_EXCEPTION_HANDLERS         0x1FFE  //!< Install exception handlers for the linked CRT module.
+#define CR_INST_ALL_POSSIBLE_HANDLERS          0x1FFF //!< Install all possible exception handlers.
+#define CR_INST_ALL_EXCEPTION_HANDLERS         0      //!< Deprecated, not recommended to use. Use \ref CR_INST_ALL_POSSIBLE_HANDLERS instead.
+#define CR_INST_CRT_EXCEPTION_HANDLERS         0x1FFE //!< Install exception handlers for the linked CRT module.
 
-#define CR_INST_NO_GUI                         0x2000  //!< Do not show GUI, send report silently (use for non-GUI apps only).
-#define CR_INST_HTTP_BINARY_ENCODING           0x4000  //!< Use multi-part HTTP uploads with binary attachment encoding.
-#define CR_INST_DONT_SEND_REPORT               0x8000  //!< Don't send error report immediately, just save it locally.
-#define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
-#define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
-#define CR_INST_SEND_QUEUED_REPORTS            0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.
-#define CR_INST_STORE_ZIP_ARCHIVES             0x80000 //!< CrashRpt should store both uncompressed error report files and ZIP archives.
+#define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
+#define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
+#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Don't send error report immediately, just save it locally.
+#define CR_INST_APP_RESTART                   0x10000 //!< Restart the application on crash.
+#define CR_INST_NO_MINIDUMP                   0x20000 //!< Do not include minidump file to crash report.
+#define CR_INST_SEND_QUEUED_REPORTS           0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.
+#define CR_INST_STORE_ZIP_ARCHIVES            0x80000 //!< CrashRpt should store both uncompressed error report files and ZIP archives.
+#define CR_INST_SEND_MANDATORY				 0x100000 //!< This flag removes the "Close" and "Other actions" buttons from Error Report dialog, thus making the sending procedure mandatory for user.
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOW()
@@ -279,6 +280,11 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 *        <td> <b>Available since v.1.2.7</b> This parameter can be used in couple with \ref CR_INST_DONT_SEND_REPORT flag to store not only uncompressed
 *             error report files, but also ZIP archives. By default (if this flag omitted) CrashRpt stores all error report files
 *             in uncompressed state.
+*
+*    <tr><td> \ref CR_INST_SEND_MANDATORY     
+*        <td> <b>Available since v.1.3.1</b> This parameter makes sending procedure mandatory by removing the "Close" button
+*			  and "Other actions..." button from the Error Report dialog. Typically, it is not recommended to use this flag,
+*             unless you intentionally want users to always send error reports for your application.
 *
 *   </table>
 *

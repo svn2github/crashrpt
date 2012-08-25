@@ -157,6 +157,15 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     else
         m_btnCancel.SetWindowText(pSender->GetLangStr(_T("MainDlg"), _T("CloseTheProgram")));
 
+	// If send procedure is mandatory...
+	if(pSender->GetCrashInfo()->m_bSendMandatory) 
+	{
+		// Hide Cancel button
+		m_btnCancel.ShowWindow(SW_HIDE);
+		// Remove Close button
+		SetWindowLong(GWL_STYLE, GetWindowLong(GWL_STYLE) & ~WS_SYSMENU);
+	}
+
     // Init font for heading text
     memset(&lf, 0, sizeof(LOGFONT));
     lf.lfHeight = 25;

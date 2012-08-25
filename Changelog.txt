@@ -9,6 +9,10 @@
 - Fixed: CRP_COL_PROBLEM_DESCRIPTION not working (issue 118).
 - Fixed: Improve robustness to stack overflow (issue 121).
 - Fixed: When copying a log file into the crash archive, access it with FILE_SHARE_WRITE (issue 124)
+- Fixed: Support multiple e-mail recipients (issue 123).
+
+- New: Added CR_INST_SEND_MANDATORY flag. This flag removes the "Close" and "Other actions" buttons 
+       from Error Report dialog, thus making the sending procedure mandatory for user (issue 126).
 
 --- Ver. 1.3.0 ---
 

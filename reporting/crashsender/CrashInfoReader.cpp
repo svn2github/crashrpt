@@ -187,6 +187,7 @@ int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
     m_bHttpBinaryEncoding = (dwInstallFlags&CR_INST_HTTP_BINARY_ENCODING)!=0;
     m_bSilentMode = (dwInstallFlags&CR_INST_NO_GUI)!=0;    
     m_bSendErrorReport = (dwInstallFlags&CR_INST_DONT_SEND_REPORT)==0;
+	m_bSendMandatory = (dwInstallFlags&CR_INST_SEND_MANDATORY)!=0;
     m_bStoreZIPArchives = (dwInstallFlags&CR_INST_STORE_ZIP_ARCHIVES)!=0;
     m_bAppRestart = (dwInstallFlags&CR_INST_APP_RESTART)!=0;
     m_bGenerateMinidump = (dwInstallFlags&CR_INST_NO_MINIDUMP)==0;
