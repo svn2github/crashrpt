@@ -190,8 +190,9 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     m_Layout.Insert(m_btnOk);
     m_Layout.Insert(m_btnCancel, TRUE);
 
-	// Initially, hide the email & description fields
-    ShowMoreInfo(FALSE);
+	// By default, hide the email & description fields.
+	// But user may override the default.
+	ShowMoreInfo(pSender->GetCrashInfo()->m_bShowAdditionalInfoFields);
 
 	// Create progress dialog
     m_dlgProgress.Create(m_hWnd);
@@ -225,9 +226,13 @@ void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
     m_Layout.Update();
 
     if(bShow)
+	{
+		m_linkMoreInfo.EnableWindow(0);
         m_editEmail.SetFocus();
+	}
     else
         m_btnOk.SetFocus();
+	
 }
 
 LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)

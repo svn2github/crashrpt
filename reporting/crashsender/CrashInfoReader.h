@@ -157,6 +157,7 @@ public:
     BOOL        m_bSilentMode;          // Should we show GUI?
     BOOL        m_bSendErrorReport;     // Should we send error report now?
 	BOOL		m_bSendMandatory;       // Disable "Close" and "Other actions.." buttons on Error Report dialog.
+	BOOL		m_bShowAdditionalInfoFields; // Make "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
     BOOL        m_bStoreZIPArchives;    // Should we store zipped error report files?
     BOOL        m_bSendRecentReports;   // Should we send recently queued reports now?
     BOOL        m_bAppRestart;          // Should we restart the crashed application?

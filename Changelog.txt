@@ -11,10 +11,18 @@
 - Fixed: When copying a log file into the crash archive, access it with FILE_SHARE_WRITE (issue 124)
 - Fixed: Support multiple e-mail recipients (issue 123).
 
-- New: Added CR_INST_SEND_MANDATORY flag. This flag removes the "Close" and "Other actions" buttons 
-       from Error Report dialog, thus making the sending procedure mandatory for user (issue 126).
+- New: Added CR_INST_SEND_MANDATORY flag. This flag removes the "Close" and "Other actions" 
+       buttons from Error Report dialog, thus making the sending procedure mandatory for user 
+       (issue 126).
 
 - Fixed: Support multiple crash reports per application instance (issue 127)
+
+- New: Added CR_INST_SHOW_ADDITIONAL_INFO_FIELDS flag. This flag makes "Your E-mail" and 
+       "Describe what you were doing when the problem occurred" fields of Error Report 
+       dialog always visible. By default (when this parameter not specified),
+       these fields are hidden and user needs to click the "Provide additional info 
+       (recommended)" link to show them (issue 129).
+
 
 --- Ver. 1.3.0 ---
 

@@ -144,6 +144,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 #define CR_INST_SEND_QUEUED_REPORTS           0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.
 #define CR_INST_STORE_ZIP_ARCHIVES            0x80000 //!< CrashRpt should store both uncompressed error report files and ZIP archives.
 #define CR_INST_SEND_MANDATORY				 0x100000 //!< This flag removes the "Close" and "Other actions" buttons from Error Report dialog, thus making the sending procedure mandatory for user.
+#define CR_INST_SHOW_ADDITIONAL_INFO_FIELDS	 0x200000 //!< Makes "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOW()
@@ -285,6 +286,10 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 *        <td> <b>Available since v.1.3.1</b> This parameter makes sending procedure mandatory by removing the "Close" button
 *			  and "Other actions..." button from the Error Report dialog. Typically, it is not recommended to use this flag,
 *             unless you intentionally want users to always send error reports for your application.
+*    <tr><td> \ref CR_INST_SHOW_ADDITIONAL_INFO_FIELDS     
+*        <td> <b>Available since v.1.3.1</b> This parameter makes "Your E-mail" and "Describe what you were doing when the 
+*             problem occurred" fields of Error Report dialog always visible. By default (when this parameter not specified),
+*             these fields are hidden and user needs to click the "Provide additional info (recommended)" link to show them.
 *
 *   </table>
 *
