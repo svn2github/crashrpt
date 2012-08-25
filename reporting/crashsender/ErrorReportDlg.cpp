@@ -338,6 +338,10 @@ LRESULT CErrorReportDlg::OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, 
 LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	// User has clicked the popup menu's "Close the program".
+		
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	// The following line will prevent from queueing the report
+	pSender->GetCrashInfo()->m_bQueueEnabled = FALSE;
 
     CloseDialog(wID);  
     return 0;

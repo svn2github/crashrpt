@@ -157,10 +157,10 @@ public:
     BOOL        m_bSilentMode;          // Should we show GUI?
     BOOL        m_bSendErrorReport;     // Should we send error report now?
     BOOL        m_bStoreZIPArchives;    // Should we store zipped error report files?
-    BOOL        m_bSendRecentReports;   // Should we send recent reports now?
-    BOOL        m_bAppRestart;          // Should we restart the application?
-    CString     m_sRestartCmdLine;      // Command line for app restart.
-    UINT        m_uPriorities[3];       // Delivery priorities.
+    BOOL        m_bSendRecentReports;   // Should we send recently queued reports now?
+    BOOL        m_bAppRestart;          // Should we restart the crashed application?
+    CString     m_sRestartCmdLine;      // Command line for crashed app restart.
+    UINT        m_uPriorities[3];       // Error report delivery priorities.
     CString     m_sPrivacyPolicyURL;    // Privacy policy URL.
     BOOL        m_bGenerateMinidump;    // Should we generate crash minidump file?
     MINIDUMP_TYPE m_MinidumpType;       // Minidump type.
@@ -169,8 +169,8 @@ public:
     int         m_nJpegQuality;         // Jpeg image quality (used when taking screenshot).
     CPoint      m_ptCursorPos;          // Mouse cursor position on crash.
     CRect       m_rcAppWnd;             // Rectangle of the application's main window.  
-    BOOL        m_bQueueEnabled;        // Can reports be send later or not (queue enabled)?
-
+    BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
+	// Below are exception information fields.
     DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
     DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
     PEXCEPTION_POINTERS m_pExInfo;      // Address of exception info (used for minidump generation).
