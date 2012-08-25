@@ -47,9 +47,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CMailMsg::CMailMsg()
 {
-    m_lpCmcLogon      = NULL;
-    m_lpCmcSend       = NULL;
-    m_lpCmcLogoff     = NULL;
     m_lpMapiLogon     = NULL;
     m_lpMapiSendMail  = NULL;
     m_lpMapiLogoff    = NULL;
@@ -158,17 +155,11 @@ BOOL CMailMsg::MAPIInitialize()
         return FALSE;
     }
 
-    m_lpCmcQueryConfiguration = (LPCMCQUERY)::GetProcAddress(m_hMapi, "cmc_query_configuration");
-    m_lpCmcLogon = (LPCMCLOGON)::GetProcAddress(m_hMapi, "cmc_logon");
-    m_lpCmcSend = (LPCMCSEND)::GetProcAddress(m_hMapi, "cmc_send");
-    m_lpCmcLogoff = (LPCMCLOGOFF)::GetProcAddress(m_hMapi, "cmc_logoff");
-
     m_lpMapiLogon = (LPMAPILOGON)::GetProcAddress(m_hMapi, "MAPILogon");
     m_lpMapiSendMail = (LPMAPISENDMAIL)::GetProcAddress(m_hMapi, "MAPISendMail");
     m_lpMapiLogoff = (LPMAPILOGOFF)::GetProcAddress(m_hMapi, "MAPILogoff");
 
-    m_bReady = (m_lpCmcLogon && m_lpCmcSend && m_lpCmcLogoff) ||
-        (m_lpMapiLogon && m_lpMapiSendMail && m_lpMapiLogoff);
+    m_bReady = (m_lpMapiLogon && m_lpMapiSendMail && m_lpMapiLogoff);
 
     if(!m_bReady)
     {
@@ -189,17 +180,6 @@ CString CMailMsg::GetEmailClientName()
 }
 
 BOOL CMailMsg::Send()
-{
-    if(MAPISend())
-        return TRUE;
-
-    if(CMCSend())
-        return TRUE;
-
-    return FALSE;
-}
-
-BOOL CMailMsg::MAPISend()
 {
     if(m_lpMapiSendMail==NULL)
         return FALSE;
@@ -301,95 +281,4 @@ BOOL CMailMsg::MAPISend()
     return (SUCCESS_SUCCESS == status);
 }
 
-BOOL CMailMsg::CMCSend()
-{
-    TStrStrMap::iterator p;
-    int                  nIndex = 0;
-    CMC_recipient*       pRecipients;
-    CMC_attachment*      pAttachments;
-    CMC_session_id       session;
-    CMC_return_code      status = 0;
-    CMC_message          message;
-    CMC_boolean          bAvailable = FALSE;
-    CMC_time             t_now = {0};
-
-    if (!m_bReady && !MAPIInitialize())
-        return FALSE;
-
-    pRecipients = new CMC_recipient[2];
-    pAttachments = new CMC_attachment[m_attachments.size()];
-
-    // set to
-    pRecipients[nIndex].name = (LPSTR)m_to.c_str();
-    pRecipients[nIndex].name_type = CMC_TYPE_INDIVIDUAL;
-    pRecipients[nIndex].address = (CMC_string)(LPCSTR)m_to.c_str();
-    pRecipients[nIndex].role = CMC_ROLE_TO;
-    pRecipients[nIndex].recip_flags = 0;
-    pRecipients[nIndex].recip_extensions = NULL;
-
-    // set from
-    pRecipients[nIndex+1].name = (LPSTR)m_from.c_str();
-    pRecipients[nIndex+1].name_type = CMC_TYPE_INDIVIDUAL;
-    pRecipients[nIndex+1].address = (CMC_string)(LPCSTR)m_from.c_str();
-    pRecipients[nIndex+1].role = CMC_ROLE_ORIGINATOR;
-    pRecipients[nIndex+1].recip_flags = CMC_RECIP_LAST_ELEMENT;
-    pRecipients[nIndex+1].recip_extensions = NULL;
-
-    // add attachments
-    for (p = m_attachments.begin(), nIndex = 0;
-        p != m_attachments.end(); p++, nIndex++)
-    {
-        pAttachments[nIndex].attach_title       = (LPSTR)p->second.c_str();
-        pAttachments[nIndex].attach_type        = NULL;
-        pAttachments[nIndex].attach_filename    = (CMC_string)(LPCSTR)p->first.c_str();
-        pAttachments[nIndex].attach_flags       = 0;
-        pAttachments[nIndex].attach_extensions  = NULL;
-    }
-
-    pAttachments[nIndex-1].attach_flags        = CMC_ATT_LAST_ELEMENT;
-
-    message.message_reference                 = NULL;
-    message.message_type                      = NULL;
-    message.subject                           = (LPSTR)m_sSubject.c_str();
-    message.time_sent                         = t_now;
-    message.text_note                         = (LPSTR)m_sMessage.c_str();
-    message.recipients                        = pRecipients;
-    message.attachments                       = pAttachments;
-    message.message_flags                     = 0;
-    message.message_extensions                = NULL;
-
-    status = m_lpCmcQueryConfiguration(
-        0, 
-        CMC_CONFIG_UI_AVAIL, 
-        (void*)&bAvailable, 
-        NULL
-        );
-
-    if (CMC_SUCCESS == status && bAvailable)
-    {
-        status = m_lpCmcLogon(
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-            0,
-            CMC_VERSION,
-            CMC_LOGON_UI_ALLOWED |
-            CMC_ERROR_UI_ALLOWED,
-            &session,
-            NULL
-            );
-
-        if (CMC_SUCCESS == status)
-        {
-            status = m_lpCmcSend(session, &message, 0, 0, NULL);
-            m_lpCmcLogoff(session, NULL, CMC_LOGON_UI_ALLOWED, NULL);
-        }
-    }
-
-    delete [] pRecipients;
-    delete [] pAttachments;
-
-    return ((CMC_SUCCESS == status) && bAvailable);
-}
 

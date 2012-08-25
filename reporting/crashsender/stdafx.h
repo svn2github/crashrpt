@@ -101,7 +101,6 @@ extern CAppModule _Module;
 
 #include "dbghelp.h"
 #include <wininet.h>
-#include <xcmc.h>          // CMC function defs
 #include <mapi.h>          // MAPI function defs
 #include <sys/stat.h>
 #include <shellapi.h>
