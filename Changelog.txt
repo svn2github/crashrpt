@@ -27,6 +27,7 @@
 - Fixed: a small typo in the german language file (issue 159)
 - Fixed: A single .pch file is used by Release and Debug configs causing compiler errors (issue 147)
 - Fixed: SigIntHandler installed by CR_INST_SIGILL_HANDLER (issue 154)
+- Fixed: ASSERTION failure when CrThreadAutoInstallHelper fails to install handler (issue 148).
 
 --- Ver. 1.3.0 ---
 

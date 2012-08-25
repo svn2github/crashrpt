@@ -1389,7 +1389,8 @@ public:
     //! Uninstalls exception handlers from the caller process
     ~CrAutoInstallHelper()
     {
-        crUninstall();
+		if(m_nInstallStatus==0)
+			crUninstall();
     }
 
     //! Install status
@@ -1433,9 +1434,10 @@ public:
 
     //! Uninstalls exception handlers from the caller thread
     ~CrThreadAutoInstallHelper()
-    {
-        crUninstallFromCurrentThread();
-    }
+	{
+		if (m_nInstallStatus == 0)
+			 crUninstallFromCurrentThread();
+	}
 
     //! Install status
     int m_nInstallStatus;
