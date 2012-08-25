@@ -123,6 +123,9 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
     nItem = m_cboExcType.AddString(_T("throw C++ typed exception"));
     m_cboExcType.SetItemData(nItem, CR_THROW);
 
+	nItem = m_cboExcType.AddString(_T("stack overflow"));
+    m_cboExcType.SetItemData(nItem, CR_STACK_OVERFLOW);
+
     nItem = m_cboExcType.AddString(_T("Manual report"));
     m_cboExcType.SetItemData(nItem, MANUAL_REPORT);
 

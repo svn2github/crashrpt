@@ -652,6 +652,23 @@ void test_buffer_overrun(const char *str)
 #pragma warning(default : 6255)   
 #pragma warning(default : 6204)   
 
+// Stack overflow function
+struct DisableTailOptimization
+{
+       ~DisableTailOptimization() {
+               ++ v;
+       }
+       static int v;
+};
+
+int DisableTailOptimization::v = 0;
+
+static void CauseStackOverflow()
+{
+       DisableTailOptimization v;
+       CauseStackOverflow();
+}
+
 CRASHRPTAPI(int) 
 crEmulateCrash(unsigned ExceptionType) throw (...)
 {
@@ -764,6 +781,11 @@ crEmulateCrash(unsigned ExceptionType) throw (...)
             throw 13;
         }
         break;
+	case CR_STACK_OVERFLOW:
+		{
+			// Infinite recursion and stack overflow.
+			CauseStackOverflow();
+		}
     default:
         {
             crSetErrorMsg(_T("Unknown exception type specified."));          

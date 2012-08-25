@@ -1333,26 +1333,71 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
     CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
     ATLASSERT(pCrashHandler!=NULL);  
 
-    if(pCrashHandler!=NULL)
-    {
-        // Acquire lock to avoid other threads (if exist) to crash while we are 
-        // inside. 
-        pCrashHandler->CrashLock(TRUE);
+	// Vojtech: Based on martin.bis...@gmail.com comment in
+	//	http://groups.google.com/group/crashrpt/browse_thread/thread/a1dbcc56acb58b27/fbd0151dd8e26daf?lnk=gst&q=stack+overflow#fbd0151dd8e26daf
+	if (pExceptionPtrs != 0 && pExceptionPtrs->ExceptionRecord != 0 &&
+		pExceptionPtrs->ExceptionRecord->ExceptionCode == EXCEPTION_STACK_OVERFLOW) 
+	{
+		// Special case to handle the stack overflow exception.
+		// The dump will be realized from another thread.
+		// Create another thread that will do the dump.
+		HANDLE thread = ::CreateThread(0, 0,
+			&StackOverflowThreadFunction, pExceptionPtrs, 0, 0);
+		::WaitForSingleObject(thread, INFINITE);
+		::CloseHandle(thread);
+		// Terminate process
+		TerminateProcess(GetCurrentProcess(), 1);
+	}
 
-        CR_EXCEPTION_INFO ei;
-        memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-        ei.cb = sizeof(CR_EXCEPTION_INFO);
-        ei.exctype = CR_SEH_EXCEPTION;
-        ei.pexcptrs = pExceptionPtrs;
+	if(pCrashHandler!=NULL)
+	{
+		// Acquire lock to avoid other threads (if exist) to crash while we are 
+		// inside. 
+		pCrashHandler->CrashLock(TRUE);
 
-        pCrashHandler->GenerateErrorReport(&ei);
+		CR_EXCEPTION_INFO ei;
+		memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+		ei.cb = sizeof(CR_EXCEPTION_INFO);
+		ei.exctype = CR_SEH_EXCEPTION;
+		ei.pexcptrs = pExceptionPtrs;
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
-    }   
+		pCrashHandler->GenerateErrorReport(&ei);
+
+		// Terminate process
+		TerminateProcess(GetCurrentProcess(), 1);    
+	}   
 
     // Unreacheable code  
     return EXCEPTION_EXECUTE_HANDLER;
+}
+
+//Vojtech: Based on martin.bis...@gmail.com comment in
+// http://groups.google.com/group/crashrpt/browse_thread/thread/a1dbcc56acb58b27/fbd0151dd8e26daf?lnk=gst&q=stack+overflow#fbd0151dd8e26daf
+// Thread procedure doing the dump for stack overflow.
+DWORD WINAPI CCrashHandler::StackOverflowThreadFunction(LPVOID lpParameter)
+{
+	PEXCEPTION_POINTERS pExceptionPtrs =
+		reinterpret_cast<PEXCEPTION_POINTERS>(lpParameter);
+	
+	CCrashHandler *pCrashHandler =
+		CCrashHandler::GetCurrentProcessCrashHandler();
+	ATLASSERT(pCrashHandler != NULL);
+
+	if (pCrashHandler != NULL) 
+	{
+		// Acquire lock to avoid other threads (if exist) to crash while we	are inside.
+		pCrashHandler->CrashLock(TRUE);
+		CR_EXCEPTION_INFO ei;
+		memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+		ei.cb = sizeof(CR_EXCEPTION_INFO);
+		ei.exctype = CR_SEH_EXCEPTION;
+		ei.pexcptrs = pExceptionPtrs;
+		pCrashHandler->GenerateErrorReport(&ei);
+		// Terminate process
+		TerminateProcess(GetCurrentProcess(), 1);
+	}
+
+	return 0;
 }
 
 // CRT terminate() call handler

@@ -150,6 +150,7 @@ public:
 
 	// Structured exception handler (SEH handler)
     static LONG WINAPI SehHandler(__in PEXCEPTION_POINTERS pExceptionPtrs);
+	static DWORD WINAPI StackOverflowThreadFunction(LPVOID threadParameter);
 	// C++ terminate handler
     static void __cdecl TerminateHandler();
 	// C++ unexpected handler
