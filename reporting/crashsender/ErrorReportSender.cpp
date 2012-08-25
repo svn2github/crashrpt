@@ -1048,8 +1048,9 @@ BOOL CErrorReportSender::CollectCrashFiles()
             str.Format(_T("Copying file %s."), it->second.m_sSrcFile);
             m_Assync.SetProgress(str, 0, false);
 
+            // Open source file with read/write sharing permissions.
             hSrcFile = CreateFile(it->second.m_sSrcFile, GENERIC_READ, 
-                FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
             if(hSrcFile==INVALID_HANDLE_VALUE)
             {
                 it->second.m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
@@ -1108,6 +1109,9 @@ BOOL CErrorReportSender::CollectCrashFiles()
             hSrcFile = INVALID_HANDLE_VALUE;
             CloseHandle(hDestFile);
             hDestFile = INVALID_HANDLE_VALUE;
+
+			// Use the copy for display and zipping.
+			it->second.m_sSrcFile = sDestFile;
         }
     }
 

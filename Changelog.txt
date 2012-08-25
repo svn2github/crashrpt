@@ -8,6 +8,7 @@
 - Fixed: Application is restarted twice after crash (issue 115).
 - Fixed: CRP_COL_PROBLEM_DESCRIPTION not working (issue 118).
 - Fixed: Improve robustness to stack overflow (issue 121).
+- Fixed: When copying a log file into the crash archive, access it with FILE_SHARE_WRITE (issue 124)
 
 --- Ver. 1.3.0 ---
 
