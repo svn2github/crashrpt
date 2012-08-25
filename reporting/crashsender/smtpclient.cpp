@@ -322,10 +322,10 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
         goto exit;
     }
 
-	//Vojtech: Process multiple e-mail recipients.
+	// Process multiple e-mail recipients.
 	// E-mail addresses are separated by comma or semicolon.
 	{
-		// Force a copy of the string. Simple assignment just references the data of g_CrashInfo.m_sEmailTo. 
+		// Force a copy of the string. 
 		// The copy string will be modified by strtok.
 		CString copy		 = msg->m_sTo;
 		TCHAR   separators[] = _T(";, ");

@@ -61,7 +61,7 @@ public:
     virtual ~CMailMsg();
 
     // Operations
-    void SetTo(CString sAddress);
+    void AddRecipient(CString sAddress);
     void SetFrom(CString sAddress);
     void SetSubject(CString sSubject);
     void SetMessage(CString sMessage);
@@ -78,7 +78,7 @@ public:
 protected:
 
     std::string    m_from;                       // From <address,name>
-    std::string    m_to;                         // To <address,name>
+    std::vector<std::string> m_to;               // To: array of <address,name>
     TStrStrMap     m_attachments;                // Attachment <file,title>
     std::string    m_sSubject;                   // EMail subject
     std::string    m_sMessage;                   // EMail message

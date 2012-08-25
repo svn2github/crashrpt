@@ -29,6 +29,7 @@
 - Fixed: SigIntHandler installed by CR_INST_SIGILL_HANDLER (issue 154)
 - Fixed: ASSERTION failure when CrThreadAutoInstallHelper fails to install handler (issue 148).
 - Fixed: Deprecated CMC functions cause Visual studio 2012 rc compile error (issue 156)
+- Fixed: Need to add "SMTP:" to the 'emailTo' address for (S)MAPI (issue 140).
 
 --- Ver. 1.3.0 ---
 

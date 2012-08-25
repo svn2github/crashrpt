@@ -2241,7 +2241,18 @@ BOOL CErrorReportSender::SendOverSMAPI()
 
 	// Fill in email fields
     m_MapiSender.SetFrom(m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom);
-    m_MapiSender.SetTo(m_CrashInfo.m_sEmailTo);
+	
+	// The copy string will be modified by strtok.
+	CString copy		 = m_CrashInfo.m_sEmailTo;
+	TCHAR   separators[] = _T(";, ");
+	TCHAR  *context		 = 0;
+	TCHAR  *to			 = _tcstok_s(const_cast<LPTSTR>((LPCTSTR)copy), separators, &context);	
+	while (to != 0) 
+	{
+		m_MapiSender.AddRecipient(_T("SMTP:")+CString(to));
+		to=_tcstok_s(NULL, separators, &context);		
+	};    
+
     m_MapiSender.SetSubject(m_CrashInfo.m_sEmailSubject);
     CString sFileTitle = m_sZipName;
     sFileTitle.Replace('/', '\\');
