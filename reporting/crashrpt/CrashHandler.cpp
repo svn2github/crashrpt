@@ -774,7 +774,7 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
         m_prevSigABRT = signal(SIGABRT, SigabrtHandler);  
     }
 
-    if(dwFlags&CR_INST_SIGILL_HANDLER)
+    if(dwFlags&CR_INST_SIGINT_HANDLER)
     {
         // Catch illegal instruction handler
         m_prevSigINT = signal(SIGINT, SigintHandler);     
