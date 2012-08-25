@@ -23,6 +23,9 @@
        these fields are hidden and user needs to click the "Provide additional info 
        (recommended)" link to show them (issue 129).
 
+- Fixed: CrashSender.exe crashes when attempting to write long strings into NOTIFYICONDATA (issue 137)
+- Fixed: a small typo in the german language file (issue 159)
+
 
 --- Ver. 1.3.0 ---
 
