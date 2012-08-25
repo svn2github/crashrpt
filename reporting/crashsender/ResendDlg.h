@@ -193,6 +193,7 @@ public:
     CActionProgressDlg m_dlgActionProgress;
     CProgressDlg m_dlgProgress;
 
+	int m_nSendAttempt;
     int m_nTimerTick; // Timer tick counter     
 	eActionOnClose m_ActionOnClose; // What to do on dialog close
 };

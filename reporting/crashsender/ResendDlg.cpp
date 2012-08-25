@@ -205,7 +205,9 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
 	// Init resize map.
     DlgResize_Init();
-		
+	
+	m_nSendAttempt = 0;
+
 	// By default, we will exit if user closes the dialog.
     m_ActionOnClose = EXIT;
 
@@ -380,6 +382,8 @@ LRESULT CResendDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHand
 	mii.dwTypeData = sDeleteAll.GetBuffer(0);  
     submenu.SetMenuItemInfo(ID_MENU6_DELETEALL, FALSE, &mii);
 
+	BOOL bSendingNow = pSender->IsSendingNow();
+
 	// Get count of checked list items
 	int nItems = 0;
 	int nChecked = 0;
@@ -393,10 +397,10 @@ LRESULT CResendDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHand
 			nChecked++;
 	}
 	
-	submenu.EnableMenuItem(ID_MENU6_SELECTALL, nItems>0?MF_ENABLED:MF_DISABLED);
-	submenu.EnableMenuItem(ID_MENU6_DESELECTALL, nItems>0?MF_ENABLED:MF_DISABLED);	
-	submenu.EnableMenuItem(ID_MENU6_DELETESELECTED, nChecked>0?MF_ENABLED:MF_DISABLED);
-	submenu.EnableMenuItem(ID_MENU6_DELETEALL, nItems>0?MF_ENABLED:MF_DISABLED);
+	submenu.EnableMenuItem(ID_MENU6_SELECTALL, (!bSendingNow && nItems>0)?MF_ENABLED:MF_DISABLED);
+	submenu.EnableMenuItem(ID_MENU6_DESELECTALL, (!bSendingNow && nItems>0)?MF_ENABLED:MF_DISABLED);	
+	submenu.EnableMenuItem(ID_MENU6_DELETESELECTED, (!bSendingNow && nChecked>0)?MF_ENABLED:MF_DISABLED);
+	submenu.EnableMenuItem(ID_MENU6_DELETEALL, (!bSendingNow && nItems>0)?MF_ENABLED:MF_DISABLED);
 
 	submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
     return 0;
@@ -505,6 +509,8 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 	if(!pSender->IsSendingNow()) // "Send Now" clicked.
     {
+		m_nSendAttempt ++;
+
         int i;
         for(i=0; i<m_listReports.GetItemCount(); i++)
         {
@@ -545,7 +551,9 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 		m_btnSendNow.SetWindowText(pSender->GetLangStr(_T("ProgressDlg"), _T("Cancel")));
 
         SetTimer(1, 250); // Update this dialog every 250 ms
-        SetTimer(2, 3000); // Hide this dialog in 3 sec.  
+
+		if(m_nSendAttempt==1)
+			SetTimer(2, 3000); // Hide this dialog in 3 sec.  
 
 		// Send error reports
 		pSender->Run();
@@ -816,8 +824,8 @@ void CResendDlg::DoProgressTimer()
 			// We need to display message box to get user
 			// confirmation on launching mail program.
 
-			// Stop the timer.
-            KillTimer(0);        
+			// Stop the timer that hides the window in 3 sec.
+            KillTimer(2);        
 			  
 			// Save visibility state (to restore it later).
 			BOOL bVisible = IsWindowVisible();
@@ -881,7 +889,7 @@ LRESULT CResendDlg::OnNextItemHint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 			// Determine the index of crash report associated with the item.
             int nReport = (int)m_listReports.GetItemData(i);
 
-			ErrorReportInfo* pERI = pSender->GetCrashInfo()->GetReport(i);
+			ErrorReportInfo* pERI = pSender->GetCrashInfo()->GetReport(nReport);
 			if(pERI==NULL)
 				continue;
 

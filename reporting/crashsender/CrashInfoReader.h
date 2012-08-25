@@ -50,7 +50,7 @@ struct ERIFileItem
         m_bMakeCopy = FALSE;
     }
 
-    CString m_sDestFile;    // Destination file name (not including directory name).
+    CString m_sDestFile;    // Destination file name as it appears in ZIP archive (not including directory name).
     CString m_sSrcFile;     // Absolute path to source file.
     CString m_sDesc;        // File description.
     BOOL m_bMakeCopy;       // Should we copy source file to error report folder?
