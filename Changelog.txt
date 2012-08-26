@@ -2,20 +2,14 @@
 
 --- Ver. 1.3.1 ---
 
-- Reorganized demos (moved to demos folder and renamed CrashRptTest=>WTLDemo, crashcon=>ConsoleDemo).
-- Fixed: Impossible to send Crash reports in Windows 7 64bits (issue 104).
-- Fixed: Crash report is not discarded when 'Close the program' is selected (issue 94).
-- Fixed: Application is restarted twice after crash (issue 115).
-- Fixed: CRP_COL_PROBLEM_DESCRIPTION not working (issue 118).
-- Fixed: Improve robustness to stack overflow (issue 121).
-- Fixed: When copying a log file into the crash archive, access it with FILE_SHARE_WRITE (issue 124)
-- Fixed: Support multiple e-mail recipients (issue 123).
+- New: Added an ability to store the user's E-mail address and re-use later. When user
+       enter his E-mail into "Your E-mail" field of Error Report dialog, the address
+       is  saved and stored in ~CrashRpt.ini file. When a crash occurs
+       later, the address is filled in automatically. (issue 155)
 
 - New: Added CR_INST_SEND_MANDATORY flag. This flag removes the "Close" and "Other actions" 
        buttons from Error Report dialog, thus making the sending procedure mandatory for user 
        (issue 126).
-
-- Fixed: Support multiple crash reports per application instance (issue 127)
 
 - New: Added CR_INST_SHOW_ADDITIONAL_INFO_FIELDS flag. This flag makes "Your E-mail" and 
        "Describe what you were doing when the problem occurred" fields of Error Report 
@@ -23,6 +17,19 @@
        these fields are hidden and user needs to click the "Provide additional info 
        (recommended)" link to show them (issue 129).
 
+- New: Reorganized demos (moved to demos folder and renamed CrashRptTest=>WTLDemo, crashcon=>ConsoleDemo).
+
+- New: Refactored code of CrashSender project making it more conforming to 
+       the Model-View-Controller methodology.
+
+- Fixed: Impossible to send Crash reports in Windows 7 64bits (issue 104).
+- Fixed: Crash report is not discarded when 'Close the program' is selected (issue 94).
+- Fixed: Application is restarted twice after crash (issue 115).
+- Fixed: CRP_COL_PROBLEM_DESCRIPTION not working (issue 118).
+- Fixed: Improve robustness to stack overflow (issue 121).
+- Fixed: When copying a log file into the crash archive, access it with FILE_SHARE_WRITE (issue 124)
+- Fixed: Support multiple e-mail recipients (issue 123).
+- Fixed: Support multiple crash reports per application instance (issue 127)
 - Fixed: CrashSender.exe crashes when attempting to write long strings into NOTIFYICONDATA (issue 137)
 - Fixed: a small typo in the german language file (issue 159)
 - Fixed: A single .pch file is used by Release and Debug configs causing compiler errors (issue 147)
