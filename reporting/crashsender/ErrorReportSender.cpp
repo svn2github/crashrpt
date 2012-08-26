@@ -1372,18 +1372,18 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
                             {
                                 std::string str2;
                                 int j;
-                                for(j=0; j<(int)dwValueLen; j++)
-                                {
-                                    char num[10];
+								for(j=0; j<(int)dwValueLen; j++)
+								{
+									char num[10];
 #if _MSC_VER<1400
-                                    sprintf(num, "%02X", pData[i]);
+									sprintf(num, "%02X", pData[j]);
 #else
-                                    sprintf_s(num, 10, "%02X", pData[i]);
+									sprintf_s(num, 10, "%02X", pData[j]);
 #endif
-                                    str2 += num;
-                                    if(j<(int)dwValueLen)
-                                        str2 += " ";
-                                }
+									str2 += num;
+									if(j<(int)dwValueLen)
+										str2 += " ";
+								}
 
                                 val_node.ToElement()->SetAttribute("value", str2.c_str());
                             }
