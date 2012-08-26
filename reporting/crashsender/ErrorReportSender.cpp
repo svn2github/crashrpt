@@ -1703,7 +1703,7 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo* eri)
 
 		// Convert file creation time to system file time.
         SYSTEMTIME st;
-        FileTimeToSystemTime(&fi.ftCreationTime, &st);
+        FileTimeToSystemTime(&fi.ftLastWriteTime, &st);
 
 		// Fill in the ZIP file info
         zip_fileinfo info;
