@@ -37,6 +37,7 @@
 - Fixed: Timestamp of saved files (issue 135)
 - Fixed: CErrorReportSender::DumpRegKey is omitting some subkeys and some values (issue 162)
 - Fixed: CErrorReportSender::DumpRegKey issue with REG_BINARY (issue 130).
+- Fixed: Order of custom properties (issue 131).
 
 
 --- Ver. 1.3.0 ---

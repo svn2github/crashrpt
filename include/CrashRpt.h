@@ -908,6 +908,7 @@ crAddScreenshot2(
 *
 *  Use this function to add a string property to the crash description XML file.
 *  User-added properties are listed under \<CustomProps\> tag of the XML file.
+*  In the XML file properties are ordered by names in alphabetic order.
 *
 *  The following example shows how to add information about the amount of free disk space to the crash
 *  description XML file:
