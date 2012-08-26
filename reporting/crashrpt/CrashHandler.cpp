@@ -1319,10 +1319,16 @@ int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE*
         WaitForSingleObject(m_hEvent, INFINITE);  
     }
 
-    // Return handle to the CrashSender.exe process.
+    // Return handle to the CrashSender.exe process.    
     if(phProcess!=NULL)
     {
         *phProcess = pi.hProcess;
+    }
+    else
+    {
+        // Handle not required by caller so close it.
+        CloseHandle( pi.hProcess );
+        pi.hProcess = NULL;
     }
 
     return 0;
