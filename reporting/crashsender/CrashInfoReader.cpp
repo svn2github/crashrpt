@@ -94,11 +94,13 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
     {
         return 2;
     }
-
+	
+	// Create LOCAL_APP_DATA\UnsentCrashReports folder (if doesn't exist yet).
     BOOL bCreateFolder = Utility::CreateFolder(m_sUnsentCrashReportsFolder);
     if(!bCreateFolder)
         return 3;
 
+	// Save path to INI file storing settings
     m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");          
 
     if(!m_bSendRecentReports) // We should send report immediately
@@ -125,16 +127,19 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
         BOOL bFound = find.FindFile(sSearchPattern);
         while(bFound)
         {
-            if(find.IsDirectory() && !find.IsDots())
+            if(find.IsDirectory() && !find.IsDots()) // Process directories only
             {
                 CString sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + 
                     find.GetFileName();
                 CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
                 ErrorReportInfo eri2;
                 eri2.m_sErrorReportDirName = sErrorReportDirName;
+				// Read crash description XML from the directory
                 if(0==ParseCrashDescription(sFileName, TRUE, eri2))
                 {          
+					// Calculate crash report size
                     eri2.m_uTotalSize = GetUncompressedReportSize(eri2);
+					// Add report to the list
                     m_Reports.push_back(eri2);
                 }
             }
@@ -193,8 +198,7 @@ int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
     m_bAppRestart = (dwInstallFlags&CR_INST_APP_RESTART)!=0;
     m_bGenerateMinidump = (dwInstallFlags&CR_INST_NO_MINIDUMP)==0;
     m_bQueueEnabled = (dwInstallFlags&CR_INST_SEND_QUEUED_REPORTS)!=0;
-    m_MinidumpType = m_pCrashDesc->m_MinidumpType;
-    //m_bAppRestart = m_pCrashDesc->m_bAppRestart (unpacked from dwFlags);
+    m_MinidumpType = m_pCrashDesc->m_MinidumpType;    
     UnpackString(m_pCrashDesc->m_dwRestartCmdLineOffs, m_sRestartCmdLine);
     UnpackString(m_pCrashDesc->m_dwUrlOffs, m_sUrl);
     UnpackString(m_pCrashDesc->m_dwEmailToOffs, m_sEmailTo);  
@@ -720,6 +724,9 @@ BOOL CCrashInfoReader::UpdateUserInfo(CString sEmail, CString sDesc)
         GetReport(0)->m_sEmailFrom, 
         GetReport(0)->m_sDescription);
 
+	// Save E-mail entered by user to INI file for later reuse.
+	SetPersistentUserEmail(sEmail);
+
 	return bResult;
 }
 
@@ -1064,4 +1071,16 @@ HICON CCrashInfoReader::GetCustomIcon()
 CString CCrashInfoReader::GetErrorMsg()
 {
 	return m_sErrorMsg;
+}
+
+CString CCrashInfoReader::GetPersistentUserEmail()
+{
+	// Read the E-mail last entered by user and stored in INI file.
+	return Utility::GetINIString(m_sINIFile, _T("General"), _T("EmailFrom"));
+}
+
+void CCrashInfoReader::SetPersistentUserEmail(LPCTSTR szEmail)
+{
+	// Save user's E-mail to INI file for later reuse.
+	Utility::SetINIString(m_sINIFile, _T("General"), _T("EmailFrom"), szEmail);
 }

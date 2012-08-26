@@ -220,6 +220,12 @@ public:
 	// Returns TRUE if validated successfully, otherwise FALSE.
     BOOL UpdateUserInfo(CString sEmail, CString sDesc);
 
+	// Reads the E-mail last entered by user and stored in INI file.
+	CString GetPersistentUserEmail();
+
+	// Saves user's E-mail to INI file for later reuse.
+	void SetPersistentUserEmail(LPCTSTR szEmail);
+
 private:
 
     // Retrieves some crash info from crash description XML.

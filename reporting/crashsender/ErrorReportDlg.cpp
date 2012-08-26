@@ -101,6 +101,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     m_statEmail.SetWindowText(pSender->GetLangStr(_T("MainDlg"), _T("YourEmail")));
 
     m_editEmail = GetDlgItem(IDC_EMAIL);
+	m_editEmail.SetWindowText(pSender->GetCrashInfo()->GetPersistentUserEmail());
 
     m_statDesc = GetDlgItem(IDC_DESCRIBE);
     m_statDesc.SetWindowText(pSender->GetLangStr(_T("MainDlg"), _T("DescribeProblem")));
