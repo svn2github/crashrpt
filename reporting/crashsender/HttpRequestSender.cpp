@@ -140,6 +140,12 @@ BOOL CHttpRequestSender::InternalSend()
         m_Assync->SetProgress(_T("Error connecting to server"), 0);
         goto cleanup; 
     }
+	
+	// Set large receive timeout to avoid problems in case of 
+	// slow upload => slow response from the server.
+	DWORD dwReceiveTimeout = 0;
+	InternetSetOption(hConnect, INTERNET_OPTION_RECEIVE_TIMEOUT, 
+		&dwReceiveTimeout, sizeof(dwReceiveTimeout));
 
     // Check if canceled
     if(m_Assync->IsCancelled()){ goto cleanup; }
