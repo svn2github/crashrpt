@@ -151,7 +151,7 @@ BOOL CHttpRequestSender::InternalSend()
     DWORD dwFlags = INTERNET_FLAG_NO_CACHE_WRITE;
     if(dwPort==INTERNET_DEFAULT_HTTPS_PORT)
         dwFlags |= INTERNET_FLAG_SECURE; // Use SSL
-
+		
     // Open HTTP request
     hRequest = HttpOpenRequest(
         hConnect, 
@@ -168,6 +168,17 @@ BOOL CHttpRequestSender::InternalSend()
         m_Assync->SetProgress(_T("HttpOpenRequest has failed."), 0, true);
         goto cleanup;
     }
+
+	// This code was copied from http://support.microsoft.com/kb/182888 to address the problem
+	// that MVS doesn't have a valid SSL certificate.
+	DWORD extraSSLDwFlags = 0;
+	DWORD dwBuffLen = sizeof(extraSSLDwFlags);
+	InternetQueryOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
+	(LPVOID)&extraSSLDwFlags, &dwBuffLen);
+	// We have to specifically ignore these 2 errors for MVS
+	extraSSLDwFlags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
+	InternetSetOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
+                        &extraSSLDwFlags, sizeof (extraSSLDwFlags) );
 
     // Fill in buffer
     BufferIn.dwStructSize = sizeof( INTERNET_BUFFERS ); // Must be set or error will occur
