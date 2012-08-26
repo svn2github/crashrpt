@@ -1064,6 +1064,13 @@ int CCrashHandler::GenerateErrorReport(
 {  
     crSetErrorMsg(_T("Unspecified error."));
 
+	// Allocate memory in stack for storing exception pointers.
+	EXCEPTION_RECORD ExceptionRecord;
+    CONTEXT ContextRecord;    
+    EXCEPTION_POINTERS ExceptionPointers;
+	ExceptionPointers.ExceptionRecord = &ExceptionRecord;
+    ExceptionPointers.ContextRecord = &ContextRecord;  
+
     // Validate input parameters 
     if(pExceptionInfo==NULL)
     {
@@ -1074,7 +1081,8 @@ int CCrashHandler::GenerateErrorReport(
     // Get exception pointers if not provided. 
     if(pExceptionInfo->pexcptrs==NULL)
     {
-        GetExceptionPointers(pExceptionInfo->code, &pExceptionInfo->pexcptrs);
+        GetExceptionPointers(pExceptionInfo->code, &ExceptionPointers);
+		pExceptionInfo->pexcptrs = &ExceptionPointers;
     }
 
     // Save current process ID, thread ID and exception pointers address to shared mem.
@@ -1217,12 +1225,11 @@ int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFl
 
 // The following code gets exception pointers using a workaround found in CRT code.
 void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode, 
-                                         EXCEPTION_POINTERS** ppExceptionPointers)
+                                         EXCEPTION_POINTERS* pExceptionPointers)
 {
     // The following code was taken from VC++ 8.0 CRT (invarg.c: line 104)
 
-    EXCEPTION_RECORD ExceptionRecord;
-    CONTEXT ContextRecord;
+	CONTEXT ContextRecord;
     memset(&ContextRecord, 0, sizeof(CONTEXT));
 
 #ifdef _X86_
@@ -1251,8 +1258,7 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
     ContextRecord.Esp = (ULONG)_AddressOfReturnAddress();
 #pragma warning(pop)
     ContextRecord.Ebp = *((ULONG *)_AddressOfReturnAddress()-1);
-
-
+	
 #elif defined (_IA64_) || defined (_AMD64_)
 
     /* Need to fill up the Context in IA64 and AMD64. */
@@ -1264,25 +1270,16 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
 
 #endif  /* defined (_IA64_) || defined (_AMD64_) */
 
-    ZeroMemory(&ExceptionRecord, sizeof(EXCEPTION_RECORD));
+	memcpy(pExceptionPointers->ContextRecord, &ContextRecord, sizeof(CONTEXT));
 
-    ExceptionRecord.ExceptionCode = dwExceptionCode;
-    ExceptionRecord.ExceptionAddress = _ReturnAddress();
+	ZeroMemory(pExceptionPointers->ExceptionRecord, sizeof(EXCEPTION_RECORD));
 
-    ///
-
-    EXCEPTION_RECORD* pExceptionRecord = new EXCEPTION_RECORD;
-    memcpy(pExceptionRecord, &ExceptionRecord, sizeof(EXCEPTION_RECORD));
-    CONTEXT* pContextRecord = new CONTEXT;
-    memcpy(pContextRecord, &ContextRecord, sizeof(CONTEXT));
-
-    *ppExceptionPointers = new EXCEPTION_POINTERS;
-    (*ppExceptionPointers)->ExceptionRecord = pExceptionRecord;
-    (*ppExceptionPointers)->ContextRecord = pContextRecord;  
+    pExceptionPointers->ExceptionRecord->ExceptionCode = dwExceptionCode;
+    pExceptionPointers->ExceptionRecord->ExceptionAddress = _ReturnAddress();    
 }
 
 // Launches CrashSender.exe process
-int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE* phProcess)
+int CCrashHandler::LaunchCrashSender(LPCTSTR szCmdLineParams, BOOL bWait, HANDLE* phProcess)
 {
     crSetErrorMsg(_T("Success."));
 
@@ -1295,10 +1292,16 @@ int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE*
     PROCESS_INFORMATION pi;
     memset(&pi, 0, sizeof(PROCESS_INFORMATION));    
 
-    CString sCmdLine;
-    sCmdLine.Format(_T("\"%s\" \"%s\""), sCmdLineParams, sCmdLineParams.GetBuffer(0));
+	// Format command line
+    TCHAR szCmdLine[_MAX_PATH]=_T("");
+	_tcscat_s(szCmdLine, _MAX_PATH, _T("\""));
+	_tcscat_s(szCmdLine, _MAX_PATH, m_sPathToCrashSender.GetBuffer(0));
+	_tcscat_s(szCmdLine, _MAX_PATH, _T("\" \""));    
+	_tcscat_s(szCmdLine, _MAX_PATH, szCmdLineParams);
+	_tcscat_s(szCmdLine, _MAX_PATH, _T("\""));    
+
     BOOL bCreateProcess = CreateProcess(
-        m_sPathToCrashSender, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+        m_sPathToCrashSender, szCmdLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
     if(pi.hThread)
     {
         CloseHandle(pi.hThread);

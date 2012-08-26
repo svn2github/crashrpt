@@ -190,7 +190,7 @@ public:
     // Collects current process state.
     void GetExceptionPointers(
         DWORD dwExceptionCode, 
-        __deref_out EXCEPTION_POINTERS** pExceptionPointers);
+        EXCEPTION_POINTERS* pExceptionPointers);
 
     // Packs crash description into shared memory.
     CRASH_DESCRIPTION* PackCrashInfoIntoSharedMem(__in CSharedMem* pSharedMem, BOOL bTempMem);
@@ -205,7 +205,7 @@ public:
 
     // Launches the CrashSender.exe process.
     int LaunchCrashSender(
-        CString sCmdLineParams, 
+        LPCTSTR szCmdLineParams, 
         BOOL bWait, 
         __out_opt HANDLE* phProcess);  
 

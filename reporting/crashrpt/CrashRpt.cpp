@@ -625,13 +625,14 @@ void sigfpe_test()
     c; 
 }
 
-#define BIG_NUMBER 0x1fffffff
+//#define BIG_NUMBER 0x1fffffff
+#define BIG_NUMBER 0xf
 #pragma warning(disable: 4717) // avoid C4717 warning
 int RecurseAlloc() 
 {
-    int *pi = new int[BIG_NUMBER];
-    pi;
-    RecurseAlloc();
+    int *pi = NULL;
+	for(;;)
+		pi = new int[BIG_NUMBER];
     return 0;
 }
 
