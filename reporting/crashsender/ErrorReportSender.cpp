@@ -1310,9 +1310,9 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
                     int i;
                     for(i=0; i<(int)dwSubKeys; i++)
                     { 
-                        LPWSTR szName = new WCHAR[dwMaxSubKey];
-                        DWORD dwLen = dwMaxSubKey;
-                        lResult = RegEnumKeyEx(hKey, i, szName, &dwLen, 0, NULL, 0, NULL);
+                        LPWSTR szName = new WCHAR[dwMaxSubKey + 1];
+						DWORD dwLen = dwMaxSubKey + 1;
+						lResult = RegEnumKeyEx(hKey, i, szName, &dwLen, 0, NULL, 0, NULL);
                         if(lResult==ERROR_SUCCESS)
                         {
                             DumpRegKey(hKey, CString(szName), key_node.ToElement());
@@ -1324,11 +1324,11 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
                     // Dump key values 
                     for(i=0; i<(int)dwValues; i++)
                     { 
-                        LPWSTR szName = new WCHAR[dwMaxValueNameLen];
-                        LPBYTE pData = new BYTE[dwMaxValueLen];
-                        DWORD dwNameLen = dwMaxValueNameLen;
-                        DWORD dwValueLen = dwMaxValueLen;
-                        DWORD dwType = 0;
+                        LPWSTR szName = new WCHAR[dwMaxValueNameLen + 1];
+						LPBYTE pData = new BYTE[dwMaxValueLen];
+						DWORD dwNameLen = dwMaxValueNameLen + 1;
+						DWORD dwValueLen = dwMaxValueLen;
+						DWORD dwType = 0;
 
                         lResult = RegEnumValue(hKey, i, szName, &dwNameLen, 0, &dwType, pData, &dwValueLen);
                         if(lResult==ERROR_SUCCESS)

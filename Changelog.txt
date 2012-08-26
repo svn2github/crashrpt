@@ -35,6 +35,7 @@
 - Fixed: HttpEndRequest() fails. GetLastError() = ERROR_INTERNET_TIMEOUT (12002) (issue 138)
 - Fixed: Memory allocation in CCrashHandler::GetExceptionPointers can fail (issue 157)
 - Fixed: Timestamp of saved files (issue 135)
+- Fixed: CErrorReportSender::DumpRegKey is omitting some subkeys and some values (issue 162)
 
 
 --- Ver. 1.3.0 ---
