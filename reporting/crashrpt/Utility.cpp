@@ -582,3 +582,18 @@ CString Utility::AddEllipsis(LPCTSTR szString, int nMaxLength)
 	return sResult;
 }
 
+std::vector<CString> Utility::ExplodeStr(LPCTSTR szString, LPCTSTR szSeparators)
+{
+	std::vector<CString> aTokens;
+
+	CString copy = szString;	
+	TCHAR  *context = 0;
+	TCHAR  *token = _tcstok_s(const_cast<LPTSTR>((LPCTSTR)copy), szSeparators, &context);	
+	while (token != 0) 
+	{
+		aTokens.push_back(token);
+		token=_tcstok_s(NULL, szSeparators, &context);		
+	};
+
+	return aTokens;
+}

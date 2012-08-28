@@ -98,6 +98,8 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
     LPCTSTR ptszEmailText = strconv.w2t((LPWSTR)pInfo->pszEmailText);
     LPCTSTR ptszSmtpProxy = strconv.w2t((LPWSTR)pInfo->pszSmtpProxy);
     LPCTSTR ptszCustomSenderIcon = strconv.w2t((LPWSTR)pInfo->pszCustomSenderIcon);
+	LPCTSTR ptszSmtpLogin = strconv.w2t((LPWSTR)pInfo->pszSmtpLogin);
+	LPCTSTR ptszSmtpPassword = strconv.w2t((LPWSTR)pInfo->pszSmtpPassword);
 
     int nInitResult = pCrashHandler->Init(
         ptszAppName, 
@@ -117,7 +119,9 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
         ptszLangFilePath,
         ptszEmailText,
         ptszSmtpProxy,
-        ptszCustomSenderIcon
+        ptszCustomSenderIcon,
+		ptszSmtpLogin,
+		ptszSmtpPassword
         );
 
     if(nInitResult!=0)
@@ -173,6 +177,9 @@ CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
     ii.pszLangFilePath = strconv.a2w(pInfo->pszLangFilePath);
     ii.pszEmailText = strconv.a2w(pInfo->pszEmailText);
     ii.pszSmtpProxy = strconv.a2w(pInfo->pszSmtpProxy);
+	ii.pszCustomSenderIcon = strconv.a2w(pInfo->pszCustomSenderIcon);
+	ii.pszSmtpLogin = strconv.a2w(pInfo->pszSmtpLogin);
+	ii.pszSmtpPassword = strconv.a2w(pInfo->pszSmtpPassword);
 
     return crInstallW(&ii);
 }

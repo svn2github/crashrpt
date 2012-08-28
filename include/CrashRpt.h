@@ -148,12 +148,15 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOW()
-*  \brief This structure defines the general information used by crInstall()
+*  \brief This structure defines the general information used by crInstallW() function.
 *
 *  \remarks
 *
 *    \ref CR_INSTALL_INFOW and \ref CR_INSTALL_INFOA structures are wide-character and multi-byte character 
 *    versions of \ref CR_INSTALL_INFO. \ref CR_INSTALL_INFO typedef defines character set independent mapping.
+*
+*    Below, structure members are described in details. Required parameters must always be specified, while optional
+*    ones may be set with 0 (zero) or NULL. Most of parameters are optional.
 *
 *    \b cb [in, required] 
 *
@@ -182,9 +185,6 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 *
 *       Keep this NULL if you plan to use large error reports (more than several MB in size), because
 *       large emails may be rejected by the mail server. 
-*
-*       To define a custom port for SMTP connection, use the following address format: "user@example.com:port",
-*       where \a port is the placeholder for the port number. 
 *
 *    \b pszEmailSubject [in, optional] 
 *
@@ -219,7 +219,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 *
 *       A priority is a non-negative integer number or special constant \ref CR_NEGATIVE_PRIORITY. 
 *       The greater positive number defines the greater priority. 
-*       Specify the \ref CR_NEGATIVE_PRIORITY to skip the given way.
+*       Specify the \ref CR_NEGATIVE_PRIORITY to skip the given delivery method.
 *
 *       The element having index \ref CR_HTTP defines priority for using HTML connection.
 *       The element having index \ref CR_SMTP defines priority for using SMTP connection.
@@ -295,62 +295,85 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 *
 *   \b pszPrivacyPolicyURL [in, optional] 
 *
-*     Since v1.1.2, this defines the URL for the Privacy Policy hyperlink of the 
+*     This parameter defines the URL for the Privacy Policy hyperlink of the 
 *     Error Report dialog. If this parameter is NULL, the link is not displayed. For information on 
-*     the Privacy Policy, see \ref error_report.
+*     the Privacy Policy, see \ref error_report. This parameter is available since v1.1.2.
 *
 *   \b pszDebugHelpDLL [in, optional] 
 *  
-*     Since v1.2.1, this parameter defines the location of the dbghelp.dll to load. 
+*     This parameter defines the location of the dbghelp.dll to load. 
 *     If this parameter is NULL, the dbghelp.dll is searched using the default search sequence.
+*     This parameter is available since v1.2.1.
 *
 *   \b uMiniDumpType [in, optional] 
 *
-*     Since v.1.2.1, this parameter defines the minidump type. For the list of available minidump
+*     This parameter defines the minidump type. For the list of available minidump
 *     types, see the documentation for the MiniDumpWriteDump() function in MSDN. 
-
+*     Parameter is available since v.1.2.1.
+*
 *     It is recommended to set this 
-*     parameter with zero (equivalent of MiniDumpNormal constant). Other values may increase the minidump size significantly.
-*     If you plan to use values other than zero, also specify the \ref CR_INST_HTTP_BINARY_ENCODING flag for \a dwFlags parameter.
+*     parameter with zero (equivalent of MiniDumpNormal constant). Other values may increase the minidump 
+*     size significantly. If you plan to use values other than zero, also specify the 
+*     \ref CR_INST_HTTP_BINARY_ENCODING flag for \a dwFlags parameter.
 *
 *   \b pszErrorReportSaveDir [in, optional] 
 *
-*     Since v.1.2.2, this parameter defines the directory where to save the error reports. 
+*     This parameter defines the directory where to save the error reports. 
 *     If this is NULL, the default directory is used (%%LOCAL_APP_DATA%\\CrashRpt\\UnsentCrashReports\\%%AppName%%_%%AppVersion%).
+*     This parameter is available since v.1.2.2.
 *
 *   \b pszRestartCmdLine [in, optional] 
 *
-*     Since v.1.2.4, parameter defines the string that specifies the 
-*     command-line arguments for the application when it is restarted (when using \ref CR_INST_APP_RESTART flag). Do not include the name of 
-*     the executable in the command line; it is added automatically. This parameter can be NULL.
+*     This arameter defines the string that specifies the 
+*     command-line arguments for the application when it is restarted (when using \ref CR_INST_APP_RESTART flag). 
+*     Do not include the name of the executable in the command line; it is added automatically. This parameter 
+*     can be NULL. Available since v.1.2.4.
 *
 *   \b pszLangFilePath [in, optional]
 *
-*     Since v.1.2.4, this parameter defines the absolute path (including file name) for language file.
-*     If this is NULL, the lang file is assumed to be located in the same dir as CrashSender.exe file and have the name crashrpt_lang.ini.
+*     This parameter defines the absolute path (including file name) for language file.
+*     If this is NULL, the lang file is assumed to be located in the same dir as CrashSender.exe file and have 
+*     the name crashrpt_lang.ini.
+*     This parameter is available since v.1.2.4.
 * 
 *   \b pszEmailText [in, optional]
 *
-*     Since v.1.2.4, this parameter defines the custom E-mail text that is used when deliverying error report
+*     This parameter defines the custom E-mail text that is used when deliverying error report
 *     as E-mail. If this is NULL, the default E-mail text is used. It is recommended to set this parameter with NULL.
+*     This parameter is available since v.1.2.4.
 *  
 *   \b pszSmtpProxy [in, optional] 
 *
-*     Since v.1.2.4, this parameter defines the network address and port formatted as "IP:port" to use as SMTP proxy. Example: "192.168.1.1:2525".
-*     If this is NULL, the SMTP server address is resolved using the MX record of sender's or recipient's mailbox. You should typically set this parameter with NULL, except in the
-*     case when your software is a server and custom SMTP configuration is required.
+*     This parameter defines the network address (IP or domain) and, optionally, port formatted as "address[:port]" 
+*     of SMTP server. Examples: "192.168.1.1:2525", "mail.example.com:25". 
+*     If this parameter is NULL, the SMTP server address is resolved using the MX record of recipient's mailbox. 
+*     You should typically set this parameter with NULL, except in the
+*     case when your software is a server and custom SMTP configuration is required. This parameter is available since v.1.2.4.
 *  
 *   \b pszCustomSenderIcon [in, optional] 
 *
-*   Since v.1.2.8, this parameter can be used to define a custom icon for <i>Error Report</i> dialog. 
-*   The value of this parameter should be absolute path to the module containing the icon resource, followed by resource identifier separated by comma.
-*   You can set this parameter with NULL to use the default icon.
+*     This parameter can be used to define a custom icon for <i>Error Report</i> dialog. This parameter is 
+*     available since v.1.2.8.
 *
-*   The resource identifier is a zero-based index of the icon to retrieve. For example, if this value is 0, the first icon in the specified file is used.
-*   If the identifier is a negative number not equal to -1, the icon in the specified file whose resource identifier is equal to the absolute value of the resource identifier is used.
-*   Example: "D:\MyApp\Resources.dll, -128". 
+*     The value of this parameter should be absolute path to the module containing the icon resource, followed 
+*     by resource identifier separated by comma. You can set this parameter with NULL to use the default icon.  
+*
+*     The resource identifier is a zero-based index of the icon to retrieve. For example, if this value is 0, 
+*     the first icon in the specified file is used. If the identifier is a negative number not equal to -1, 
+*     the icon in the specified file whose resource identifier is equal to the absolute value of the resource 
+*     identifier is used.
+*     Example: "D:\MyApp\Resources.dll, -128". 
 *  
-*        
+*   \b pszSmtpLogin [in, optional] 
+*      
+*     This parameter defines the login name for SMTP authentication. It is typically used together with 
+*     \ref pszSmtpProxy and \ref pszSmtpPassword parameter. 
+*     If this parameter is ommitted (NULL), no SMTP autentication is used. This parameter is available since v.1.3.1.
+*
+*   \b pszSmtpPassword [in, optional] 
+*      
+*     This parameter defines the password for SMTP authentication. It is used in pair with \ref pszSmtpLogin parameter. 
+*     This parameter is available since v.1.3.1.
 */
 
 typedef struct tagCR_INSTALL_INFOW
@@ -374,11 +397,14 @@ typedef struct tagCR_INSTALL_INFOW
     LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
     LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
     LPCWSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
+	LPCWSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
+	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
 }
 CR_INSTALL_INFOW, *PCR_INSTALL_INFOW;
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOA
+*  \brief This structure defines the general information used by crInstallA() function.
 *  \copydoc CR_INSTALL_INFOW
 */
 
@@ -403,6 +429,8 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
     LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
     LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
+	LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
+	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
 }
 CR_INSTALL_INFOA, *PCR_INSTALL_INFOA;
 
@@ -1030,6 +1058,7 @@ crAddRegKeyA(
 
 
 /*! \ingroup CrashRptStructs
+*   \brief The structure used by the crGenerateErrorReport() function.
 *  
 *  This structure defines the information needed to generate crash minidump file and
 *  provide the developer with other information about the error. This structure is used by

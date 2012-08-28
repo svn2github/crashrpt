@@ -2121,22 +2121,19 @@ BOOL CErrorReportSender::SendOverSMTP()
 		TCHAR   separators[] = _T(";, ");
 		TCHAR  *context		 = 0;
 		TCHAR  *to			 = _tcstok_s(const_cast<LPTSTR>((LPCTSTR)copy), separators, &context);
-	    m_EmailMsg.m_sFrom   = (to == 0 || *to == 0) ? m_CrashInfo.m_sEmailTo : to;
+		m_EmailMsg.SetSenderAddress((to == 0 || *to == 0) ? m_CrashInfo.m_sEmailTo : to);
 	} 
 	else
-		m_EmailMsg.m_sFrom = m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom;
-    m_EmailMsg.m_sTo = m_CrashInfo.m_sEmailTo;
-    m_EmailMsg.m_nRecipientPort = m_CrashInfo.m_nSmtpPort;
-    m_EmailMsg.m_sSubject = m_CrashInfo.m_sEmailSubject;
+		m_EmailMsg.SetSenderAddress(m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom);
+	m_EmailMsg.AddRecipients(m_CrashInfo.m_sEmailTo);    
+	m_EmailMsg.SetSubject(m_CrashInfo.m_sEmailSubject);
 
     if(m_CrashInfo.m_sEmailText.IsEmpty())
-        m_EmailMsg.m_sText = FormatEmailText();
+        m_EmailMsg.SetText(FormatEmailText());
     else
-        m_EmailMsg.m_sText = m_CrashInfo.m_sEmailText;
+        m_EmailMsg.SetText(m_CrashInfo.m_sEmailText);
 
-    m_EmailMsg.m_aAttachments.clear();
-
-    m_EmailMsg.m_aAttachments.insert(m_sZipName);  
+	m_EmailMsg.AddAttachment(m_sZipName);  
 
     // Create and attach MD5 hash file
     CString sErrorRptHash;
@@ -2157,12 +2154,15 @@ BOOL CErrorReportSender::SendOverSMTP()
         LPCSTR szErrorRptHash = strconv.t2a(sErrorRptHash.GetBuffer(0));
         fwrite(szErrorRptHash, strlen(szErrorRptHash), 1, f);
         fclose(f);
-        m_EmailMsg.m_aAttachments.insert(sTmpFileName);  
+        m_EmailMsg.AddAttachment(sTmpFileName);  
     }
 
     // Set SMTP proxy server (if specified)
     if ( !m_CrashInfo.m_sSmtpProxyServer.IsEmpty())
-        m_SmtpClient.SetSmtpProxy( m_CrashInfo.m_sSmtpProxyServer, m_CrashInfo.m_nSmtpProxyPort);
+        m_SmtpClient.SetSmtpServer( m_CrashInfo.m_sSmtpProxyServer, m_CrashInfo.m_nSmtpProxyPort);
+
+	// Set SMTP login and password
+	m_SmtpClient.SetAuthParams(m_CrashInfo.m_sSmtpLogin, m_CrashInfo.m_sSmtpPassword);
 
     // Send mail assynchronously
     int res = m_SmtpClient.SendEmailAssync(&m_EmailMsg, &m_Assync); 

@@ -110,7 +110,9 @@ public:
         __in_opt LPCTSTR lpcszLangFilePath = NULL,
         __in_opt LPCTSTR lpcszEmailText = NULL,
         __in_opt LPCTSTR lpcszSmtpProxy = NULL,
-        __in_opt LPCTSTR lpcszCustomSenderIcon = NULL);
+        __in_opt LPCTSTR lpcszCustomSenderIcon = NULL,
+		__in_opt LPCTSTR lpcszSmtpLogin = NULL,
+		__in_opt LPCTSTR lpcszSmtpPassword = NULL);
 
 	// Returns TRUE if object was initialized.
     BOOL IsInitialized();
@@ -258,6 +260,8 @@ public:
     int m_nSmtpPort;               // SMTP port.
     CString m_sSmtpProxyServer;    // SMTP proxy.
     int m_nSmtpProxyPort;          // SMTP proxy port.
+	CString m_sSmtpLogin;           // SMTP login.
+	CString m_sSmtpPassword;        // SMTP password.
     CString m_sEmailSubject;       // E-mail subject.
     CString m_sEmailText;          // E-mail text.
     UINT m_uPriorities[3];         // Delivery priorities.

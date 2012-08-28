@@ -120,6 +120,9 @@ namespace Utility
 
 	// This helper function checks if the string is too long and truncates it with ellipsis (...).
 	CString AddEllipsis(LPCTSTR szString, int nMaxLength);
+
+	// Splits string into list of tokens.
+	std::vector<CString> ExplodeStr(LPCTSTR szString, LPCTSTR szSeparators);
 };
 
 #endif	// _UTILITY_H_

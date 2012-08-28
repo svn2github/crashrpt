@@ -216,6 +216,8 @@ int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
     m_dwScreenshotFlags = m_pCrashDesc->m_dwScreenshotFlags; 
     m_nJpegQuality = m_pCrashDesc->m_nJpegQuality;
     UnpackString(m_pCrashDesc->m_dwCustomSenderIconOffs, m_sCustomSenderIcon);  
+	UnpackString(m_pCrashDesc->m_dwSmtpLoginOffs, m_sSmtpLogin);  
+	UnpackString(m_pCrashDesc->m_dwSmtpPasswordOffs, m_sSmtpPassword);  
 
     DWORD dwOffs = m_pCrashDesc->m_wSize;
     while(dwOffs<m_pCrashDesc->m_dwTotalSize)

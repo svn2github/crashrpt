@@ -103,7 +103,9 @@ int CCrashHandler::Init(
         LPCTSTR lpcszLangFilePath,
         LPCTSTR lpcszEmailText,
         LPCTSTR lpcszSmtpProxy,
-        LPCTSTR lpcszCustomSenderIcon)
+        LPCTSTR lpcszCustomSenderIcon,
+		LPCTSTR lpcszSmtpLogin,
+		LPCTSTR lpcszSmtpPassword)
 { 
     crSetErrorMsg(_T("Unspecified error."));
 
@@ -225,6 +227,15 @@ int CCrashHandler::Init(
             m_nSmtpProxyPort = _ttoi(sPort);
         }
     }
+
+	// Save login and password used for SMTP authentication.
+	if(lpcszSmtpLogin!=NULL)
+	{
+		m_sSmtpLogin = lpcszSmtpLogin;
+
+		if(lpcszSmtpPassword!=NULL)
+			m_sSmtpPassword = lpcszSmtpPassword;
+	}
 
     // Save E-mail subject
     m_sEmailSubject = lpcszSubject;
@@ -544,6 +555,8 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_dwEmailSubjectOffs = PackString(m_sEmailSubject);
     m_pTmpCrashDesc->m_dwEmailTextOffs = PackString(m_sEmailText);  
     m_pTmpCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);    
+	m_pTmpCrashDesc->m_dwSmtpLoginOffs = PackString(m_sSmtpLogin);    
+	m_pTmpCrashDesc->m_dwSmtpPasswordOffs = PackString(m_sSmtpPassword);    
 
     return m_pTmpCrashDesc;
 }

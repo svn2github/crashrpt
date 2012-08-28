@@ -2,6 +2,8 @@
 
 --- Ver. 1.3.1 ---
 
+- New: Added support of SMTP authentication (AUTH LOGIN) (Issue 143).
+
 - New: Added an ability to store the user's E-mail address and re-use later. When user
        enter his E-mail into "Your E-mail" field of Error Report dialog, the address
        is  saved and stored in ~CrashRpt.ini file. When a crash occurs

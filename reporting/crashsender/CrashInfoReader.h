@@ -152,6 +152,8 @@ public:
     int         m_nSmtpPort;            // SMTP port.
     CString     m_sSmtpProxyServer;     // SMTP proxy server.
     int         m_nSmtpProxyPort;       // SMTP proxy port.
+	CString     m_sSmtpLogin;           // SMTP login.
+	CString     m_sSmtpPassword;        // SMTP password.
     CString     m_sUrl;                 // URL (used for HTTP connection).
     BOOL        m_bHttpBinaryEncoding;  // Should we use binary transfer encoding (HTTP).
     BOOL        m_bSilentMode;          // Should we show GUI?
