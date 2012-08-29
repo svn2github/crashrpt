@@ -36,24 +36,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <signal.h>
 #include <assert.h>
 
-// Tests crExceptionFilter
-void test_seh()
-{
-    __try
-    {
-        int nResult = crEmulateCrash(CR_NONCONTINUABLE_EXCEPTION);
-        if(nResult!=0)
-        {      
-            MessageBox(NULL, _T("Error raising noncontinuable exception!"), _T("Error"), 0);    
-        }
-    }
-    __except(crExceptionFilter(GetExceptionCode(), GetExceptionInformation()))
-    {    
-        // Terminate program
-        ExitProcess(1);
-    }
-}
-
 // Tests crGenerateErrorReport
 void test_generate_report()
 {
@@ -95,11 +77,6 @@ DWORD WINAPI CrashThread(LPVOID pParam)
         {
             // Test generate report manually
             test_generate_report();
-        }
-        else if(pInfo->m_ExceptionType==CR_NONCONTINUABLE_EXCEPTION)
-        {
-            // Test crExceptionFilter
-            test_seh();
         }
         else if(crEmulateCrash(pInfo->m_ExceptionType)!=0)
         {

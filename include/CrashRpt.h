@@ -772,7 +772,7 @@ crAddScreenshot(
                 DWORD dwFlags
                 );
 
-/*! \ingroup CrashRptAPI  
+/*! \ingroup DeprecatedAPI  
 *  \brief Adds a screenshot to the crash report.
 * 
 *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
@@ -782,6 +782,9 @@ crAddScreenshot(
 *  
 *  \remarks 
 * 
+*  As of v.1.3.1, this function is deprecated and may be removed in one of the next releases. Use 
+*  \ref crAddScreenshot2() function instead.
+*
 *  This function can be used to take a screenshot at the moment of crash and add it to the error report. 
 *  Screenshot information may help the developer to better understand state of the application
 *  at the moment of crash and reproduce the error.

@@ -44,6 +44,5 @@ struct CrashThreadInfo
 
 DWORD WINAPI CrashThread(LPVOID pParam);
 
-void test_seh();
 void test_generate_report();
 

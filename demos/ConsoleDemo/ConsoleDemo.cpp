@@ -49,12 +49,6 @@ int main(int argc, char* argv[])
 
     // Install crash reporting
 
-#ifdef TEST_DEPRECATED_FUNCS
-    lpvState = Install(
-        NULL, 
-        _T("test@hotmail.com"), 
-        NULL);
-#else
     CR_INSTALL_INFO info;
     memset(&info, 0, sizeof(CR_INSTALL_INFO));
     info.cb = sizeof(CR_INSTALL_INFO);             // Size of the structure
@@ -76,26 +70,12 @@ int main(int argc, char* argv[])
         return FALSE;
     }
 
-#endif //TEST_DEPRECATED_FUNCS
-
     printf("Press Enter to simulate a null pointer exception or any other key to exit...\n");
     int n = _getch();
     if(n==13)
     {
-
-#ifdef _DEBUG
-        __try
-        {
-            RaiseException(123, EXCEPTION_NONCONTINUABLE, 0, NULL);
-        } 
-        __except(crExceptionFilter(GetExceptionCode(), GetExceptionInformation()))
-        {
-        }
-#else
         int *p = 0;
         *p = 0; // Access violation
-#endif // _DEBUG
-
     }
 
 #ifdef TEST_DEPRECATED_FUNCS
