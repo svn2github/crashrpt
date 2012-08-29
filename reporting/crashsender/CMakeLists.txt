@@ -2,6 +2,7 @@ project(CrashSender)
 
 # Create the list of source files
 aux_source_directory( . source_files )
+file( GLOB header_files *.h )
 
 # Enable usage of precompiled header
 set(srcs_using_precomp ${source_files})
@@ -36,7 +37,7 @@ else(NOT CMAKE_CL_64)
 endif(NOT CMAKE_CL_64)
 
 # Add executable build target
-add_executable(CrashSender WIN32 ${source_files})
+add_executable(CrashSender WIN32 ${source_files} ${header_files})
 
 # Add input link libraries
 target_link_libraries(CrashSender zlib minizip libjpeg libpng tinyxml WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib)

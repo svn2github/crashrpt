@@ -2,6 +2,7 @@ project(CrashRptProbe)
 
 # Create the list of source files
 aux_source_directory( . source_files )
+file( GLOB header_files *.h )
 
 list(APPEND source_files ./CrashRptProbe.rc ./CrashRptProbe.def ${CMAKE_SOURCE_DIR}/reporting/crashrpt/Utility.cpp
 			${CMAKE_SOURCE_DIR}/reporting/crashsender/md5.cpp)
@@ -28,9 +29,9 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
 			
 # Add library build target
 if(CRASHRPT_BUILD_SHARED_LIBS)	
-	add_library(CrashRptProbe SHARED ${source_files})
+	add_library(CrashRptProbe SHARED ${source_files} ${header_files})
 else(CRASHRPT_BUILD_SHARED_LIBS)
-	add_library(CrashRptProbe STATIC ${source_files})	
+	add_library(CrashRptProbe STATIC ${source_files} ${header_files})	
 endif(CRASHRPT_BUILD_SHARED_LIBS)
 
 if(CMAKE_CL_64)

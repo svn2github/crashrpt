@@ -2,6 +2,7 @@ project(ConsoleDemo)
 
 # Create the list of source files
 aux_source_directory( . source_files )
+file( GLOB header_files *.h )
 
 # Define _UNICODE (use wide-char encoding)
 add_definitions(-D_UNICODE )
@@ -19,7 +20,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include
 					${CMAKE_SOURCE_DIR}/thirdparty/tinyxml )
 
 # Add executable build target
-add_executable(ConsoleDemo ${source_files})
+add_executable(ConsoleDemo ${source_files} ${header_files})
 
 # Add input link libraries
 target_link_libraries(ConsoleDemo CrashRpt)

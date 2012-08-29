@@ -2,6 +2,7 @@ project(Tests)
 
 # Create the list of source files
 aux_source_directory( . source_files )
+file( GLOB header_files *.h )
 
 list(APPEND source_files ${CMAKE_SOURCE_DIR}/reporting/CrashRpt/Utility.cpp)
 
@@ -25,7 +26,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
 					 ${CMAKE_SOURCE_DIR}/thirdparty/wtl )
 
 # Add executable build target
-add_executable(Tests ${source_files})
+add_executable(Tests ${source_files} ${header_files})
 
 # Add input link libraries
 target_link_libraries(Tests CrashRpt CrashRptProbe)

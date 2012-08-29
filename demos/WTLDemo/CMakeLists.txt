@@ -2,6 +2,7 @@ project(WTLDemo)
 
 # Create the list of source files
 aux_source_directory( . source_files )
+file( GLOB header_files *.h )
 
 # Enable usage of precompiled header
 set(srcs_using_precomp ${source_files})
@@ -21,7 +22,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include
 					${CMAKE_SOURCE_DIR}/thirdparty/wtl)
 
 # Add executable build target
-add_executable(WTLDemo WIN32 ${source_files})
+add_executable(WTLDemo WIN32 ${source_files} ${header_files})
 
 # Add input link libraries
 target_link_libraries(WTLDemo CrashRpt)
