@@ -145,6 +145,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 #define CR_INST_STORE_ZIP_ARCHIVES            0x80000 //!< CrashRpt should store both uncompressed error report files and ZIP archives.
 #define CR_INST_SEND_MANDATORY				 0x100000 //!< This flag removes the "Close" and "Other actions" buttons from Error Report dialog, thus making the sending procedure mandatory for user.
 #define CR_INST_SHOW_ADDITIONAL_INFO_FIELDS	 0x200000 //!< Makes "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
+#define CR_INST_ALLOW_ATTACH_MORE_FILES		 0x400000 //!< Adds an ability for user to attach more files to crash report by clicking "Attach More File(s)" item from context menu of Error Report Details dialog.
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOW()
@@ -291,6 +292,9 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 *             problem occurred" fields of Error Report dialog always visible. By default (when this parameter not specified),
 *             these fields are hidden and user needs to click the "Provide additional info (recommended)" link to show them.
 *
+*    <tr><td> \ref CR_INST_ALLOW_ATTACH_MORE_FILES     
+*        <td> <b>Available since v.1.3.1</b> Adds an ability for user to attach more files to crash report by choosing 
+*             "Attach More File(s)" item from context menu of Error Report Details dialog. By default this feature is disabled.
 *   </table>
 *
 *   \b pszPrivacyPolicyURL [in, optional] 
@@ -627,9 +631,9 @@ crUninstallFromCurrentThread();
 
 #define CR_AF_TAKE_ORIGINAL_FILE  0 //!< Take the original file (do not copy it to the error report folder).
 #define CR_AF_MAKE_FILE_COPY      1 //!< Copy the file to the error report folder.
-
 #define CR_AF_FILE_MUST_EXIST     0 //!< Function will fail if file doesn't exist at the moment of function call.
 #define CR_AF_MISSING_FILE_OK     2 //!< Do not fail if file is missing (assume it will be created later).
+#define CR_AF_ALLOW_DELETE        4 //!< If this flag is specified, the file will be deletable from context menu of Error Report Details dialog.
 
 /*! \ingroup CrashRptAPI  
 *  \brief Adds a file to crash report.
@@ -664,6 +668,8 @@ crUninstallFromCurrentThread();
 *
 *       - \ref CR_AF_FILE_MUST_EXIST     The function will fail if file doesn't exist at the moment of function call (the default behavior). 
 *       - \ref CR_AF_MISSING_FILE_OK     Do not fail if file is missing (assume it will be created later).
+*
+*       - \ref CR_AF_ALLOW_DELETE        If this flag is specified, the user will be able to delete the file from error report using context menu of Error Report Details dialog.
 *
 *    If you do not use error report delivery (\ref CR_INST_DONT_SEND_REPORT flag) or if you use postponed error report delivery 
 *    (if you specify \ref CR_INST_SEND_QUEUED_REPORTS flag) 
@@ -719,7 +725,7 @@ crAddFile2A(
 #define CR_AS_GRAYSCALE_IMAGE 4  //!< Make a grayscale image instead of a full-color one.
 #define CR_AS_USE_JPEG_FORMAT 8  //!< Store screenshots as JPG files.
 
-/*! \ingroup CrashRptAPI  
+/*! \ingroup DeprecatedAPI  
 *  \brief Adds a screenshot to the crash report.
 * 
 *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
@@ -727,6 +733,9 @@ crAddFile2A(
 *  \param[in] dwFlags Flags, optional.
 *  
 *  \remarks 
+*
+*  As of v.1.3.1, this function is deprecated and may be removed in one of the next releases. Use 
+*  \ref crAddScreenshot2() function instead.
 *
 *  This function can be used to take a screenshot at the moment of crash and add it to the error report. 
 *  Screenshot information may help the developer to better understand the state of the application
@@ -772,7 +781,7 @@ crAddScreenshot(
                 DWORD dwFlags
                 );
 
-/*! \ingroup DeprecatedAPI  
+/*! \ingroup CrashRptAPI  
 *  \brief Adds a screenshot to the crash report.
 * 
 *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
@@ -782,9 +791,6 @@ crAddScreenshot(
 *  
 *  \remarks 
 * 
-*  As of v.1.3.1, this function is deprecated and may be removed in one of the next releases. Use 
-*  \ref crAddScreenshot2() function instead.
-*
 *  This function can be used to take a screenshot at the moment of crash and add it to the error report. 
 *  Screenshot information may help the developer to better understand state of the application
 *  at the moment of crash and reproduce the error.
@@ -947,7 +953,6 @@ crAddRegKeyA(
 #endif //UNICODE
 
 // Exception types
-#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< SEH exception (deprecated name, use \ref CR_SEH_EXCEPTION instead).
 #define CR_SEH_EXCEPTION                0    //!< SEH exception.
 #define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
 #define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.

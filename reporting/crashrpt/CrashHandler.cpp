@@ -596,6 +596,7 @@ DWORD CCrashHandler::PackFileItem(FileItem& fi)
     pFileItem->m_dwDstFileNameOffs = PackString(fi.m_sDstFileName);
     pFileItem->m_dwDescriptionOffs = PackString(fi.m_sDescription);
     pFileItem->m_bMakeCopy = fi.m_bMakeCopy;
+	pFileItem->m_bAllowDelete = fi.m_bAllowDelete;
     pFileItem->m_wSize = (WORD)(m_pTmpCrashDesc->m_dwTotalSize-dwTotalSize);
 
     m_pTmpSharedMem->DestroyView(pView);
@@ -993,6 +994,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
     fi.m_sDescription = pszDesc;
     fi.m_sSrcFilePath = pszFile;
     fi.m_bMakeCopy = (dwFlags&CR_AF_MAKE_FILE_COPY)!=0;
+	fi.m_bAllowDelete = (dwFlags&CR_AF_ALLOW_DELETE)!=0;
     if(pszDestFile!=NULL)
     {
         fi.m_sDstFileName = pszDestFile;        

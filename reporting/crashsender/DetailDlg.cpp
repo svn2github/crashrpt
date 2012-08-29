@@ -84,46 +84,9 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 	// Init icons for the list
     m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);
     m_list.SetImageList(m_iconList, LVSIL_SMALL);
-
-    // Insert items to the list    
-	// Walk through files included into error report
-    std::map<CString, ERIFileItem>::iterator p;
-    unsigned i;
-    for (i = 0, p = pSender->GetCrashInfo()->GetReport(m_nCurReport)->m_FileItems.begin(); 
-        p != pSender->GetCrashInfo()->GetReport(m_nCurReport)->m_FileItems.end(); p++, i++)
-    {     
-        CString sDestFile = p->first;
-        CString sSrcFile = p->second.m_sSrcFile;
-        CString sFileDesc = p->second.m_sDesc;
-		HICON hIcon = NULL;
-		CString sTypeName;
-		LONGLONG lFileSize = 0;
-		CString sSize;
-        
-		// Get file info
-		p->second.GetFileInfo(hIcon, sTypeName, lFileSize);
-
-        int iImage = -1;
-        if(hIcon!=NULL)
-        {
-			// If icon loaded, add its copy to imagelist
-            iImage = m_iconList.AddIcon(hIcon);
-			// and destroy the original icon.
-            DestroyIcon(hIcon);
-        }
-
-		// Insert an item to the list control
-        int nItem = m_list.InsertItem(i, sDestFile, iImage);
-		        
-        m_list.SetItemText(nItem, 1, sFileDesc);    
-
-		sSize = Utility::FileSizeToStr(lFileSize);
-		m_list.SetItemText(nItem, 2, sSize);            
-    }
-
-    // Select the first list item
-    m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
-
+	    
+	FillFileItemList();
+	    
     // Init "Preview" static control
     m_statPreview = GetDlgItem(IDC_PREVIEWTEXT);
 	m_statPreview.SetWindowText(pSender->GetLangStr(_T("DetailDlg"), _T("Preview")));  
@@ -140,6 +103,62 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     CenterWindow();  
 
     return TRUE;
+}
+
+LRESULT CDetailDlg::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	m_filePreview.SetFile(NULL);
+	return NULL;
+}
+
+void CDetailDlg::FillFileItemList()
+{
+	// Walk through files included into error report
+	// Insert items to the list        
+	
+	m_iconList.RemoveAll();
+	m_list.DeleteAllItems();
+
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	int nCount = pSender->GetCrashInfo()->GetReport(m_nCurReport)->GetFileItemCount();
+    int i;	
+    for (i = 0; i<nCount; i++)
+    {     
+		ERIFileItem* pfi = pSender->GetCrashInfo()->GetReport(m_nCurReport)->GetFileItemByIndex(i);
+		CString sDestFile = pfi->m_sDestFile;
+        CString sSrcFile = pfi->m_sSrcFile;
+        CString sFileDesc = pfi->m_sDesc;
+		HICON hIcon = NULL;
+		CString sTypeName;
+		LONGLONG lFileSize = 0;
+		CString sSize;
+        
+		// Get file info
+		pfi->GetFileInfo(hIcon, sTypeName, lFileSize);
+
+        int iImage = -1;
+        if(hIcon!=NULL)
+        {
+			// If icon loaded, add its copy to imagelist
+            iImage = m_iconList.AddIcon(hIcon);
+			// and destroy the original icon.
+            DestroyIcon(hIcon);
+        }
+
+		// Insert an item to the list control
+        int nItem = m_list.InsertItem(i, sDestFile, iImage);
+		m_list.SetItemData(nItem, i);
+		        
+        m_list.SetItemText(nItem, 1, sFileDesc);    
+
+		sSize = Utility::FileSizeToStr(lFileSize);
+		m_list.SetItemText(nItem, 2, sSize);            
+    }
+
+	// Select the first list item
+    m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
+
 }
 
 LRESULT CDetailDlg::OnItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
@@ -169,15 +188,14 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
 
 	// Check if double-clicked on empty space.
-    if (iItem < 0 || 
-		(int)pCrashInfo->GetReport(m_nCurReport)->m_FileItems.size() < iItem)
+    if (iItem < 0)
 	{
 		// Do nothing
         return 0;
 	}
 
 	// Look for n-th item
-	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport)->GetItemByIndex(iItem);
+	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport)->GetFileItemByIndex(iItem);
 	if(pFileItem==NULL)
 		return 0;
     
@@ -201,7 +219,7 @@ void CDetailDlg::SelectItem(int iItem)
 	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
 
     // Look for n-th item
-	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport)->GetItemByIndex(iItem);
+	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport)->GetFileItemByIndex(iItem);
 	if(pFileItem==NULL)
 		return;
     
@@ -228,7 +246,7 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
 
 	// Format file name for the output ZIP archive.
-    CString sFileName = pCrashInfo->GetReport(m_nCurReport)->m_sCrashGUID + _T(".zip");
+    CString sFileName = pCrashInfo->GetReport(m_nCurReport)->GetCrashGUID() + _T(".zip");
 
 	// Display "Save File" dialog.
     CFileDialog dlg(FALSE, _T("*.zip"), sFileName,
@@ -399,6 +417,7 @@ LRESULT CDetailDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHand
 	// Get count of selected list items
 	int nItems = 0;
 	int nSelected = 0;
+	BOOL bAllowDelete = TRUE;
 	int i;
     for(i=0; i<m_list.GetItemCount(); i++)
     {
@@ -407,11 +426,169 @@ LRESULT CDetailDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHand
 		// If list item checked
 		if(m_list.GetItemState(i, LVIS_SELECTED)!=0)
 			nSelected++;
+		else
+			continue;
+
+		// Find file item in error report
+		int nItem = m_list.GetItemData(i);
+		ERIFileItem* pfi = pSender->GetCrashInfo()->GetReport(m_nCurReport)->GetFileItemByIndex(nItem);
+		if(!pfi->m_bAllowDelete)
+			bAllowDelete = FALSE;
 	}
 	
 	submenu.EnableMenuItem(ID_MENU7_OPEN, (nSelected==1)?MF_ENABLED:MF_DISABLED);
-	submenu.EnableMenuItem(ID_MENU7_DELETESELECTEDFILE, (nSelected>0)?MF_ENABLED:MF_DISABLED);	
+	submenu.EnableMenuItem(ID_MENU7_DELETESELECTEDFILE, (nSelected>0 && bAllowDelete)?MF_ENABLED:MF_DISABLED);	
+
+	if(!pSender->GetCrashInfo()->m_bAllowAttachMoreFiles)
+	{
+		submenu.DeleteMenu(ID_MENU7_ATTACHMOREFILES, MF_BYCOMMAND);	
+	}
 
 	submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
     return 0;
 }
+
+LRESULT CDetailDlg::OnPopupOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{	
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+	CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
+
+	// Get count of selected list items
+	int nItem = -1;
+	int nSelected = 0;
+	int i;
+    for(i=0; i<m_list.GetItemCount(); i++)
+    {
+		// If list item selected
+		if(m_list.GetItemState(i, LVIS_SELECTED)!=0)
+		{
+			nItem=i;
+			nSelected++;
+		}		
+	}
+
+	if(nSelected!=1)
+		return 0; // Should be exactly one item selected
+
+	// Look for n-th item
+	ERIFileItem* pFileItem = pCrashInfo->GetReport(m_nCurReport)->GetFileItemByIndex(nItem);
+	if(pFileItem==NULL)
+		return 0;
+    
+	// Get file name
+    CString sFileName = pFileItem->m_sSrcFile;
+
+	// Open the file with shell-provided functionality
+    DWORD dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
+        0, 0, SW_SHOWNORMAL);
+    ATLASSERT(dwRet > 32);
+	
+	return 0;
+}
+
+LRESULT CDetailDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// Walk through selected list items
+	std::vector<CString> asFilesToRemove;
+	int i;
+    for(i=0; i<m_list.GetItemCount(); i++)
+    {
+		// If list item is not selected
+		if(m_list.GetItemState(i, LVIS_SELECTED)==0)
+			continue;
+
+		// Determine appropriate file item
+		int nItem = m_list.GetItemData(i);		
+		ERIFileItem* pfi = pSender->GetCrashInfo()->GetReport(m_nCurReport)->GetFileItemByIndex(nItem);
+		if(pfi)
+		{
+			// Add this file to remove list
+			asFilesToRemove.push_back(pfi->m_sDestFile);
+		}
+	}
+
+	// Reset preview control to avoid locking the file being previewed.
+	m_filePreview.SetFile(NULL);
+
+	// Delete selected files from error report
+	pSender->GetCrashInfo()->RemoveFilesFromCrashReport(m_nCurReport, asFilesToRemove);
+
+	// Update file items list
+	FillFileItemList();
+
+	return 0;
+}
+
+LRESULT CDetailDlg::OnPopupAddMoreFiles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	// Display "Open File" dialog.
+    CFileDialog dlg(TRUE, _T("*.*"), NULL,
+        OFN_PATHMUSTEXIST|OFN_ALLOWMULTISELECT,
+        _T("All Files (*.*)\0*.*\0\0"), m_hWnd);
+
+    INT_PTR result = dlg.DoModal();
+    if(result==IDOK)
+    {		
+		// Parse the list of files
+		TCHAR* str = dlg.m_ofn.lpstrFile;
+		std::vector<CString> asItems;		
+		CString sItem;
+		int i;
+		for(i=0; ; i++)
+		{
+			if(str[i]==0)
+			{
+				// End of item
+				if(sItem.IsEmpty())
+					break; // End of multi-string
+				asItems.push_back(sItem);
+				sItem.Empty();
+				continue;
+			}
+			sItem += str[i];
+		}
+
+		std::vector<ERIFileItem> aFiles;
+		if(asItems.size()==1)
+		{
+			// Single file to add
+			CString sFileName = asItems[0];
+			
+			ERIFileItem fi;
+			fi.m_bAllowDelete = true;
+			fi.m_bMakeCopy = true;
+			fi.m_sDestFile = Utility::GetFileName(sFileName);
+			fi.m_sSrcFile = sFileName;			
+			aFiles.push_back(fi);
+		}
+		else if(asItems.size()>1)
+		{
+			// Several files to add
+			unsigned j;
+			for(j=1; j<asItems.size(); j++)
+			{
+				CString sFileName = asItems[0]+_T("\\")+asItems[j];
+			
+				ERIFileItem fi;
+				fi.m_bAllowDelete = true;	
+				fi.m_bMakeCopy = true;
+				fi.m_sDestFile = Utility::GetFileName(sFileName);
+				fi.m_sSrcFile = sFileName;			
+				aFiles.push_back(fi);
+			}
+		}
+
+		// Add files to crash report
+		CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+		CCrashInfoReader* pCrashInfo = pSender->GetCrashInfo();
+		pCrashInfo->AddFilesToCrashReport(m_nCurReport, aFiles);
+
+		// Update file items list
+		FillFileItemList();
+	}
+	
+	return 0;
+}
+

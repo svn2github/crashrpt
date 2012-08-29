@@ -85,7 +85,7 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
     int nInit = m_CrashInfo.Init(szFileMappingName);
     if(nInit!=0)
     {
-        m_sErrorMsg.Format(_T("Error reading crash info: %s"), m_CrashInfo.GetErrorMsg());
+		m_sErrorMsg.Format(_T("Error reading crash info: %s"), m_CrashInfo.GetErrorMsg().GetBuffer(0));
         return FALSE;
     }
 		
@@ -245,7 +245,7 @@ void CErrorReportSender::UnblockParentProcess()
 
     // Open the event the parent process had created for us
     CString sEventName;
-    sEventName.Format(_T("Local\\CrashRptEvent_%s"), pSender->GetCrashInfo()->GetReport(0)->m_sCrashGUID);
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), pSender->GetCrashInfo()->GetReport(0)->GetCrashGUID());
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
     if(hEvent!=NULL)
         SetEvent(hEvent); // Signal event
@@ -384,7 +384,7 @@ BOOL CErrorReportSender::Finalize()
     if(m_CrashInfo.m_bSendErrorReport && !m_CrashInfo.m_bQueueEnabled)
     {
         // Remove report files if queue disabled
-        Utility::RecycleFile(m_CrashInfo.GetReport(0)->m_sErrorReportDirName, true);    
+        Utility::RecycleFile(m_CrashInfo.GetReport(0)->GetErrorReportDirName(), true);    
     }
 
 	if(m_CrashInfo.m_bSendRecentReports)
@@ -491,7 +491,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
 
 	// Take the screen shot
     BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
-        m_CrashInfo.GetReport(m_nCurReport)->m_sErrorReportDirName, 
+        m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName(), 
         0, fmt, m_CrashInfo.m_nJpegQuality, bGrayscale, 
         ssi.m_aMonitors, screenshot_names);
     if(bTakeScreenshot==FALSE)
@@ -499,7 +499,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
         return FALSE;
     }
 
-    m_CrashInfo.GetReport(0)->m_ScreenshotInfo = ssi;
+    m_CrashInfo.GetReport(0)->SetScreenshotInfo(ssi);
 
     // Prepare the list of screenshot files we will add to the error report
     std::vector<ERIFileItem> FilesToAdd;
@@ -513,7 +513,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
         fi.m_sSrcFile = screenshot_names[i];
         fi.m_sDestFile = sDestFile;
         fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
-        m_CrashInfo.GetReport(0)->m_FileItems[fi.m_sDestFile] = fi;
+        m_CrashInfo.GetReport(0)->AddFileItem(&fi);
     }
 
     // Done
@@ -558,17 +558,17 @@ BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT Callb
                 strconv.w2t(CallbackInput->Module.FullPath));
 
 			// Here we want to collect module information
-			ErrorReportInfo* eri = m_CrashInfo.GetReport(0);
-			if(eri->m_dwExceptionAddress!=0)
+			CErrorReportInfo* eri = m_CrashInfo.GetReport(0);
+			if(eri->GetExceptionAddress()!=0)
 			{
 				// Check if this is the module where exception has happened
-				ULONG64 dwExcAddr = eri->m_dwExceptionAddress;
+				ULONG64 dwExcAddr = eri->GetExceptionAddress();
 				if(dwExcAddr>=CallbackInput->Module.BaseOfImage && 
 					dwExcAddr<=CallbackInput->Module.BaseOfImage+CallbackInput->Module.SizeOfImage)
 				{
 					// Save module information to the report
-					eri->m_sExceptionModule = CallbackInput->Module.FullPath;
-					eri->m_dwExceptionModuleBase = CallbackInput->Module.BaseOfImage;
+					eri->SetExceptionModule(CallbackInput->Module.FullPath);
+					eri->SetExceptionModuleBase(CallbackInput->Module.BaseOfImage);
 
 					// Save module version info
 					VS_FIXEDFILEINFO* fi = &CallbackInput->Module.VersionInfo;
@@ -579,8 +579,10 @@ BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT Callb
 						WORD dwPatchLevel = HIWORD(fi->dwProductVersionLS);
 						WORD dwVerBuild = LOWORD(fi->dwProductVersionLS);
 
-						eri->m_sExceptionModuleVersion.Format(_T("%u.%u.%u.%u"), 
-									dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);  					
+						CString sVer;
+						sVer.Format(_T("%u.%u.%u.%u"), 
+									dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);
+						eri->SetExceptionModuleVersion(sVer);  					
 					}
 				}
 			}
@@ -613,7 +615,7 @@ BOOL CErrorReportSender::CreateMiniDump()
     MINIDUMP_EXCEPTION_INFORMATION mei;
     MINIDUMP_CALLBACK_INFORMATION mci;
     CString sMinidumpFile = m_CrashInfo.GetReport(m_nCurReport)->
-        m_sErrorReportDirName + _T("\\crashdump.dmp");
+        GetErrorReportDirName() + _T("\\crashdump.dmp");
     std::vector<ERIFileItem> files_to_add;
     ERIFileItem fi;
     CString sErrorMsg;
@@ -762,7 +764,7 @@ cleanup:
     files_to_add.push_back(fi);
 
     // Add file to the list
-    m_CrashInfo.GetReport(0)->m_FileItems[fi.m_sDestFile] = fi;
+    m_CrashInfo.GetReport(0)->AddFileItem(&fi);
 	
     return bStatus;
 }
@@ -778,11 +780,11 @@ void CErrorReportSender::AddElemToXML(CString sName, CString sValue, TiXmlNode* 
 }
 
 // This method generates an XML file describing the crash
-BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
+BOOL CErrorReportSender::CreateCrashDescriptionXML(CErrorReportInfo& eri)
 {
     BOOL bStatus = FALSE;
     ERIFileItem fi;
-    CString sFileName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
+    CString sFileName = eri.GetErrorReportDirName() + _T("\\crashrpt.xml");
     CString sErrorMsg;
     strconv_t strconv;
     TiXmlDocument doc;
@@ -798,7 +800,7 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     fi.m_sSrcFile = sFileName;
     fi.m_sErrorStatus = sErrorMsg;  
     // Add this file to the list
-    eri.m_FileItems[fi.m_sDestFile] = fi;
+    eri.AddFileItem(&fi);
 
     TiXmlNode* root = root = new TiXmlElement("CrashRpt");
     doc.LinkEndChild(root);  
@@ -808,30 +810,30 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
     doc.InsertBeforeChild(root, *decl);
 	
-    AddElemToXML(_T("CrashGUID"), eri.m_sCrashGUID, root);
-    AddElemToXML(_T("AppName"), eri.m_sAppName, root);
-    AddElemToXML(_T("AppVersion"), eri.m_sAppVersion, root);  
-    AddElemToXML(_T("ImageName"), eri.m_sImageName, root);
-    AddElemToXML(_T("OperatingSystem"), eri.m_sOSName, root);
+    AddElemToXML(_T("CrashGUID"), eri.GetCrashGUID(), root);
+    AddElemToXML(_T("AppName"), eri.GetAppName(), root);
+    AddElemToXML(_T("AppVersion"), eri.GetAppVersion(), root);  
+    AddElemToXML(_T("ImageName"), eri.GetImageName(), root);
+    AddElemToXML(_T("OperatingSystem"), eri.GetOSName(), root);
 
 
-    sOSIs64Bit.Format(_T("%d"), eri.m_bOSIs64Bit);
+    sOSIs64Bit.Format(_T("%d"), eri.IsOS64Bit());
     AddElemToXML(_T("OSIs64Bit"), sOSIs64Bit, root);
 
-    AddElemToXML(_T("GeoLocation"), eri.m_sGeoLocation, root);
-    AddElemToXML(_T("SystemTimeUTC"), eri.m_sSystemTimeUTC, root);
+    AddElemToXML(_T("GeoLocation"), eri.GetGeoLocation(), root);
+    AddElemToXML(_T("SystemTimeUTC"), eri.GetSystemTimeUTC(), root);
 		
-	if(eri.m_dwExceptionAddress!=0)
+	if(eri.GetExceptionAddress()!=0)
 	{
-		sNum.Format(_T("0x%I64x"), eri.m_dwExceptionAddress);
+		sNum.Format(_T("0x%I64x"), eri.GetExceptionAddress());
 		AddElemToXML(_T("ExceptionAddress"), sNum, root);
 
-		AddElemToXML(_T("ExceptionModule"), eri.m_sExceptionModule, root);
+		AddElemToXML(_T("ExceptionModule"), eri.GetExceptionModule(), root);
 
-		sNum.Format(_T("0x%I64x"), eri.m_dwExceptionModuleBase);
+		sNum.Format(_T("0x%I64x"), eri.GetExceptionModuleBase());
 		AddElemToXML(_T("ExceptionModuleBase"), sNum, root);
 
-		AddElemToXML(_T("ExceptionModuleVersion"), eri.m_sExceptionModuleVersion, root);
+		AddElemToXML(_T("ExceptionModuleVersion"), eri.GetExceptionModuleVersion(), root);
 	}
 
     sExceptionType.Format(_T("%d"), m_CrashInfo.m_nExceptionType);
@@ -860,32 +862,32 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     }
 
     CString sGuiResources;
-    sGuiResources.Format(_T("%d"), eri.m_dwGuiResources);
+    sGuiResources.Format(_T("%d"), eri.GetGuiResourceCount());
     AddElemToXML(_T("GUIResourceCount"), sGuiResources, root);
 
     CString sProcessHandleCount;
-    sProcessHandleCount.Format(_T("%d"), eri.m_dwProcessHandleCount);
+    sProcessHandleCount.Format(_T("%d"), eri.GetProcessHandleCount());
     AddElemToXML(_T("OpenHandleCount"), sProcessHandleCount, root);
 
-    AddElemToXML(_T("MemoryUsageKbytes"), eri.m_sMemUsage, root);
+    AddElemToXML(_T("MemoryUsageKbytes"), eri.GetMemUsage(), root);
 
-    if(eri.m_ScreenshotInfo.m_bValid)
+    if(eri.GetScreenshotInfo().m_bValid)
     {
         TiXmlHandle hScreenshotInfo = new TiXmlElement("ScreenshotInfo");
         root->LinkEndChild(hScreenshotInfo.ToNode());
 
         TiXmlHandle hVirtualScreen = new TiXmlElement("VirtualScreen");    
 
-        sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.left);
+        sNum.Format(_T("%d"), eri.GetScreenshotInfo().m_rcVirtualScreen.left);
         hVirtualScreen.ToElement()->SetAttribute("left", strconv.t2utf8(sNum));
 
-        sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.top);
+        sNum.Format(_T("%d"), eri.GetScreenshotInfo().m_rcVirtualScreen.top);
         hVirtualScreen.ToElement()->SetAttribute("top", strconv.t2utf8(sNum));
 
-        sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.Width());
+        sNum.Format(_T("%d"), eri.GetScreenshotInfo().m_rcVirtualScreen.Width());
         hVirtualScreen.ToElement()->SetAttribute("width", strconv.t2utf8(sNum));
 
-        sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.Height());
+        sNum.Format(_T("%d"), eri.GetScreenshotInfo().m_rcVirtualScreen.Height());
         hVirtualScreen.ToElement()->SetAttribute("height", strconv.t2utf8(sNum));
 
         hScreenshotInfo.ToNode()->LinkEndChild(hVirtualScreen.ToNode());
@@ -894,9 +896,9 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
         hScreenshotInfo.ToElement()->LinkEndChild(hMonitors.ToNode());                  
 
         size_t i;
-        for(i=0; i<eri.m_ScreenshotInfo.m_aMonitors.size(); i++)
+        for(i=0; i<eri.GetScreenshotInfo().m_aMonitors.size(); i++)
         { 
-            MonitorInfo& mi = eri.m_ScreenshotInfo.m_aMonitors[i];      
+            MonitorInfo& mi = eri.GetScreenshotInfo().m_aMonitors[i];      
             TiXmlHandle hMonitor = new TiXmlElement("Monitor");
 
             sNum.Format(_T("%d"), mi.m_rcMonitor.left);
@@ -919,9 +921,9 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
         TiXmlHandle hWindows = new TiXmlElement("Windows");
         hScreenshotInfo.ToElement()->LinkEndChild(hWindows.ToNode());                  
 
-        for(i=0; i<eri.m_ScreenshotInfo.m_aWindows.size(); i++)
+        for(i=0; i<eri.GetScreenshotInfo().m_aWindows.size(); i++)
         { 
-            WindowInfo& wi = eri.m_ScreenshotInfo.m_aWindows[i];      
+            WindowInfo& wi = eri.GetScreenshotInfo().m_aWindows[i];      
             TiXmlHandle hWindow = new TiXmlElement("Window");
 
             sNum.Format(_T("%d"), wi.m_rcWnd.left);
@@ -945,13 +947,17 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     TiXmlHandle hCustomProps = new TiXmlElement("CustomProps");
     root->LinkEndChild(hCustomProps.ToNode());
 
-    std::map<CString, CString>::iterator it2;
-    for(it2=eri.m_Props.begin(); it2!=eri.m_Props.end(); it2++)
+	int i;
+	for(i=0; i<eri.GetPropCount(); i++)
     { 
+		CString sName;
+		CString sVal;
+		eri.GetPropByIndex(i, sName, sVal);
+
         TiXmlHandle hProp = new TiXmlElement("Prop");
 
-        hProp.ToElement()->SetAttribute("name", strconv.t2utf8(it2->first));
-        hProp.ToElement()->SetAttribute("value", strconv.t2utf8(it2->second));
+        hProp.ToElement()->SetAttribute("name", strconv.t2utf8(sName));
+        hProp.ToElement()->SetAttribute("value", strconv.t2utf8(sVal));
 
         hCustomProps.ToElement()->LinkEndChild(hProp.ToNode());                  
     }
@@ -959,16 +965,17 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     TiXmlHandle hFileItems = new TiXmlElement("FileList");
     root->LinkEndChild(hFileItems.ToNode());
 
-    std::map<CString, ERIFileItem>::iterator it;
-    for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
+    for(i=0; i<eri.GetFileItemCount(); i++)
     {    
-        ERIFileItem& rfi = it->second;
+		ERIFileItem* rfi = eri.GetFileItemByIndex(i);
         TiXmlHandle hFileItem = new TiXmlElement("FileItem");
 
-        hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(rfi.m_sDestFile));
-        hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(rfi.m_sDesc));
-        if(!rfi.m_sErrorStatus.IsEmpty())
-            hFileItem.ToElement()->SetAttribute("error", strconv.t2utf8(rfi.m_sErrorStatus));
+        hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(rfi->m_sDestFile));
+        hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(rfi->m_sDesc));
+		if(rfi->m_bAllowDelete)
+			hFileItem.ToElement()->SetAttribute("optional", "1");
+        if(!rfi->m_sErrorStatus.IsEmpty())
+            hFileItem.ToElement()->SetAttribute("error", strconv.t2utf8(rfi->m_sErrorStatus));
 
         hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());                  
     }
@@ -1005,7 +1012,7 @@ cleanup:
 
     if(!bStatus)
     {
-        eri.m_FileItems[fi.m_sDestFile].m_sErrorStatus = sErrorMsg;
+		eri.GetFileItemByName(fi.m_sDestFile)->m_sErrorStatus = sErrorMsg;
     }
 
     return bStatus;
@@ -1016,7 +1023,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
 { 
     BOOL bStatus = FALSE;
     CString str;
-    CString sErrorReportDir = m_CrashInfo.GetReport(m_nCurReport)->m_sErrorReportDirName;
+    CString sErrorReportDir = m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName();
     CString sSrcFile;
     CString sDestFile;
     HANDLE hSrcFile = INVALID_HANDLE_VALUE;
@@ -1029,53 +1036,54 @@ BOOL CErrorReportSender::CollectCrashFiles()
     DWORD dwBytesWritten=0;
     BOOL bRead = FALSE;
     BOOL bWrite = FALSE;
-    std::map<CString, CString>::iterator rit;
-
+    
     // Copy application-defined files that should be copied on crash
     m_Assync.SetProgress(_T("[copying_files]"), 0, false);
 
 	// Walk through error report files
-    std::map<CString, ERIFileItem>::iterator it;
-    for(it=m_CrashInfo.GetReport(m_nCurReport)->m_FileItems.begin(); it!=m_CrashInfo.GetReport(m_nCurReport)->m_FileItems.end(); it++)
+    int i;
+	for(i=0; i<m_CrashInfo.GetReport(m_nCurReport)->GetFileItemCount(); i++)
     {
+		ERIFileItem* pfi = m_CrashInfo.GetReport(m_nCurReport)->GetFileItemByIndex(i);
+
 		// Check if operation was cancelled by user
         if(m_Assync.IsCancelled())
             goto cleanup;
 
 		// If we should make a copy of the file
-        if(it->second.m_bMakeCopy)
+        if(pfi->m_bMakeCopy)
         {
-            str.Format(_T("Copying file %s."), it->second.m_sSrcFile);
+            str.Format(_T("Copying file %s."), pfi->m_sSrcFile);
             m_Assync.SetProgress(str, 0, false);
 
             // Open source file with read/write sharing permissions.
-            hSrcFile = CreateFile(it->second.m_sSrcFile, GENERIC_READ, 
+            hSrcFile = CreateFile(pfi->m_sSrcFile, GENERIC_READ, 
                 FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
             if(hSrcFile==INVALID_HANDLE_VALUE)
             {
-                it->second.m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
-                str.Format(_T("Error opening file %s."), it->second.m_sSrcFile);
+                pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
+                str.Format(_T("Error opening file %s."), pfi->m_sSrcFile);
                 m_Assync.SetProgress(str, 0, false);
             }
 
             bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
             if(!bGetSize)
             {
-                it->second.m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
-                str.Format(_T("Couldn't get file size of %s"), it->second.m_sSrcFile);
+                pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
+                str.Format(_T("Couldn't get file size of %s"), pfi->m_sSrcFile);
                 m_Assync.SetProgress(str, 0, false);
                 CloseHandle(hSrcFile);
                 hSrcFile = INVALID_HANDLE_VALUE;
                 continue;
             }
 
-            sDestFile = sErrorReportDir + _T("\\") + it->second.m_sDestFile;
+            sDestFile = sErrorReportDir + _T("\\") + pfi->m_sDestFile;
 
             hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
                 FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
             if(hDestFile==INVALID_HANDLE_VALUE)
             {
-                it->second.m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
+                pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
                 str.Format(_T("Error creating file %s."), sDestFile);
                 m_Assync.SetProgress(str, 0, false);
                 CloseHandle(hSrcFile);
@@ -1111,42 +1119,46 @@ BOOL CErrorReportSender::CollectCrashFiles()
             hDestFile = INVALID_HANDLE_VALUE;
 
 			// Use the copy for display and zipping.
-			it->second.m_sSrcFile = sDestFile;
+			pfi->m_sSrcFile = sDestFile;
         }
     }
 
     // Create dump of registry keys
 
-    ErrorReportInfo* eri = m_CrashInfo.GetReport(m_nCurReport);  
-    if(eri->m_RegKeys.size()!=0)
+    CErrorReportInfo* eri = m_CrashInfo.GetReport(m_nCurReport);  
+	if(eri->GetRegKeyCount()!=0)
     {
         m_Assync.SetProgress(_T("Dumping registry keys..."), 0, false);    
     }
 
-	// Walk through our registry key list
-    for(rit=eri->m_RegKeys.begin(); rit!=eri->m_RegKeys.end(); rit++)
+	// Walk through our registry key list	
+    for(i=0; i<eri->GetRegKeyCount(); i++)
     {
+		CString sKeyName;
+		CString sFileName;
+		eri->GetRegKeyByIndex(i, sKeyName, sFileName);
+
         if(m_Assync.IsCancelled())
             goto cleanup;
 
-        CString sFileName = eri->m_sErrorReportDirName + _T("\\") + rit->second;
+        CString sFilePath = eri->GetErrorReportDirName() + _T("\\") + sFileName;
 
-        str.Format(_T("Dumping registry key '%s' to file '%s' "), rit->first, sFileName);
+        str.Format(_T("Dumping registry key '%s' to file '%s' "), sKeyName, sFilePath);
         m_Assync.SetProgress(str, 0, false);    
 
         // Create registry key dump
         CString sErrorMsg;
-        DumpRegKey(rit->first, sFileName, sErrorMsg);
+        DumpRegKey(sKeyName, sFilePath, sErrorMsg);
         ERIFileItem fi;
-        fi.m_sSrcFile = sFileName;
-        fi.m_sDestFile = rit->second;
+        fi.m_sSrcFile = sFilePath;
+        fi.m_sDestFile = sFileName;
         fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescRegKey"));
         fi.m_bMakeCopy = FALSE;
         fi.m_sErrorStatus = sErrorMsg;
         std::vector<ERIFileItem> file_list;
         file_list.push_back(fi);
         // Add file to the list of file items
-        m_CrashInfo.GetReport(0)->m_FileItems[fi.m_sDestFile] = fi;
+        m_CrashInfo.GetReport(0)->AddFileItem(&fi);
     }
 
     // Create crash description XML
@@ -1528,18 +1540,18 @@ BOOL CErrorReportSender::RestartApp()
     if(m_CrashInfo.m_sRestartCmdLine.IsEmpty())
     {
         // Format with double quotes to avoid first empty parameter
-        sCmdLine.Format(_T("\"%s\""), m_CrashInfo.GetReport(m_nCurReport)->m_sImageName);
+        sCmdLine.Format(_T("\"%s\""), m_CrashInfo.GetReport(m_nCurReport)->GetImageName());
     }
     else
     {
 		// Format with double quotes to avoid first empty parameters
-        sCmdLine.Format(_T("\"%s\" %s"), m_CrashInfo.GetReport(m_nCurReport)->m_sImageName, 
+        sCmdLine.Format(_T("\"%s\" %s"), m_CrashInfo.GetReport(m_nCurReport)->GetImageName(), 
             m_CrashInfo.m_sRestartCmdLine.GetBuffer(0));
     }
 
 	// Create process using the command line prepared earlier
     BOOL bCreateProcess = CreateProcess(
-        m_CrashInfo.GetReport(m_nCurReport)->m_sImageName, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+        m_CrashInfo.GetReport(m_nCurReport)->GetImageName(), sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
     
 	// The following is to avoid a handle leak
 	if(pi.hProcess)
@@ -1569,27 +1581,29 @@ BOOL CErrorReportSender::RestartApp()
 }
 
 // This method calculates the total size of files included into error report
-LONG64 CErrorReportSender::GetUncompressedReportSize(ErrorReportInfo* eri)
+LONG64 CErrorReportSender::GetUncompressedReportSize(CErrorReportInfo* eri)
 {
 	// Add a message to log and reset progress
     m_Assync.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
 
-    LONG64 lTotalSize = 0;
-    std::map<CString, ERIFileItem>::iterator it;
+    LONG64 lTotalSize = 0;    
     HANDLE hFile = INVALID_HANDLE_VALUE;  
     CString sMsg;
     BOOL bGetSize = FALSE;
     LARGE_INTEGER lFileSize;
 
 	// Enumerate files contained in the error report
-    for(it=eri->m_FileItems.begin(); it!=eri->m_FileItems.end(); it++)
+	int i;
+	for(i=0; i<eri->GetFileItemCount(); i++)
     {    
+		ERIFileItem* pfi = eri->GetFileItemByIndex(i);
+
 		// Check if operation cancelled by user
         if(m_Assync.IsCancelled())    
             return 0;
 
 		// Get name of the file
-        CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
+        CString sFileName = pfi->m_sSrcFile.GetBuffer(0);
 		// Open file for reading
         hFile = CreateFile(sFileName, 
             GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
@@ -1623,7 +1637,7 @@ LONG64 CErrorReportSender::GetUncompressedReportSize(ErrorReportInfo* eri)
 }
 
 // This method compresses the files contained in the report and produces a ZIP archive.
-BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo* eri)
+BOOL CErrorReportSender::CompressReportFiles(CErrorReportInfo* eri)
 { 
     BOOL bStatus = FALSE;
     strconv_t strconv;
@@ -1655,7 +1669,7 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo* eri)
     if(m_bExport)
         m_sZipName = m_sExportFileName;  
     else
-        m_sZipName = eri->m_sErrorReportDirName + _T(".zip");  
+        m_sZipName = eri->GetErrorReportDirName() + _T(".zip");  
 
 	// Update progress
     sMsg.Format(_T("Creating ZIP archive file %s"), m_sZipName);
@@ -1670,18 +1684,21 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo* eri)
     }
 
 	// Enumerate files contained in the report
-    for(it=eri->m_FileItems.begin(); it!=eri->m_FileItems.end(); it++)
+	int i;
+	for(i=0; i<eri->GetFileItemCount(); i++)
     { 
+		ERIFileItem* pfi = eri->GetFileItemByIndex(i);
+
 		// Check if the operation was cancelled by user
         if(m_Assync.IsCancelled())    
             goto cleanup;
 
 		// Define destination file name in ZIP archive
-        CString sDstFileName = it->second.m_sDestFile.GetBuffer(0);
+        CString sDstFileName = pfi->m_sDestFile.GetBuffer(0);
 		// Define source file name
-        CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
+        CString sFileName = pfi->m_sSrcFile.GetBuffer(0);
 		// Define file description
-        CString sDesc = it->second.m_sDesc;
+        CString sDesc = pfi->m_sDesc;
 
 		// Update progress
         sMsg.Format(_T("Compressing file %s"), sDstFileName);
@@ -1908,21 +1925,21 @@ BOOL CErrorReportSender::SendReport()
     {
 		// Success
         m_Assync.SetProgress(_T("[status_success]"), 0);
-        m_CrashInfo.GetReport(m_nCurReport)->m_DeliveryStatus = DELIVERED;
+        m_CrashInfo.GetReport(m_nCurReport)->SetDeliveryStatus(DELIVERED);
         // Delete report files
-        Utility::RecycleFile(m_CrashInfo.GetReport(m_nCurReport)->m_sErrorReportDirName, true);    
+        Utility::RecycleFile(m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName(), true);    
     }
     else
     {
 		// Some error occurred
-        m_CrashInfo.GetReport(m_nCurReport)->m_DeliveryStatus = FAILED;    
+        m_CrashInfo.GetReport(m_nCurReport)->SetDeliveryStatus(FAILED);    
         m_Assync.SetProgress(_T("[status_failed]"), 0);    
 
         // Check if we should store files for later delivery or we should remove them
         if(!m_CrashInfo.m_bQueueEnabled)
         {
             // Delete report files
-            Utility::RecycleFile(m_CrashInfo.GetReport(m_nCurReport)->m_sErrorReportDirName, true);    
+            Utility::RecycleFile(m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName(), true);    
         }
     }
 
@@ -1959,23 +1976,23 @@ BOOL CErrorReportSender::SendOverHTTP()
     CHttpRequest request;
     request.m_sUrl = m_CrashInfo.m_sUrl;  
 
-	ErrorReportInfo* eri = m_CrashInfo.GetReport(m_nCurReport);
+	CErrorReportInfo* eri = m_CrashInfo.GetReport(m_nCurReport);
 
 	// Fill in the request fields
 	CString sNum;
 	sNum.Format(_T("%d"), CRASHRPT_VER);
 	request.m_aTextFields[_T("crashrptver")] = strconv.t2utf8(sNum);
-    request.m_aTextFields[_T("appname")] = strconv.t2utf8(eri->m_sAppName);
-    request.m_aTextFields[_T("appversion")] = strconv.t2utf8(eri->m_sAppVersion);
-    request.m_aTextFields[_T("crashguid")] = strconv.t2utf8(eri->m_sCrashGUID);
-    request.m_aTextFields[_T("emailfrom")] = strconv.t2utf8(eri->m_sEmailFrom);
+    request.m_aTextFields[_T("appname")] = strconv.t2utf8(eri->GetAppName());
+    request.m_aTextFields[_T("appversion")] = strconv.t2utf8(eri->GetAppVersion());
+    request.m_aTextFields[_T("crashguid")] = strconv.t2utf8(eri->GetCrashGUID());
+    request.m_aTextFields[_T("emailfrom")] = strconv.t2utf8(eri->GetEmailFrom());
     request.m_aTextFields[_T("emailsubject")] = strconv.t2utf8(m_CrashInfo.m_sEmailSubject);
-    request.m_aTextFields[_T("description")] = strconv.t2utf8(eri->m_sDescription);
-	request.m_aTextFields[_T("exceptionmodule")] = strconv.t2utf8(eri->m_sExceptionModule);
-	request.m_aTextFields[_T("exceptionmoduleversion")] = strconv.t2utf8(eri->m_sExceptionModuleVersion);	
-	sNum.Format(_T("%I64u"), eri->m_dwExceptionModuleBase);
+    request.m_aTextFields[_T("description")] = strconv.t2utf8(eri->GetProblemDescription());
+	request.m_aTextFields[_T("exceptionmodule")] = strconv.t2utf8(eri->GetExceptionModule());
+	request.m_aTextFields[_T("exceptionmoduleversion")] = strconv.t2utf8(eri->GetExceptionModuleVersion());	
+	sNum.Format(_T("%I64u"), eri->GetExceptionModuleBase());
 	request.m_aTextFields[_T("exceptionmodulebase")] = strconv.t2utf8(sNum);
-	sNum.Format(_T("%I64u"), eri->m_dwExceptionAddress);
+	sNum.Format(_T("%I64u"), eri->GetExceptionAddress());
 	request.m_aTextFields[_T("exceptionaddress")] = strconv.t2utf8(sNum);
 
 	// Add an MD5 hash of file attachment
@@ -2067,18 +2084,18 @@ CString CErrorReportSender::FormatEmailText()
     CString sText;
 
     sText += _T("This is the error report from ") + m_CrashInfo.m_sAppName + 
-        _T(" ") + m_CrashInfo.GetReport(m_nCurReport)->m_sAppVersion+_T(".\n\n");
+        _T(" ") + m_CrashInfo.GetReport(m_nCurReport)->GetAppVersion()+_T(".\n\n");
 
-    if(!m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom.IsEmpty())
+    if(!m_CrashInfo.GetReport(m_nCurReport)->GetEmailFrom().IsEmpty())
     {
-        sText += _T("This error report was sent by ") + m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom + _T(".\n");
+        sText += _T("This error report was sent by ") + m_CrashInfo.GetReport(m_nCurReport)->GetEmailFrom() + _T(".\n");
         sText += _T("If you need additional info about the problem, you may want to contact this user again.\n\n");
     }     
 
-    if(!m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom.IsEmpty())
+    if(!m_CrashInfo.GetReport(m_nCurReport)->GetProblemDescription().IsEmpty())
     {
         sText += _T("The user has provided the following problem description:\n<<< ") + 
-            m_CrashInfo.GetReport(m_nCurReport)->m_sDescription + _T(" >>>\n\n");    
+            m_CrashInfo.GetReport(m_nCurReport)->GetProblemDescription() + _T(" >>>\n\n");    
     }
 
     sText += _T("You may find detailed information about the error in files attached to this message:\n\n");
@@ -2113,7 +2130,7 @@ BOOL CErrorReportSender::SendOverSMTP()
 
 	// Fill in email fields
     // If the sender is not defined, use the first e-mail address from the recipient list.
-	if (m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom.IsEmpty()) 
+	if (m_CrashInfo.GetReport(m_nCurReport)->GetEmailFrom().IsEmpty()) 
 	{
 		// Force a copy of the string. Simple assignment just references the data of g_CrashInfo.m_sEmailTo. 
 		// The copy string will be modified by strtok.
@@ -2124,7 +2141,7 @@ BOOL CErrorReportSender::SendOverSMTP()
 		m_EmailMsg.SetSenderAddress((to == 0 || *to == 0) ? m_CrashInfo.m_sEmailTo : to);
 	} 
 	else
-		m_EmailMsg.SetSenderAddress(m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom);
+		m_EmailMsg.SetSenderAddress(m_CrashInfo.GetReport(m_nCurReport)->GetEmailFrom());
 	m_EmailMsg.AddRecipients(m_CrashInfo.m_sEmailTo);    
 	m_EmailMsg.SetSubject(m_CrashInfo.m_sEmailSubject);
 
@@ -2240,7 +2257,7 @@ BOOL CErrorReportSender::SendOverSMAPI()
     m_Assync.SetProgress(msg, 10);
 
 	// Fill in email fields
-    m_MapiSender.SetFrom(m_CrashInfo.GetReport(m_nCurReport)->m_sEmailFrom);
+    m_MapiSender.SetFrom(m_CrashInfo.GetReport(m_nCurReport)->GetEmailFrom());
 	
 	// The copy string will be modified by strtok.
 	CString copy		 = m_CrashInfo.m_sEmailTo;
@@ -2351,11 +2368,11 @@ BOOL CErrorReportSender::SendNextReport(int nReport)
 	if(m_Assync.IsCancelled())
 		return FALSE;	// Return FALSE to prevent sending next report
 
-	ErrorReportInfo* eri = NULL;
+	CErrorReportInfo* eri = NULL;
 	if(nReport != -1)
 	{
 		eri = m_CrashInfo.GetReport(nReport);
-		if(!eri->m_bSelected || eri->m_DeliveryStatus!=PENDING)
+		if(!eri->IsSelected() || eri->GetDeliveryStatus()!=PENDING)
 			eri = NULL;
 	}
 
@@ -2365,10 +2382,10 @@ BOOL CErrorReportSender::SendNextReport(int nReport)
 		int i;
 		for(i=0; i<m_CrashInfo.GetReportCount(); i++)
 		{
-			if(!m_CrashInfo.GetReport(i)->m_bSelected)
+			if(!m_CrashInfo.GetReport(i)->IsSelected())
 				continue; // Skip this (not selected item)
 			            
-			if(m_CrashInfo.GetReport(i)->m_DeliveryStatus==PENDING)
+			if(m_CrashInfo.GetReport(i)->GetDeliveryStatus()==PENDING)
 			{
 				nReport = i;
 				eri = m_CrashInfo.GetReport(i);
@@ -2386,32 +2403,32 @@ BOOL CErrorReportSender::SendNextReport(int nReport)
 	// Save current report index			
 	m_nCurReport = nReport;
 
-	eri->m_DeliveryStatus = INPROGRESS;
+	eri->SetDeliveryStatus(INPROGRESS);
 
 	// Notify GUI about current item change
 	if(IsWindow(m_hWndNotify))
-		::PostMessage(m_hWndNotify, WM_ITEM_STATUS_CHANGED, (WPARAM)m_nCurReport, (LPARAM)eri->m_DeliveryStatus);	
+		::PostMessage(m_hWndNotify, WM_ITEM_STATUS_CHANGED, (WPARAM)m_nCurReport, (LPARAM)eri->GetDeliveryStatus());	
 						
     // Add a message to log
 	CString sMsg;
 	sMsg.Format(_T(">>> Performing actions with error report: '%s'"), 
-	m_CrashInfo.GetReport(m_nCurReport)->m_sErrorReportDirName);
+					m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName());
 	m_Assync.SetProgress(sMsg, 0, false);
 
 	// Send report
     if(!DoWork(COMPRESS_REPORT|SEND_REPORT))
 	{
 		m_bErrors = TRUE;
-		eri->m_DeliveryStatus = FAILED;
+		eri->SetDeliveryStatus(FAILED);
 	}
 	else
 	{
-		eri->m_DeliveryStatus = DELIVERED;
+		eri->SetDeliveryStatus(DELIVERED);
 	}
 
 	// Notify GUI about current item change
 	if(IsWindow(m_hWndNotify))
-		::PostMessage(m_hWndNotify, WM_ITEM_STATUS_CHANGED, (WPARAM)m_nCurReport, (LPARAM)eri->m_DeliveryStatus);
+		::PostMessage(m_hWndNotify, WM_ITEM_STATUS_CHANGED, (WPARAM)m_nCurReport, (LPARAM)eri->GetDeliveryStatus());
 
 	// Return TRUE to indicate next report can be sent
     return TRUE;

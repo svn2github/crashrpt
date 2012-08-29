@@ -3,7 +3,8 @@
 --- Ver. 1.3.1 ---
 
 - New: Removed deprecated functions crAddFileA(), crAddFileW(), 
-       crInstallToCurrentThread(), crExceptionFilter().
+       crInstallToCurrentThread(), crExceptionFilter() and deprecated 
+       constant CR_WIN32_STRUCTURED_EXCEPTION.
 
 - New: Improved robustness to stack overflow (issue 121). Now stack overflow is handled
        in separate thread makeing CrashRpt more robust to problem of not enogh stack memory.
@@ -13,11 +14,16 @@
 
 - New: Added an ability to attach more files to error report or delete selected files
        from error report through context menu of Error Report Details dialog (issue 132).
+       Introduced new flag CR_INST_ALLOW_ATTACH_MORE_FILES for crInstall() function. 
+
+- New: Added new CR_AF_ALLOW_DELETE flag for crAddFile2() function. If this flag is specified, 
+       the user will be able to delete the file from error report using context menu of 
+       Error Report Details dialog. (issue 132)
 
 - New: Added support of SMTP authentication (AUTH LOGIN) (Issue 143).
 
 - New: Added an ability to store the user's E-mail address and re-use later. When user
-       enter his E-mail into "Your E-mail" field of Error Report dialog, the address
+       enters his E-mail into "Your E-mail" field of Error Report dialog, the address
        is  saved and stored in ~CrashRpt.ini file. When a crash occurs
        later, the address is filled in automatically. (issue 155)
 
@@ -28,7 +34,7 @@
 - New: Added CR_INST_SHOW_ADDITIONAL_INFO_FIELDS flag. This flag makes "Your E-mail" and 
        "Describe what you were doing when the problem occurred" fields of Error Report 
        dialog always visible. By default (when this parameter not specified),
-       these fields are hidden and user needs to click the "Provide additional info 
+       those fields are hidden and user needs to click the "Provide additional info 
        (recommended)" link to show them (issue 129).
 
 - New: Reorganized demos (moved to demos folder and renamed CrashRptTest=>WTLDemo, crashcon=>ConsoleDemo).

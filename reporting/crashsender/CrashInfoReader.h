@@ -48,12 +48,14 @@ struct ERIFileItem
     ERIFileItem()
     {
         m_bMakeCopy = FALSE;
+		m_bAllowDelete = FALSE;
     }
 
     CString m_sDestFile;    // Destination file name as it appears in ZIP archive (not including directory name).
     CString m_sSrcFile;     // Absolute path to source file.
     CString m_sDesc;        // File description.
     BOOL m_bMakeCopy;       // Should we copy source file to error report folder?
+	BOOL m_bAllowDelete;    // Should allow user to delete the file from crash report?
     CString m_sErrorStatus; // Empty if OK, non-empty if error occurred.
 
 	// Retrieves file information, such as type and size.
@@ -71,33 +73,135 @@ enum DELIVERY_STATUS
 };
 
 // Error report info.
-struct ErrorReportInfo
+class CErrorReportInfo
 {
+	friend class CCrashInfoReader;
+
+public:
+
 	// Constructor.
-    ErrorReportInfo()
-    {
-		// Initialize variables.
-        m_bSelected = TRUE;
-        m_DeliveryStatus = PENDING;    
-        m_dwGuiResources = 0;
-        m_dwProcessHandleCount = 0;
-        m_uTotalSize = 0;
-		m_dwExceptionAddress = 0;
-		m_dwExceptionModuleBase = 0;
-    }
+    CErrorReportInfo();    
 
-	// Helper method that retrieves a file item by zero-based index.
-	ERIFileItem* GetItemByIndex(int nItem)
-	{
-		if(nItem<0 || nItem>=(int)m_FileItems.size())
-			return NULL; // No such item
+	// Destructor.
+	~CErrorReportInfo();
+	
+	// Returns count of file in error report.
+	int GetFileItemCount();
 
-		// Look for n-th item
-		std::map<CString, ERIFileItem>::iterator p = m_FileItems.begin();
-		for (int i = 0; i < nItem; i++, p++);
-		return &p->second;
-	}
-		
+	// Method that retrieves a file item by zero-based index.
+	ERIFileItem* GetFileItemByIndex(int nItem);
+
+	ERIFileItem* GetFileItemByName(LPCTSTR szDestFileName);
+	
+	// Adds/replaces a file to crash report.
+	void AddFileItem(ERIFileItem* pfi);
+
+	// Returns count of custom properties in error report.
+	int GetPropCount();
+
+	// Method that retrieves a property by zero-based index.
+	BOOL GetPropByIndex(int nItem, CString& sName, CString& sVal);
+	
+	// Adds/replaces a property in crash report.
+	void AddProp(LPCTSTR szName, LPCTSTR szVal);
+
+	// Returns count of registry keys in error report.
+	int GetRegKeyCount();
+
+	// Method that retrieves a registry key by zero-based index.
+	BOOL GetRegKeyByIndex(int nItem, CString& sKeyName, CString& sDestFileName);
+	
+	// Adds/replaces a reg key in crash report.
+	void AddRegKey(LPCTSTR szKeyName, LPCTSTR szDestFileName);
+
+	// Returns the name of the directory where error report files are located.
+	CString GetErrorReportDirName();
+
+	// Returns crash GUID.
+	CString GetCrashGUID();
+
+	// Returns app name.
+	CString GetAppName();
+
+	// Returns app version.
+	CString GetAppVersion();
+
+	// Returns application executable image path.
+	CString GetImageName();
+
+	// Returns crash report sender's E-mail address.
+	CString GetEmailFrom();
+
+	// Returns user-entered problem description.
+	CString GetProblemDescription();
+
+	// Returns the time when crash occurred (UTC).
+	CString GetSystemTimeUTC();
+
+	// Returns uncompressed error report size in bytes.
+	ULONG64 GetTotalSize();
+
+	// Returns exception address.
+	ULONG64 GetExceptionAddress();
+
+	// Returns name of exception module
+	CString GetExceptionModule();
+
+	// Sets name of exception module
+	void SetExceptionModule(LPCTSTR szExceptionModule);
+
+	// Returns base address of exception module
+	ULONG64 GetExceptionModuleBase();
+
+	// Sets base address of exception module
+	void SetExceptionModuleBase(ULONG64 dwExceptionModuleBase);
+
+	// Returns version of exception module
+	CString GetExceptionModuleVersion();
+
+	// Sets version of exception module
+	void SetExceptionModuleVersion(LPCTSTR szVer);
+
+	// Return OS name.
+	CString GetOSName();
+
+	// Returns TRUE if OS is 64-bit
+	BOOL IsOS64Bit();
+
+	// Returns geographic location.
+	CString GetGeoLocation();
+
+	// Returns count of GUI resources
+	DWORD GetGuiResourceCount();
+
+	// Returns process handle count
+	DWORD GetProcessHandleCount();
+
+	// Returns memory usage
+	CString GetMemUsage();
+
+	// Returns TRUE if crash report is selected for delivery.
+	BOOL IsSelected();
+
+	// Selects or deselects error report for delivery.
+	void Select(BOOL bSelect);
+
+	// Return crash report's delivery status.
+	DELIVERY_STATUS GetDeliveryStatus();
+
+	// Sets delivery status.
+	void SetDeliveryStatus(DELIVERY_STATUS status);
+
+	// Returns desktop screenshot parameters
+	ScreenshotInfo& GetScreenshotInfo();
+
+	// Sets desktop screenshot parameters.
+	void SetScreenshotInfo(ScreenshotInfo &si);
+	
+private:
+
+	/* Internal variables */ 
+
     CString         m_sErrorReportDirName; // Name of the directory where error report files are located.
     CString         m_sCrashGUID;          // Crash GUID.
     CString         m_sAppName;            // Application name.
@@ -160,6 +264,7 @@ public:
     BOOL        m_bSendErrorReport;     // Should we send error report now?
 	BOOL		m_bSendMandatory;       // Disable "Close" and "Other actions.." buttons on Error Report dialog.
 	BOOL		m_bShowAdditionalInfoFields; // Make "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
+	BOOL		m_bAllowAttachMoreFiles; // Whether to allow user to attach more files to crash report by clicking "Attach More File(s)" item from context menu of Error Report Details dialog.
     BOOL        m_bStoreZIPArchives;    // Should we store zipped error report files?
     BOOL        m_bSendRecentReports;   // Should we send recently queued reports now?
     BOOL        m_bAppRestart;          // Should we restart the crashed application?
@@ -195,7 +300,7 @@ public:
     HICON GetCustomIcon();
 
     // Returns report by its index in the list.
-    ErrorReportInfo* GetReport(int nIndex);
+    CErrorReportInfo* GetReport(int nIndex);
 
     // Returns count of error reports.
     int GetReportCount();
@@ -228,14 +333,17 @@ public:
 	// Saves user's E-mail to INI file for later reuse.
 	void SetPersistentUserEmail(LPCTSTR szEmail);
 
+	// Adds the list of files to crash report.
+    BOOL AddFilesToCrashReport(int nReport, std::vector<ERIFileItem>);
+
+	// Removes several files by names.
+	BOOL RemoveFilesFromCrashReport(int nReport, std::vector<CString> FilesToRemove);
+
 private:
 
     // Retrieves some crash info from crash description XML.
-    int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
-
-    // Adds the list of files.
-    BOOL AddFilesToCrashDescriptionXML(std::vector<ERIFileItem>);
-
+    int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, CErrorReportInfo& eri);  
+	    
 	// Adds user information.
     BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
 
@@ -246,24 +354,24 @@ private:
     REMIND_POLICY GetRemindPolicy();
 
     // Unpacks crash description from shared memory.
-    int UnpackCrashDescription(ErrorReportInfo& eri);
+    int UnpackCrashDescription(CErrorReportInfo& eri);
 
     // Unpacks a string.
     int UnpackString(DWORD dwOffset, CString& str);
 
     // Collects misc info about the crash.
-    void CollectMiscCrashInfo(ErrorReportInfo& eri);
+    void CollectMiscCrashInfo(CErrorReportInfo& eri);
 
     // Gets the list of file items. 
-    int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
+    int ParseFileList(TiXmlHandle& hRoot, CErrorReportInfo& eri);
 
     // Gets the list of registry keys.
-    int ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
+    int ParseRegKeyList(TiXmlHandle& hRoot, CErrorReportInfo& eri);
 
     // Calculates size of an uncompressed error report.
-    LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
+    LONG64 GetUncompressedReportSize(CErrorReportInfo& eri);
 
-    std::vector<ErrorReportInfo> m_Reports; // Array of error reports.   
+    std::vector<CErrorReportInfo> m_Reports; // Array of error reports.   
     CString m_sINIFile;                     // Path to ~CrashRpt.ini file.
     CSharedMem m_SharedMem;                 // Shared memory
     CRASH_DESCRIPTION* m_pCrashDesc;        // Pointer to crash descritpion

@@ -70,6 +70,12 @@ int crSetErrorMsg(PTSTR pszErrorMsg);
 // This structure describes a file item (a file included into crash report).
 struct FileItem
 {
+	FileItem()
+	{
+		m_bMakeCopy = FALSE;
+		m_bAllowDelete = FALSE;
+	}
+
     CString m_sSrcFilePath; // Path to the original file. 
     CString m_sDstFileName; // Destination file name (as seen in ZIP archive).
     CString m_sDescription; // Description.
@@ -77,6 +83,7 @@ struct FileItem
 							// If set, the file will be copied to crash report folder and that copy will be included into crash report,
 							// otherwise the file will be included from its original location (not guaranteing that file is the same it was
 							// at the moment of crash).
+	BOOL m_bAllowDelete;    // Whether to allow user deleting the file from context menu of Error Report Details dialog.
 };
 
 // This class is used to set exception handlers, catch exceptions

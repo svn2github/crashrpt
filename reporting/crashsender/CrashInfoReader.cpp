@@ -77,10 +77,258 @@ BOOL ERIFileItem::GetFileInfo(HICON& hIcon, CString& sTypeName, LONGLONG& lSize)
 	return TRUE;
 }
 
+//---------------------------------------------------------------------
+// CErrorReportInfo impl
+//---------------------------------------------------------------------
+
+CErrorReportInfo::CErrorReportInfo()
+{
+	// Initialize variables.
+    m_bSelected = TRUE;
+    m_DeliveryStatus = PENDING;    
+    m_dwGuiResources = 0;
+    m_dwProcessHandleCount = 0;
+    m_uTotalSize = 0;
+	m_dwExceptionAddress = 0;
+	m_dwExceptionModuleBase = 0;
+}
+
+// Destructor.
+CErrorReportInfo::~CErrorReportInfo()
+{
+	
+}
+
+CString CErrorReportInfo::GetErrorReportDirName()
+{
+	return m_sErrorReportDirName;
+}
+
+CString CErrorReportInfo::GetCrashGUID()
+{
+	return m_sCrashGUID;
+}
+
+CString CErrorReportInfo::GetAppName()
+{
+	return m_sAppName;
+}
+
+CString CErrorReportInfo::GetAppVersion()
+{
+	return m_sAppVersion;
+}
+
+CString CErrorReportInfo::GetImageName()
+{
+	return m_sImageName;
+}
+
+CString CErrorReportInfo::GetEmailFrom()
+{
+	return m_sEmailFrom;
+}
+
+CString CErrorReportInfo::GetProblemDescription()
+{
+	return m_sDescription;
+}
+
+CString CErrorReportInfo::GetSystemTimeUTC()
+{
+	return m_sSystemTimeUTC;
+}
+
+ULONG64 CErrorReportInfo::GetTotalSize()
+{
+	return m_uTotalSize;
+}
+
+int CErrorReportInfo::GetFileItemCount()
+{
+	return (int)m_FileItems.size();
+}
+
+BOOL CErrorReportInfo::IsSelected()
+{
+	return m_bSelected;
+}
+
+void CErrorReportInfo::Select(BOOL bSelect)
+{
+	m_bSelected = bSelect;
+}
+
+DELIVERY_STATUS CErrorReportInfo::GetDeliveryStatus()
+{
+	return m_DeliveryStatus;
+}
+
+void CErrorReportInfo::SetDeliveryStatus(DELIVERY_STATUS status)
+{
+	m_DeliveryStatus = status;
+}
+
+ScreenshotInfo& CErrorReportInfo::GetScreenshotInfo()
+{
+	return m_ScreenshotInfo;
+}
+
+void CErrorReportInfo::SetScreenshotInfo(ScreenshotInfo &si)
+{
+	m_ScreenshotInfo = si;
+}
+
+ULONG64 CErrorReportInfo::GetExceptionAddress()
+{
+	return m_dwExceptionAddress;
+}
+
+CString CErrorReportInfo::GetExceptionModule()
+{
+	return m_sExceptionModule;
+}
+
+void CErrorReportInfo::SetExceptionModule(LPCTSTR szExceptionModule)
+{
+	m_sExceptionModule = szExceptionModule;
+}
+
+ULONG64 CErrorReportInfo::GetExceptionModuleBase()
+{
+	return m_dwExceptionModuleBase;
+}
+
+void CErrorReportInfo::SetExceptionModuleBase(ULONG64 dwExceptionModuleBase)
+{
+	m_dwExceptionModuleBase = dwExceptionModuleBase;
+}
+
+CString CErrorReportInfo::GetExceptionModuleVersion()
+{
+	return m_sExceptionModuleVersion;
+}
+
+void CErrorReportInfo::SetExceptionModuleVersion(LPCTSTR szVer)
+{
+	m_sExceptionModuleVersion = szVer;
+}
+
+CString CErrorReportInfo::GetOSName()
+{
+	return m_sOSName;
+}
+
+BOOL CErrorReportInfo::IsOS64Bit()
+{
+	return m_bOSIs64Bit;
+}
+
+CString CErrorReportInfo::GetGeoLocation()
+{
+	return m_sGeoLocation;
+}
+
+DWORD CErrorReportInfo::GetGuiResourceCount()
+{
+	return m_dwGuiResources;
+}
+
+DWORD CErrorReportInfo::GetProcessHandleCount()
+{
+	return m_dwProcessHandleCount;
+}
+
+CString CErrorReportInfo::GetMemUsage()
+{
+	return m_sMemUsage;
+}
+
+ERIFileItem* CErrorReportInfo::GetFileItemByIndex(int nItem)
+{
+	if(nItem<0 || nItem>=(int)m_FileItems.size())
+		return NULL; // No such item
+
+	// Look for n-th item
+	std::map<CString, ERIFileItem>::iterator p = m_FileItems.begin();
+	for (int i = 0; i < nItem; i++, p++);
+	return &p->second;
+}
+
+ERIFileItem* CErrorReportInfo::GetFileItemByName(LPCTSTR szDestFileName)
+{
+	return &m_FileItems[szDestFileName];
+}
+
+void CErrorReportInfo::AddFileItem(ERIFileItem* pfi)
+{
+	m_FileItems[pfi->m_sDestFile] = *pfi;
+}
+
+// Returns count of custom properties in error report.
+int CErrorReportInfo::GetPropCount()
+{
+	return (int)m_Props.size();
+}
+
+// Method that retrieves a property by zero-based index.
+BOOL CErrorReportInfo::GetPropByIndex(int nItem, CString& sName, CString& sVal)
+{
+	sName.Empty();
+	sVal.Empty();
+
+	if(nItem<0 || nItem>=(int)m_FileItems.size())
+		return FALSE; // No such item
+
+	// Look for n-th item
+	std::map<CString, CString>::iterator p = m_Props.begin();
+	for (int i = 0; i < nItem; i++, p++);
+	sName = p->first;
+	sVal = p->second;
+	return TRUE;
+}
+	
+// Adds/replaces a property in crash report.
+void CErrorReportInfo::AddProp(LPCTSTR szName, LPCTSTR szVal)
+{
+	m_Props[szName] = szVal;
+}
+
+int CErrorReportInfo::GetRegKeyCount()
+{
+	return (int)m_RegKeys.size();
+}
+
+// Method that retrieves a property by zero-based index.
+BOOL CErrorReportInfo::GetRegKeyByIndex(int nItem, CString& sKeyName, CString& sDestFileName)
+{
+	sKeyName.Empty();
+	sDestFileName.Empty();
+
+	if(nItem<0 || nItem>=(int)m_FileItems.size())
+		return FALSE; // No such item
+
+	// Look for n-th item
+	std::map<CString, CString>::iterator p = m_RegKeys.begin();
+	for (int i = 0; i < nItem; i++, p++);
+	sKeyName = p->first;
+	sDestFileName = p->second;
+	return TRUE;
+}
+	
+void CErrorReportInfo::AddRegKey(LPCTSTR szKeyName, LPCTSTR szDestFileName)
+{
+	m_RegKeys[szKeyName] = szDestFileName;
+}
+
+//---------------------------------------------------------------------
+// CCrashInfoReader impl
+//---------------------------------------------------------------------
+
 int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
 { 
     strconv_t strconv;
-    ErrorReportInfo eri;
+    CErrorReportInfo eri;
 
     // Init shared memory
     BOOL bInitMem = m_SharedMem.Init(szFileMappingName, TRUE, 0);
@@ -132,7 +380,7 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
                 CString sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + 
                     find.GetFileName();
                 CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
-                ErrorReportInfo eri2;
+                CErrorReportInfo eri2;
                 eri2.m_sErrorReportDirName = sErrorReportDirName;
 				// Read crash description XML from the directory
                 if(0==ParseCrashDescription(sFileName, TRUE, eri2))
@@ -151,7 +399,7 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
     return 0;
 }
 
-int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
+int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
 {
     if(memcmp(m_pCrashDesc->m_uchMagic, "CRD", 3)!=0)
         return 1; // Invalid magic word
@@ -194,6 +442,7 @@ int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
     m_bSendErrorReport = (dwInstallFlags&CR_INST_DONT_SEND_REPORT)==0;
 	m_bSendMandatory = (dwInstallFlags&CR_INST_SEND_MANDATORY)!=0;
 	m_bShowAdditionalInfoFields = (dwInstallFlags&CR_INST_SHOW_ADDITIONAL_INFO_FIELDS)!=0;
+	m_bAllowAttachMoreFiles = (dwInstallFlags&CR_INST_ALLOW_ATTACH_MORE_FILES)!=0;
     m_bStoreZIPArchives = (dwInstallFlags&CR_INST_STORE_ZIP_ARCHIVES)!=0;
     m_bAppRestart = (dwInstallFlags&CR_INST_APP_RESTART)!=0;
     m_bGenerateMinidump = (dwInstallFlags&CR_INST_NO_MINIDUMP)==0;
@@ -235,6 +484,7 @@ int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
             UnpackString(pFileItem->m_dwDstFileNameOffs, fi.m_sDestFile);
             UnpackString(pFileItem->m_dwDescriptionOffs, fi.m_sDesc);
             fi.m_bMakeCopy = pFileItem->m_bMakeCopy;
+			fi.m_bAllowDelete = pFileItem->m_bAllowDelete;
 
             eri.m_FileItems[fi.m_sDestFile] = fi;
 
@@ -327,7 +577,7 @@ int CCrashInfoReader::UnpackString(DWORD dwOffset, CString& str)
     return 0;
 }
 
-ErrorReportInfo* CCrashInfoReader::GetReport(int nIndex)
+CErrorReportInfo* CCrashInfoReader::GetReport(int nIndex)
 { 
 	if(nIndex>=0 && nIndex<(int)m_Reports.size())
 		return &m_Reports[nIndex]; 
@@ -363,7 +613,7 @@ void CCrashInfoReader::DeleteAllReports()
 	}	
 }
 
-void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
+void CCrashInfoReader::CollectMiscCrashInfo(CErrorReportInfo& eri)
 {   
     // Get crash time
     Utility::GetSystemTimeUTC(eri.m_sSystemTimeUTC);
@@ -476,7 +726,7 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
     Utility::GetGeoLocation(eri.m_sGeoLocation);  
 }
 
-int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
+int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, CErrorReportInfo& eri)
 {
     strconv_t strconv;
 
@@ -523,7 +773,7 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
     return 0;
 }
 
-int CCrashInfoReader::ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
+int CCrashInfoReader::ParseRegKeyList(TiXmlHandle& hRoot, CErrorReportInfo& eri)
 {
     strconv_t strconv;
 
@@ -553,7 +803,7 @@ int CCrashInfoReader::ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
     return 0;
 }
 
-int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri)
+int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileItems, CErrorReportInfo& eri)
 {
     strconv_t strconv;
     FILE* f = NULL; 
@@ -666,6 +916,7 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
         {
             const char* pszDestFile = fi.ToElement()->Attribute("name");      
             const char* pszDesc = fi.ToElement()->Attribute("description");      
+			const char* pszOptional = fi.ToElement()->Attribute("optional");      
 
             if(pszDestFile!=NULL)
             {
@@ -676,6 +927,9 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
                 if(pszDesc)
                     item.m_sDesc = strconv.utf82t(pszDesc);
                 item.m_bMakeCopy = FALSE;
+
+				if(pszOptional && strcmp(pszOptional, "1")==0)
+					item.m_bAllowDelete = true;
 
                 // Check that file really exists
                 DWORD dwAttrs = GetFileAttributes(item.m_sSrcFile);
@@ -825,13 +1079,13 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
     return TRUE;
 }
 
-BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> FilesToAdd)
+BOOL CCrashInfoReader::AddFilesToCrashReport(int nReport, std::vector<ERIFileItem> FilesToAdd)
 {   
     strconv_t strconv;
 
     TiXmlDocument doc;
 
-    CString sFileName = m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
+    CString sFileName = m_Reports[nReport].m_sErrorReportDirName + _T("\\crashrpt.xml");
 
     FILE* f = NULL; 
 #if _MSC_VER<1400
@@ -874,9 +1128,95 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> Fi
         TiXmlHandle hFileItem = new TiXmlElement("FileItem");
         hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(FilesToAdd[i].m_sDestFile));
         hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(FilesToAdd[i].m_sDesc));
+		if(FilesToAdd[i].m_bAllowDelete)
+			hFileItem.ToElement()->SetAttribute("optional", "1");
         hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
 
-        m_Reports[0].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
+        m_Reports[nReport].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
+
+		if(FilesToAdd[i].m_bMakeCopy)
+		{
+			CString sDestPath = m_Reports[nReport].m_sErrorReportDirName + _T("\\") + FilesToAdd[i].m_sDestFile;
+			CopyFile(FilesToAdd[i].m_sSrcFile, sDestPath, TRUE);
+			m_Reports[nReport].m_FileItems[FilesToAdd[i].m_sDestFile].m_sSrcFile = sDestPath;
+		}
+    }
+
+#if _MSC_VER<1400
+    f = _tfopen(sFileName, _T("w"));
+#else
+    _tfopen_s(&f, sFileName, _T("w"));
+#endif
+
+    if(f==NULL)
+        return FALSE;
+
+    bool bSave = doc.SaveFile(f); 
+    if(!bSave)
+        return FALSE;
+    fclose(f);
+    return TRUE;
+}
+
+BOOL CCrashInfoReader::RemoveFilesFromCrashReport(int nReport, std::vector<CString> FilesToRemove)
+{   
+    strconv_t strconv;
+
+    TiXmlDocument doc;
+
+    CString sFileName = m_Reports[nReport].m_sErrorReportDirName + _T("\\crashrpt.xml");
+
+    FILE* f = NULL; 
+#if _MSC_VER<1400
+    f = _tfopen(sFileName, _T("rb"));
+#else
+    _tfopen_s(&f, sFileName, _T("rb"));
+#endif
+
+    if(f==NULL)
+    {    
+        return FALSE;
+    }
+
+    bool bLoad = doc.LoadFile(f);  
+    fclose(f);
+    if(!bLoad)
+    { 
+        return FALSE;
+    }
+
+    TiXmlNode* root = doc.FirstChild("CrashRpt");
+    if(!root)
+    { 
+        return FALSE;
+    }
+
+    TiXmlHandle hFileItems = root->FirstChild("FileList");
+    if(hFileItems.ToElement()==NULL)
+    {
+        hFileItems = new TiXmlElement("FileList");
+        root->LinkEndChild(hFileItems.ToNode());
+    }
+
+    unsigned i;
+    for(i=0; i<FilesToRemove.size(); i++)
+    { 
+		std::map<CString, ERIFileItem>::iterator it = 
+			m_Reports[nReport].m_FileItems.find(FilesToRemove[i]);
+		if(it==m_Reports[nReport].m_FileItems.end())
+            continue; // Such file item name does not exists, skip
+
+		strconv_t strconv;
+		TiXmlHandle hElem = hFileItems.ToElement()->FirstChild(strconv.t2a(FilesToRemove[i]));
+		if(hElem.ToElement()!=NULL)
+			hFileItems.ToElement()->RemoveChild(hElem.ToElement());              
+		        
+		if(it->second.m_bMakeCopy)
+		{
+			Utility::RecycleFile(it->second.m_sSrcFile, TRUE);
+		}
+
+		m_Reports[nReport].m_FileItems.erase(it);
     }
 
 #if _MSC_VER<1400
@@ -975,7 +1315,7 @@ BOOL CCrashInfoReader::IsRemindNowOK()
     return TRUE;
 }
 
-LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
+LONG64 CCrashInfoReader::GetUncompressedReportSize(CErrorReportInfo& eri)
 {
 	// Calculate summary size of all files included into crash report
 

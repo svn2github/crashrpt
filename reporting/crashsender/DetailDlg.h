@@ -53,6 +53,7 @@ public:
 
     BEGIN_MSG_MAP(CDetailDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
         NOTIFY_HANDLER(IDC_FILE_LIST, LVN_ITEMCHANGED, OnItemChanged)
         NOTIFY_HANDLER(IDC_FILE_LIST, NM_DBLCLK, OnItemDblClicked)
         COMMAND_ID_HANDLER(IDOK, OnOK)
@@ -61,7 +62,10 @@ public:
         COMMAND_RANGE_HANDLER(ID_PREVIEW_AUTO, ID_PREVIEW_IMAGE, OnPreviewModeChanged)
         COMMAND_RANGE_HANDLER(ID_ENCODING_AUTO, ID_ENCODING_UTF16BE, OnTextEncodingChanged)
         NOTIFY_HANDLER(IDC_PREVIEW, NM_RCLICK, OnPreviewRClick)
-		NOTIFY_HANDLER(IDC_FILE_LIST, NM_RCLICK, OnListRClick)
+		NOTIFY_HANDLER(IDC_FILE_LIST, NM_RCLICK, OnListRClick)	
+		COMMAND_ID_HANDLER(ID_MENU7_OPEN, OnPopupOpen)
+		COMMAND_ID_HANDLER(ID_MENU7_DELETESELECTEDFILE, OnPopupDeleteSelected)
+		COMMAND_ID_HANDLER(ID_MENU7_ATTACHMOREFILES, OnPopupAddMoreFiles)
 
         CHAIN_MSG_MAP(CDialogResize<CDetailDlg>)
     END_MSG_MAP()
@@ -72,6 +76,7 @@ public:
     //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
     LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
     LRESULT OnExport(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -81,6 +86,11 @@ public:
     LRESULT OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
     LRESULT OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+	LRESULT OnPopupOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+	LRESULT OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+	LRESULT OnPopupAddMoreFiles(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+
+	void FillFileItemList();
 
     void SelectItem(int iItem);
 

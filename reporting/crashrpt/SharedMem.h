@@ -63,6 +63,7 @@ struct FILE_ITEM
     DWORD m_dwDstFileNameOffs; // Name of the destination file.
     DWORD m_dwDescriptionOffs; // File description.
     BOOL  m_bMakeCopy;         // Should we make a copy of this file on crash?
+	BOOL  m_bAllowDelete;      // Should allow user to delete the file from crash report?
 };
 
 // Registry key entry.

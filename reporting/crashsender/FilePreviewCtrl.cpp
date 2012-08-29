@@ -588,6 +588,12 @@ cleanup:
         Destroy();
     }
 
+	if(fp!=NULL)
+	{
+		fclose(fp);
+		fp = NULL;
+	}
+
     return bStatus;
 }
 
@@ -668,7 +674,10 @@ CFilePreviewCtrl::CFilePreviewCtrl()
 
 CFilePreviewCtrl::~CFilePreviewCtrl()
 {
-    DeleteObject(m_hFont);  
+	m_bmp.Destroy();
+	m_fm.Destroy();
+
+    DeleteObject(m_hFont);  	
 }
 
 LPCTSTR CFilePreviewCtrl::GetFile()

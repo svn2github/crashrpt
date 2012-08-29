@@ -110,7 +110,7 @@ public:
     void FeedbackReady(int code);
 
     // Returns size in bytes of error report files.
-    LONG64 GetUncompressedReportSize(ErrorReportInfo* eri);
+    LONG64 GetUncompressedReportSize(CErrorReportInfo* eri);
 
     // Returns current error report's index.
     int GetCurReport();
@@ -157,7 +157,7 @@ private:
     BOOL CreateMiniDump();  
 
     // Creates crash description XML file.
-    BOOL CreateCrashDescriptionXML(ErrorReportInfo& eri);
+    BOOL CreateCrashDescriptionXML(CErrorReportInfo& eri);
 	
     // Adds an element to XML file.
     void AddElemToXML(CString sName, CString sValue, TiXmlNode* root);
@@ -180,7 +180,7 @@ private:
     int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
 
     // Packs error report files to ZIP archive.
-    BOOL CompressReportFiles(ErrorReportInfo* eri);
+    BOOL CompressReportFiles(CErrorReportInfo* eri);
 
     // Unblocks parent process.
     void UnblockParentProcess();
