@@ -267,18 +267,6 @@ crInstallToCurrentThread()
 }
 
 CRASHRPTAPI(int) 
-crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
-{
-    return crAddFile2W(pszFile, NULL, pszDesc, 0);
-}
-
-CRASHRPTAPI(int) 
-crAddFileA(PCSTR pszFile, PCSTR pszDesc)
-{
-    return crAddFile2A(pszFile, NULL, pszDesc, 0);
-}
-
-CRASHRPTAPI(int) 
 crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc, DWORD dwFlags)
 {
     crSetErrorMsg(_T("Success."));

@@ -367,3 +367,51 @@ LRESULT CDetailDlg::OnTextEncodingChanged(WORD /*wNotifyCode*/, WORD wID, HWND /
     return 0;
 }
 
+LRESULT CDetailDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+{
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	CPoint pt;
+    GetCursorPos(&pt);
+    CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));  
+    CMenu submenu = menu.GetSubMenu(6);
+
+    strconv_t strconv;
+	CString sOpen = pSender->GetLangStr(_T("DetailDlg"), _T("Open"));
+	CString sDeleteSelected = pSender->GetLangStr(_T("DetailDlg"), _T("DeleteSelected"));
+	CString sAttachMoreFiles = pSender->GetLangStr(_T("DetailDlg"), _T("AttachMoreFiles"));
+	
+
+    MENUITEMINFO mii;
+    memset(&mii, 0, sizeof(MENUITEMINFO));
+    mii.cbSize = sizeof(MENUITEMINFO);
+    mii.fMask = MIIM_STRING;
+
+    mii.dwTypeData = sOpen.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU7_OPEN, FALSE, &mii);
+	    
+	mii.dwTypeData = sDeleteSelected.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU7_DELETESELECTEDFILE, FALSE, &mii);
+
+	mii.dwTypeData = sAttachMoreFiles.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU7_ATTACHMOREFILES, FALSE, &mii);
+
+	// Get count of selected list items
+	int nItems = 0;
+	int nSelected = 0;
+	int i;
+    for(i=0; i<m_list.GetItemCount(); i++)
+    {
+		nItems++;
+
+		// If list item checked
+		if(m_list.GetItemState(i, LVIS_SELECTED)!=0)
+			nSelected++;
+	}
+	
+	submenu.EnableMenuItem(ID_MENU7_OPEN, (nSelected==1)?MF_ENABLED:MF_DISABLED);
+	submenu.EnableMenuItem(ID_MENU7_DELETESELECTEDFILE, (nSelected>0)?MF_ENABLED:MF_DISABLED);	
+
+	submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
+    return 0;
+}

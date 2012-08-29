@@ -403,8 +403,7 @@ LRESULT CResendDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHand
 	submenu.EnableMenuItem(ID_MENU6_DELETEALL, (!bSendingNow && nItems>0)?MF_ENABLED:MF_DISABLED);
 
 	submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
-    return 0;
-
+    
 	return 0;
 }
 

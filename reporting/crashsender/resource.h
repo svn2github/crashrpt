@@ -102,6 +102,10 @@
 #define ID_MENU6_DESELECTALL            32806
 #define ID_MENU6_DELETESELECTED         32807
 #define ID_MENU6_DELETEALL              32808
+#define ID_MENU7_DELETESELECTEDFILE     32809
+#define ID_MENU7_DELETEALLFILES         32810
+#define ID_MENU7_ATTACHMOREFILES        32811
+#define ID_MENU7_OPEN                   32812
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -117,7 +121,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         32809
+#define _APS_NEXT_COMMAND_VALUE         32813
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

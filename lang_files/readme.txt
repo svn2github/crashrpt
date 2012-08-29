@@ -8,7 +8,10 @@ a previous version to the latest version.
 
 --- v.1.3.1 ---
 
-  No changes
+ * In [DetailDlg]
+  - Open - new
+  - DeleteSelected - new
+  - AttachMoreFiles - new
 
 --- v.1.3.0 ---
 

@@ -70,6 +70,12 @@ BEGIN
         MENUITEM "Delete selected",             ID_MENU6_DELETESELECTED
         MENUITEM "Delete all",                  ID_MENU6_DELETEALL
     END
+    POPUP "menu7"
+    BEGIN
+        MENUITEM "Open",                        ID_MENU7_OPEN
+        MENUITEM "Delete Selected File(s)",     ID_MENU7_DELETESELECTEDFILE
+        MENUITEM "Attach More Files(s)...",     ID_MENU7_ATTACHMOREFILES
+    END
 END
 
 #endif    // Neutral resources
@@ -96,7 +102,7 @@ BEGIN
     DEFPUSHBUTTON   "Close",IDOK,105,209,57,14
     PUSHBUTTON      "Export...",IDC_EXPORT,222,209,60,14
     LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,14,196,144,8
-    CONTROL         "",IDC_FILE_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,19,275,78
+    CONTROL         "",IDC_FILE_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,19,275,78
     LTEXT           "Double-click an item to open it with an appropriate program.",IDC_HEADERTEXT,7,7,275,8
     LTEXT           "Preview",IDC_PREVIEWTEXT,7,100,151,8
     LTEXT           "",IDC_PREVIEW,7,111,275,82,0,WS_EX_CLIENTEDGE

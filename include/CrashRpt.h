@@ -549,44 +549,6 @@ crInstallA(
 CRASHRPTAPI(int)
 crUninstall();
 
-
-/*! \ingroup DeprecatedAPI  
-*  \brief Installs exception handlers to the current thread.
-*
-*  \return This function returns zero if succeeded.
-*   
-*  \remarks
-*   
-*   This function sets exception handlers for the caller thread. If you have
-*   several execution threads, you ought to call the function for each thread,
-*   except the main one.
-*  
-*   The list of C++ exception/error handlers installed with this function:
-*    - terminate handler [ \c set_terminate() ]
-*    - unexpected handler [ \c set_unexpected() ]
-*    - floating point error handler [ \c signal(SIGFPE) ]
-*    - illegal instruction handler [ \c signal(SIGILL) ]
-*    - illegal storage access handler [ \c signal(SIGSEGV) ]    
-*
-*   The crInstall() function automatically installs C++ exception handlers for the
-*   main thread, so no need to call crInstallToCurrentThread() for the main thread.
-*
-*   This function fails if calling it twice for the same thread.
-*   When this function fails, use crGetLastErrorMsg() to retrieve the error message.
-* 
-*   Call crUninstallFromCurrentThread() to uninstall C++ exception handlers from
-*   current thread.
-*
-*   This function is deprecatd. The crInstallToCurrentThread2() function gives 
-*   better control of what exception handlers to install. 
-*
-*   \sa crInstallToCurrentThread2(),
-*       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
-*/
-
-CRASHRPTAPI(int)
-crInstallToCurrentThread();
-
 /*! \ingroup CrashRptAPI
 *  \brief Installs exception handlers to the caller thread.
 *  \return This function returns zero if succeeded.
@@ -660,65 +622,6 @@ crInstallToCurrentThread2(DWORD dwFlags);
 
 CRASHRPTAPI(int)
 crUninstallFromCurrentThread();
-
-/*! \ingroup DeprecatedAPI  
-*  \brief Adds a file to crash report.
-* 
-*  \return This function returns zero if succeeded.
-*
-*  \param[in] pszFile Absolute path to the file to add.
-*  \param[in] pszDesc File description (used in Error Report Details dialog).
-*
-*  \note
-*    This function is deprecated and will be removed in one of the future releases. It is recommended to use crAddFile2() function instead.
-*
-*    This function can be called anytime after crInstall() to add one or more
-*    files to the generated crash report. 
-* 
-*    When this function is called, the file is marked to be added to the error report, 
-*    then the function returns control to the caller.
-*    When crash occurs, all marked files are added to the report by the \b CrashSender.exe process. 
-*    If a file is locked by someone for exclusive access, the file won't be included. Inside of \ref LPGETLOGFILE crash callback, 
-*    ensure files to be included are acessible for reading.
-*  
-*    \a pszFile should be a valid absolute path of a file to add to crash report. 
-*
-*    \a pszDesc is a description of a file. It can be NULL.
-*
-*    This function fails if \a pszFile doesn't exist at the moment of function call. 
-* 
-*    The crAddFileW() and crAddFileA() are wide-character and multibyte-character
-*    versions of crAddFile() function. The crAddFile() macro defines character set
-*    independent mapping.
-*
-*  \sa crAddFileW(), crAddFileA(), crAddFile()
-*/
-
-CRASHRPTAPI(int)
-crAddFileW(
-           LPCWSTR pszFile,
-           LPCWSTR pszDesc 
-           );
-
-/*! \ingroup DeprecatedAPI
-*  \copydoc crAddFileW()
-*/
-
-
-CRASHRPTAPI(int)
-crAddFileA(
-           LPCSTR pszFile,
-           LPCSTR pszDesc 
-           );
-
-/*! \brief Character set-independent mapping of crAddFileW() and crAddFileA() functions. 
-*  \ingroup DeprecatedAPI
-*/
-#ifdef UNICODE
-#define crAddFile crAddFileW
-#else
-#define crAddFile crAddFileA
-#endif //UNICODE
 
 // Flags for crAddFile2() function.
 
@@ -1187,51 +1090,7 @@ crGenerateErrorReport(
                       );
 
 
-/*! \ingroup DeprecatedAPI 
-*  \brief Can be used as a SEH exception filter.
-*
-*  \return This function returns \c EXCEPTION_EXECUTE_HANDLER if succeeds, else \c EXCEPTION_CONTINUE_SEARCH.
-*
-*  \param[in] code Exception code.
-*  \param[in] ep   Exception pointers.
-*
-*  \remarks
-*
-*     As of v.1.2.8, this function is declared deprecated. It may be removed in one of the future releases.
-*
-*     This function can be called instead of a SEH exception filter
-*     inside of __try{}__except(Expression){} statement. The function generates a error report
-*     and returns control to the exception handler block.
-*
-*     The exception code is usually retrieved with \b GetExceptionCode() intrinsic function
-*     and the exception pointers are retrieved with \b GetExceptionInformation() intrinsic 
-*     function.
-*
-*     If an error occurs, this function returns \c EXCEPTION_CONTINUE_SEARCH.
-*     Use crGetLastErrorMsg() to retrieve the error message on fail.
-*
-*     The following example shows how to use crExceptionFilter().
-*    
-*     \code
-*     int* p = NULL;   // pointer to NULL
-*     __try
-*     {
-*        *p = 13; // causes an access violation exception;
-*     }
-*     __except(crExceptionFilter(GetExceptionCode(), GetExceptionInformation()))
-*     {   
-*       // Terminate program
-*       ExitProcess(1);
-*     }
-*
-*     \endcode 
-*/
-
-CRASHRPTAPI(int)
-crExceptionFilter(
-                  unsigned int code, 
-                  __in_opt struct _EXCEPTION_POINTERS* ep);
-
+// Flags used by crEmulateCrash() function
 #define CR_NONCONTINUABLE_EXCEPTION  32  //!< Non continuable sofware exception. 
 #define CR_THROW                     33  //!< Throw C++ typed exception.
 #define CR_STACK_OVERFLOW			 34  //!< Stack overflow.
@@ -1272,6 +1131,7 @@ crExceptionFilter(
 *    - \ref CR_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result 
 *         is the same as in \ref CR_SEH_EXCEPTION).
 *    - \ref CR_THROW This throws a C++ typed exception (expected result is the same as in \ref CR_CPP_TERMINATE_CALL).
+*    - \ref CR_STACK_OVERFLOW This causes stack overflow.
 *
 *  The \ref CR_SEH_EXCEPTION uses null pointer write operation to cause the access violation.
 *
