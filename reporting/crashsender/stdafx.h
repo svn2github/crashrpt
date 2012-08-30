@@ -108,6 +108,7 @@ extern CAppModule _Module;
 #include <Wspiapi.h>
 #include <time.h>
 #include <Psapi.h>
+#include <tlhelp32.h>
 
 #if _MSC_VER<1400
 #define _TCSCPY_S(strDestination, numberOfElements, strSource) _tcscpy(strDestination, strSource)

@@ -37,6 +37,13 @@
        those fields are hidden and user needs to click the "Provide additional info 
        (recommended)" link to show them (issue 129).
 
+- New: Introduced command line parameter /terminate for CrashSender.exe. 
+       This resolves a problem with installers that will want to update the exe file; 
+       there was no way to tell the sender exe program to exit now (issue 142).
+       Launching "CrashSender.exe /terminate" would look for all open CrashSender.exe processes 
+       and terminate them immediately (without sending reports or waiting for completion). 
+       Terminating the process is acomplished with TerminateProcess(hProcess) function.
+
 - New: Reorganized demos (moved to demos folder and renamed CrashRptTest=>WTLDemo, crashcon=>ConsoleDemo).
 
 - New: Refactored code of CrashSender project making it more conforming to 

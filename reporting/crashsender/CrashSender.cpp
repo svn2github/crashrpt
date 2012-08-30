@@ -62,6 +62,12 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
     if(argc!=2)
         return 1; // No arguments passed, exit.
 
+	if(_tcscmp(argv[1], _T("/terminate"))==0)
+	{
+		// User wants us to find and terminate all instances of CrashSender.exe
+		return CErrorReportSender::TerminateAllCrashSenderProcesses();
+	}
+
 	// Extract file mapping name from command line arg.    
     CString sFileMappingName = CString(argv[1]);
 		

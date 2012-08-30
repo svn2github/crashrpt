@@ -2451,3 +2451,50 @@ CString CErrorReportSender::GetLogFilePath()
 	// Return path to log file
 	return m_Assync.GetLogFilePath();
 }
+
+int CErrorReportSender::TerminateAllCrashSenderProcesses()
+{
+	// This method looks for all runing CrashSender.exe processes
+	// and terminates each one. This may be needed when an application's installer
+	// wants to shutdown all crash sender processes running in background
+	// to replace the locked files.
+	
+	// Format process name.
+	CString sProcessName;
+#ifdef _DEBUG
+	sProcessName.Format(_T("CrashSender%dd.exe"), CRASHRPT_VER);
+#else
+	sProcessName.Format(_T("CrashSender%d.exe"), CRASHRPT_VER);
+#endif
+
+	PROCESSENTRY32 entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
+
+	// Create the list of all processes in the system
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+    if (Process32First(snapshot, &entry) == TRUE)
+    {
+		// Walk through processes
+        while (Process32Next(snapshot, &entry) == TRUE)
+        {
+			// Compare process name
+            if (_tcsicmp(entry.szExeFile, sProcessName) == 0 &&
+				entry.th32ProcessID != GetCurrentProcessId())
+            {  				
+				// Open process handle
+                HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, entry.th32ProcessID);
+
+				// Terminate process.
+                TerminateProcess(hProcess, 1);
+
+                CloseHandle(hProcess);
+            }
+        }
+    }
+
+	// Clean up
+    CloseHandle(snapshot);
+
+    return 0;
+}

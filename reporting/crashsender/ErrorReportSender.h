@@ -133,6 +133,9 @@ public:
 	// Returns TRUE if there were errors.
 	BOOL HasErrors();
 	
+	// This method finds and terminates all instances of CrashSender.exe process.
+	static int TerminateAllCrashSenderProcesses();
+
 private:
 
 	// This method performs an action or several actions.
