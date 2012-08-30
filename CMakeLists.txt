@@ -97,6 +97,7 @@ endmacro()
 
 add_subdirectory("demos/ConsoleDemo")
 add_subdirectory("demos/WTLDemo")
+add_subdirectory("demos/MFCDemo")
 
 add_subdirectory("reporting/crashrpt")
 add_subdirectory("reporting/crashsender")

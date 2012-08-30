@@ -482,6 +482,7 @@ LRESULT CDetailDlg::OnPopupOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
     DWORD dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
         0, 0, SW_SHOWNORMAL);
     ATLASSERT(dwRet > 32);
+	dwRet;
 	
 	return 0;
 }
