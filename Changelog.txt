@@ -46,6 +46,9 @@
 
 - New: Reorganized demos (moved to demos folder and renamed CrashRptTest=>WTLDemo, crashcon=>ConsoleDemo).
 
+- New: Added new demo application - MFCDemo. This is to demonstrate usage of CrashRpt
+       with MFC-based apps.
+
 - New: Refactored code of CrashSender project making it more conforming to 
        the Model-View-Controller methodology.
 

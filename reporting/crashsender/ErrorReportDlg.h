@@ -88,6 +88,7 @@ public:
         MESSAGE_HANDLER(WM_COMPLETECOLLECT, OnCompleteCollectCrashInfo)
         MESSAGE_HANDLER(WM_CLOSE, OnClose)        
         MESSAGE_HANDLER(WM_TRAYICON, OnTrayIcon)
+		MESSAGE_HANDLER(WM_REPORTSIZECHANGED, OnReportSizeChanged)
 
         COMMAND_ID_HANDLER(IDC_LINK, OnLinkClick)
         COMMAND_ID_HANDLER(IDC_MOREINFO, OnMoreInfoClick)    
@@ -111,6 +112,7 @@ public:
     LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
     LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
     LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
+	LRESULT OnReportSizeChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
 
     LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

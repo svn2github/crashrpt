@@ -1028,3 +1028,18 @@ void CResendDlg::DoHideWindowTimer()
     KillTimer(2);
 }
 
+LRESULT CResendDlg::OnReportSizeChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	int nReport = (int)wParam;
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// Update list
+	int nItem = FindListItemByReportIndex(nReport);
+	CString sTotalSize = Utility::FileSizeToStr(pSender->GetCrashInfo()->GetReport(nReport)->GetTotalSize());
+    m_listReports.SetItemText(nItem, 1, sTotalSize);
+
+	// Update the selection size
+	UpdateSelectionSize();
+
+	return 0;
+}

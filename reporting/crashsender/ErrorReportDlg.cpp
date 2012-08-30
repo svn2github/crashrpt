@@ -372,7 +372,7 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
     if(pSender->GetCrashInfo()->m_bSendErrorReport) // If we should send error report now
     {   
 		// Get the total size of the report.
-        LONG64 lTotalSize = pSender->GetUncompressedReportSize(pSender->GetCrashInfo()->GetReport(0));  
+		LONG64 lTotalSize = pSender->GetCrashInfo()->GetReport(0)->GetTotalSize();  
         CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
 		
 		// Format the text for dialog subheader.
@@ -582,5 +582,23 @@ LRESULT CErrorReportDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPa
     }	
 
     return 0;
+}
+
+LRESULT CErrorReportDlg::OnReportSizeChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
+
+	// Get the total size of the report.
+	LONG64 lTotalSize = pSender->GetCrashInfo()->GetReport(0)->GetTotalSize();  
+    CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
+		
+	// Format the text for dialog subheader.
+    CString sSubHeader;
+	sSubHeader.Format(pSender->GetLangStr(_T("MainDlg"), _T("SubHeaderText")), sTotalSize);
+		
+	// Update the subheader text
+    m_statSubHeader.SetWindowText(sSubHeader);
+
+	return 0;
 }
 

@@ -36,6 +36,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MailMsg.h"
 #include "FilePreviewCtrl.h"
 
+#define WM_REPORTSIZECHANGED (WM_APP+400)
+
 class CDetailDlg : 
 	public CDialogImpl<CDetailDlg>,
     public CDialogResize<CDetailDlg>

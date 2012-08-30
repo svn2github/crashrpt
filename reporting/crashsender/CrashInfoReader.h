@@ -91,6 +91,7 @@ public:
 	// Method that retrieves a file item by zero-based index.
 	ERIFileItem* GetFileItemByIndex(int nItem);
 
+	// Returns file item by its name.
 	ERIFileItem* GetFileItemByName(LPCTSTR szDestFileName);
 	
 	// Adds/replaces a file to crash report.
@@ -197,9 +198,12 @@ public:
 
 	// Sets desktop screenshot parameters.
 	void SetScreenshotInfo(ScreenshotInfo &si);
-	
+		
 private:
-
+	
+	// Calculates total size of files included into error report.
+	LONG64 CalcUncompressedReportSize();
+	
 	/* Internal variables */ 
 
     CString         m_sErrorReportDirName; // Name of the directory where error report files are located.

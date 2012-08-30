@@ -141,6 +141,7 @@ CString CErrorReportInfo::GetSystemTimeUTC()
 
 ULONG64 CErrorReportInfo::GetTotalSize()
 {
+	m_uTotalSize = CalcUncompressedReportSize();
 	return m_uTotalSize;
 }
 
@@ -321,6 +322,52 @@ void CErrorReportInfo::AddRegKey(LPCTSTR szKeyName, LPCTSTR szDestFileName)
 	m_RegKeys[szKeyName] = szDestFileName;
 }
 
+// This method calculates the total size of files included into error report
+LONG64 CErrorReportInfo::CalcUncompressedReportSize()
+{
+    LONG64 lTotalSize = 0;    
+    HANDLE hFile = INVALID_HANDLE_VALUE;  
+    CString sMsg;
+    BOOL bGetSize = FALSE;
+    LARGE_INTEGER lFileSize;
+
+	// Enumerate files contained in the error report
+	int i;
+	for(i=0; i<GetFileItemCount(); i++)
+    {    
+		ERIFileItem* pfi = GetFileItemByIndex(i);
+				
+		// Get name of the file
+        CString sFileName = pfi->m_sSrcFile.GetBuffer(0);
+		// Open file for reading
+        hFile = CreateFile(sFileName, 
+            GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
+        if(hFile==INVALID_HANDLE_VALUE)
+        {            
+            continue;
+        }
+
+		// Get file size
+        bGetSize = GetFileSizeEx(hFile, &lFileSize);
+        if(!bGetSize)
+        {
+            CloseHandle(hFile);
+            continue;
+        }
+
+		// Update totals
+        lTotalSize += lFileSize.QuadPart;
+
+		// Close file
+        CloseHandle(hFile);
+        hFile = INVALID_HANDLE_VALUE;
+    }
+
+	// Return total file size
+    return lTotalSize;
+}
+
+
 //---------------------------------------------------------------------
 // CCrashInfoReader impl
 //---------------------------------------------------------------------
@@ -356,7 +403,7 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
         CollectMiscCrashInfo(eri);
 
         eri.m_sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + eri.m_sCrashGUID;
-        Utility::CreateFolder(eri.m_sErrorReportDirName);
+        Utility::CreateFolder(eri.m_sErrorReportDirName);		
 
         m_Reports.push_back(eri);
     }  

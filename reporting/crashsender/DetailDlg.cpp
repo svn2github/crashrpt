@@ -519,6 +519,11 @@ LRESULT CDetailDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 	// Update file items list
 	FillFileItemList();
 
+	// Force parent to recalculate report size
+	HWND hWndParent = GetParent();
+	if(::IsWindow(hWndParent))
+		::SendMessage(hWndParent, WM_REPORTSIZECHANGED, m_nCurReport, 0);
+
 	return 0;
 }
 
@@ -588,6 +593,11 @@ LRESULT CDetailDlg::OnPopupAddMoreFiles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 		// Update file items list
 		FillFileItemList();
+
+		// Force parent to recalculate report size
+		HWND hWndParent = GetParent();
+		if(::IsWindow(hWndParent))
+			::SendMessage(hWndParent, WM_REPORTSIZECHANGED, m_nCurReport, 0);
 	}
 	
 	return 0;

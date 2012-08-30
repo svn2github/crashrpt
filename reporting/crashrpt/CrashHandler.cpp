@@ -1368,6 +1368,7 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
     CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
     ATLASSERT(pCrashHandler!=NULL);  
 
+	// Handle stack overflow in a separate thread.
 	// Vojtech: Based on martin.bis...@gmail.com comment in
 	//	http://groups.google.com/group/crashrpt/browse_thread/thread/a1dbcc56acb58b27/fbd0151dd8e26daf?lnk=gst&q=stack+overflow#fbd0151dd8e26daf
 	if (pExceptionPtrs != 0 && pExceptionPtrs->ExceptionRecord != 0 &&

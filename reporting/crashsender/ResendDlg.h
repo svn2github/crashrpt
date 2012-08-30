@@ -38,6 +38,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include "stdafx.h"
 #include "ProgressDlg.h"
+#include "DetailDlg.h"
 
 // Notification code of tray icon
 #define WM_RESENDTRAYICON (WM_USER+500)
@@ -115,7 +116,8 @@ public:
         MESSAGE_HANDLER(WM_RESENDTRAYICON, OnTrayIcon)    
 		MESSAGE_HANDLER(WM_NEXT_ITEM_HINT, OnNextItemHint)    
 		MESSAGE_HANDLER(WM_ITEM_STATUS_CHANGED, OnItemStatusChanged)    
-		MESSAGE_HANDLER(WM_DELIVERY_COMPLETE, OnDeliveryComplete)    
+		MESSAGE_HANDLER(WM_DELIVERY_COMPLETE, OnDeliveryComplete)   
+		MESSAGE_HANDLER(WM_REPORTSIZECHANGED, OnReportSizeChanged)
         COMMAND_ID_HANDLER(IDOK, OnSendNow)
         COMMAND_ID_HANDLER(IDC_OTHERACTIONS, OnOtherActions)
         COMMAND_ID_HANDLER(IDC_SHOWLOG, OnShowLog)
@@ -139,6 +141,7 @@ public:
     LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
     LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
     LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
+	LRESULT OnReportSizeChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
 	LRESULT OnNextItemHint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);  
 	LRESULT OnItemStatusChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);  
 	LRESULT OnDeliveryComplete(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);  

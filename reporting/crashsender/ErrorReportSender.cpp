@@ -1163,12 +1163,12 @@ BOOL CErrorReportSender::CollectCrashFiles()
 
     // Create crash description XML
     CreateCrashDescriptionXML(*m_CrashInfo.GetReport(0));
-
+	
     // Success
     bStatus = TRUE;
 
 cleanup:
-
+		
 	// Clean up
 
     if(hSrcFile!=INVALID_HANDLE_VALUE)
@@ -1580,62 +1580,6 @@ BOOL CErrorReportSender::RestartApp()
     return TRUE;
 }
 
-// This method calculates the total size of files included into error report
-LONG64 CErrorReportSender::GetUncompressedReportSize(CErrorReportInfo* eri)
-{
-	// Add a message to log and reset progress
-    m_Assync.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
-
-    LONG64 lTotalSize = 0;    
-    HANDLE hFile = INVALID_HANDLE_VALUE;  
-    CString sMsg;
-    BOOL bGetSize = FALSE;
-    LARGE_INTEGER lFileSize;
-
-	// Enumerate files contained in the error report
-	int i;
-	for(i=0; i<eri->GetFileItemCount(); i++)
-    {    
-		ERIFileItem* pfi = eri->GetFileItemByIndex(i);
-
-		// Check if operation cancelled by user
-        if(m_Assync.IsCancelled())    
-            return 0;
-
-		// Get name of the file
-        CString sFileName = pfi->m_sSrcFile.GetBuffer(0);
-		// Open file for reading
-        hFile = CreateFile(sFileName, 
-            GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
-        if(hFile==INVALID_HANDLE_VALUE)
-        {
-            sMsg.Format(_T("Couldn't open file %s"), sFileName);
-            m_Assync.SetProgress(sMsg, 0, false);
-            continue;
-        }
-
-		// Get file size
-        bGetSize = GetFileSizeEx(hFile, &lFileSize);
-        if(!bGetSize)
-        {
-            sMsg.Format(_T("Couldn't get file size of %s"), sFileName);
-            m_Assync.SetProgress(sMsg, 0, false);
-            CloseHandle(hFile);
-            continue;
-        }
-
-		// Update totals
-        lTotalSize += lFileSize.QuadPart;
-
-		// Close file
-        CloseHandle(hFile);
-        hFile = INVALID_HANDLE_VALUE;
-    }
-
-	// Return total file size
-    return lTotalSize;
-}
-
 // This method compresses the files contained in the report and produces a ZIP archive.
 BOOL CErrorReportSender::CompressReportFiles(CErrorReportInfo* eri)
 { 
@@ -1659,7 +1603,7 @@ BOOL CErrorReportSender::CompressReportFiles(CErrorReportInfo* eri)
         m_Assync.SetProgress(_T("[compressing_files]"), 0, false);
 
 	// Calculate the total size of error report files
-    lTotalSize = GetUncompressedReportSize(eri);
+	lTotalSize = eri->GetTotalSize();
 
 	// Add a message to log
     sMsg.Format(_T("Total file size for compression is %I64d bytes"), lTotalSize);

@@ -780,7 +780,7 @@ crEmulateCrash(unsigned ExceptionType) throw (...)
 	case CR_STACK_OVERFLOW:
 		{
 			// Infinite recursion and stack overflow.
-			CauseStackOverflow();
+			CauseStackOverflow();						
 		}
     default:
         {

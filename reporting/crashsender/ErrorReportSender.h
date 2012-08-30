@@ -108,10 +108,7 @@ public:
 	    
     // Unblocks waiting worker thread.
     void FeedbackReady(int code);
-
-    // Returns size in bytes of error report files.
-    LONG64 GetUncompressedReportSize(CErrorReportInfo* eri);
-
+	    
     // Returns current error report's index.
     int GetCurReport();
 	    
