@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by CrashRptTest.rc
+// Used by WTLDemo.rc
 //
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128

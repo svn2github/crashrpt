@@ -1,0 +1,159 @@
+/*!
+
+\page enabling_crash_reporting Enabling Crash Reporting and Adding Files to Crash Report
+
+This pages describes how to initialize CrashRpt and how to add various files to crash report.
+
+\section enabling Enabling Crash Reporting
+
+To enable crash reporting support in your C++ application you use crInstall() function. 
+The function crInstall() installs exception handlers that work for the entire process. Typically you
+call the crInstall() in the beginning of your \b main() or \b WinMain() function. 
+
+You pass configuration settings to crInstall() through the \ref CR_INSTALL_INFO structure. The configuration
+settings include application name and version, recipient's e-mail address or URL, path for saving error reports,
+Privacy Policy URL and so on.
+
+On application exit, you use the crUninstall() function to unset exception handlers 
+and uninitialize CrashRpt. 
+
+<b>A note for MFC users.</b>
+
+If your application is MFC-based, you should override your <i>CWinApp::Run()</i> method and install CrashRpt there. 
+In the CPP file containing your App class, add the following code:
+
+\code
+int CYourApp::Run() 
+{
+  // Call your crInstall code here ...
+
+  BOOL bRun;
+  BOOL bExit=FALSE;
+  while(!bExit)
+  {
+    bRun= CWinApp::Run();
+    bExit=TRUE;
+  }
+
+  // Uninstall CrashRpt here...
+
+  return bRun;
+}
+\endcode
+
+\section thread_crash_handlers Per-thread Installation
+
+Some of exception handlers work for entire process and others work for caller thread
+only. Because of this reason, if your application is multi-threaded, you have to additionally install
+exception handlers in each worker thread.
+
+The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
+In a multi-threaded program you call the crInstallToCurrentThread2() for all 
+threads except the main one. Typically you call this function in the beginning of the thread
+procedure.
+
+Just before the return from the thread procedure, call the
+crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
+crUninstallFromCurrentThread() function in the main execution thread, because crUninstall() will do that for
+you automatically.
+
+\section wrappers Convenience Wrappers
+
+You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
+handlers in your program. Use CrAutoInstallHelper wrapper class to install exception handlers in your
+\b main() function. In a multi-threaded program, use CrThreadAutoInstallHelper wrapper class to 
+install exception handlers in each worker thread.
+	
+\section crash_callback Notifying the Application on Crash
+
+Sometimes the client application should be notified on crash to be able to perform some actions.
+You can define a crash callback function (see LPGETLOGFILE() prototype) and pass its pointer to crInstall()
+using \ref CR_INSTALL_INFO::pfnCrashCallback structure member. The specified crash callback function 
+will be called on crash.
+
+For example, the application may use this callback for closing handles to open 
+log files that the application plans to include into the error report. Log files 
+should be accessible for reading, otherwise CrashRpt won't be able to include them 
+into error report.           
+
+It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) 
+inside of this callback, because the application state may be unstable.
+
+\section testing_if_intercepted Testing If Exceptions are Intercepted
+
+When you install crash reporting support to your program, it is important to test if CrashRpt
+intercepts exceptions properly. Use \ref crEmulateCrash() function to emulate an exceptional situation. 
+You may call this function in each thread of your program to ensure all exceptions will be caught.
+
+\section adding_crashdump Adding Crash Minidump File
+
+By default, CrashRpt generates crash minidump file on crash and includes it into the crash report.
+You can specify what minidump type to generate using \ref CR_INSTALL_INFO::uMiniDumpType
+structure member. The default minidump type is <b>MiniDumpNormal</b>. For the list of available 
+minidump types, see the documentation for the MiniDumpWriteDump() function in MSDN.
+
+It is also possible to disable crash minidump generation by specifying the \ref CR_INST_NO_MINIDUMP 
+flag for \ref CR_INSTALL_INFO::dwFlags structure member.
+
+\section adding_a_custom_file Adding a Custom File
+
+Typically an application creates and maintains a log file where operations and errors are
+written. Such a log file can be helpful for crash analysis and should be added to your application's error
+report. You add application-specific files to the error report using crAddFile2() function.
+
+\section allow_delete Allowing User to Attach or Delete Files
+
+Typically, application developer decides what files to add into error report.
+Hovewer, it may be needed to let user to attach new files to error report or 
+remove existing files from error report. 
+
+To let user remove a file from error report, you have to pass
+the \ref CR_AS_ALLOW_DELETE flag to crAddFile2() function. When this flag is specified,
+user will be able to right-click the file in <i>Error Report Details</i> dialog
+and choose <i>Delete Selected File(s)</i> from the context menu to delete the file.
+Note that user is unable to delete standard files, such as <i>crashrpt.xml</i> or
+<i>crashdump.dmp</i>.
+
+To let user attach more files to error report, specify the \ref CR_INST_ALLOW_ATTACH_MORE_FILES
+flag for \ref CR_INSTALL_INFO::dwFlags structure member. When this is specified,
+the user will be able to right-click the list of files on <i>Error Report Details</i>
+dialog and choose <i>Attach More File(s)</i> item from the context menu. The <i>Open File</i>
+dialog appears where user can select what files to attach.
+
+\section adding_a_custom_property Adding a Custom Property
+
+One way to add application-defined info to the error report is adding a file as described above. But
+sometimes you may want to extend the crash description XML file by adding a named literal property to the
+file. You can do this through the crAddProperty() function. 
+
+For example, you may need to add the info about the amount of free disk space on a specific disk drive 
+at the moment of crash, or about the version of the graphics card driver. 
+
+\section adding_a_screenshot Adding a Screen Shot
+
+It may be useful to have a screen shot of user's desktop at the moment of crash. 
+You can make a screen shot of user's virtual screen or a screen shot of your main window using 
+the crAddScreenshot2() function. 
+
+Screen shots may help to see which button user clicked before the crash, to see the desktop state and easier 
+reproduce the crash. For example, for multi-monitor desktops it may be useful to see if the application window is 
+positioned on the primary monitor, on the secondary monitor, or at the boundary of two monitors. 
+Sometimes it may be enough to see only the region of the desktop occupied by your application 
+and not the rest of desktop. 
+
+But there is one thing to take in account. By enabling screenshot capture, you should be careful 
+about user's privacy. Some parts of the desktop screenshot may contain private or user identifying 
+information: folder names, wallpapers, photos, text fragments and so on. That's why you should 
+always provide a link to your Privacy Policy page describing what information you collect on 
+crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
+with the contents of the error report and accepts the terms of the Privacy Policy.
+
+\section adding_a_reg_key Adding a Registry Key
+
+Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
+analysis. Since v.1.2.6, you can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
+
+
+<i>Further reading:</i> \ref sending_error_reports.
+
+*/

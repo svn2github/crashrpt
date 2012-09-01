@@ -2,40 +2,39 @@
 
 \mainpage CrashRpt Documentation
 
-If you have ever tried to determine the reason of your program's crash on a end user's machine, 
-you might know how difficult it is. Some users won't contact you to tell about the problem. Others 
-might not have technical knowledge. These factors make debugging remote crashes 
-almost impossible. That's why it is important to use special tools to report 
-errors automatically. 
-
-<b>CrashRpt</b> library is a set of open-source error handling, reporting and 
-postprocessing tools for Visual C++ applications running in Windows. 
+<b>CrashRpt</b> is a light-weight open-source error handling, reporting and 
+postprocessing library for C++ applications running in Windows. 
 
 \section toc Table of Contents
 
 - \subpage introduction_to_crashrpt
   - \ref getting_started
-  - \ref demos
-  - \ref automated_tests
-  - \ref error_report
   - \ref architecture_overview
-  - \ref exception_handling
+  - \ref error_report
+  - \ref demos
+  - <a class="el" href="http://code.google.com/p/crashrpt/wiki/FAQ">Frequently Asked Questions</a>
+  - <a class="el" href="../../Changelog.txt">Change Log</a>
 - \subpage using_crashrpt
   - \ref compiling_crashrpt
   - \ref configuring_project
-  - \ref internationalization_support
   - \ref using_crashrpt_api
+    - \ref enabling_crash_reporting 
+    - \ref sending_error_reports
+    - \ref misc_api_features
   - \ref simple_example
-  - \ref sending_error_reports
+  - \ref internationalization_support
   - \ref preparing_to_software_release
 - \subpage using_error_reports
   - \ref analyzing_error_reports
   - \ref using_crash_descriptor
   - \ref using_minidump
-  - \ref writing_robust_code
   - \ref automating_crash_report_processing
+    - \ref crashfix_server
     - \ref crprober_tool
     - \ref using_crashrptprobe_api
     - \ref crashrptprobe_api_examples
-
+- \subpage other_topics
+  - \ref exception_handling
+  - \ref writing_robust_code
+  - \ref automated_tests    
 */

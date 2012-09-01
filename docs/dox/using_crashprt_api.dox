@@ -20,194 +20,24 @@ character set independent mapping of function name, for example use crInstall() 
 expands into crInstallW() if you use wide character set or into crInstallA() if you use multibyte 
 character set.
 
-\section enabling_crash_reporting Enabling Crash Reporting
-
-To enable crash reporting support in your C++ application you use crInstall()
-and crInstallToCurrentThread2() functions. There are two functions because of difference in work of
-exception handlers. Some of them work for entire process and others work for caller thread
-only.
-
-The function crInstall() installs exception handlers that work on per-process basis. Typically you
-call the crInstall() in the beginning of your \b main() or \b WinMain() function. 
-
-You pass configuration settings to crInstall() through the \ref CR_INSTALL_INFO structure. The configuration
-settings include application name and version, recipient's e-mail address or URL, path for saving error reports,
-Privacy Policy URL and so on.
-
-You can also create a crash callback function LPGETLOGFILE() and pass its pointer to crInstall(). 
-The crash callback function is called on crash.
-
-On application exit, you use the crUninstall() function to unset exception handlers. 
-
-The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
-In a multi-threaded program you call the crInstallToCurrentThread2() for all 
-threads except the main one. Typically you call this function in the beginning of the thread
-procedure.
-
-Just before the return from the thread procedure, call the
-crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
-crUninstallFromCurrentThread() function in the main execution thread, because crUninstall() will do that for
-you automatically.
-
-You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
-handlers in your program. Use CrAutoInstallHelper wrapper class to install exception handlers in your
-\b main() function. In a multi-threaded program, use CrThreadAutoInstallHelper wrapper class to 
-install exception handlers in each worker thread.
-
-\section adding_a_custom_file Adding a Custom File
-
-Typically an application creates and maintains a log file where operations and errors are
-written. Such a log file can be helpful for crash analysis and should be added to your application's error
-report. You add application-specific files to the error report using crAddFile2() function.
-
-\section adding_a_custom_property Adding a Custom Property
-
-One way to add application-defined info to the error report is adding a file as described above. But
-sometimes you may want to extend the crash description XML file by adding a named literal property to the
-file. You can do this through the crAddProperty() function. 
-
-For example, you may need to add the info about the amount of free disk space on a specific disk drive 
-at the moment of crash, or about the version of the graphics card driver. 
-
-\section adding_a_screenshot Adding a Screen Shot
-
-It may be useful to have a screen shot of user's desktop at the moment of crash. 
-This may help to see which button user clicked before the crash, to see the desktop state and easier 
-reproduce the crash. For example, for multi-monitor desktops it may be useful to see if the application window is 
-positioned on the primary monitor, on the secondary monitor, or at the boundary of two monitors. 
-Sometimes it may be enough to see only the region of the desktop occupied by your application 
-and not the rest of desktop.
-
-But there is one thing to take in account. By enabling screenshot capture, you should be careful 
-about user's privacy. Some parts of the desktop screenshot may contain private or user identifying 
-information: folder names, wallpapers, photos, text fragments and so on. That's why you should 
-always provide a link to your Privacy Policy page describing what information you collect on 
-crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
-with the contents of the error report and accepts the terms of the Privacy Policy.
-
-You can make a screen shot of user's virtual screen or a screen shot of your main window using the crAddScreenshot() function. 
-
-\section adding_a_reg_key Adding a Registry Key
-
-Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
-analysis. Since v.1.2.6, you can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
-
-\section debugging_a_remote_logics_error Debugging a Remote Logics Error
-
-Sometimes it is required to remotely debug some application logics error. Such an error,
-for example, infinite loop in a worker thread, may not cause program crash. To collect the information about
-error that doesn't cause crash, a software developer might provide an ability to generate 
-error report manually on user demand,
-for example on a key combination press. The crGenerateErrorReport() function allows to generate an error
-report manually.
-
-\section silent_mode Silent (non-GUI) Mode
-
-<b>Since v.1.2.2</b>, CrashRpt can function in silent mode. 
-In this mode, no <i>Error Report</i> window is shown on crash and
-no interaction with user is performed.
-The silent mode is enabled by specifying the \ref CR_INST_NO_GUI
-flag for \ref CR_INSTALL_INFO::dwFlags structure member.
-
- The silent mode is designed for server applications or services
-that do not need to interact with user on crash. 
-The silent mode should not be used for regular GUI applications. For regular interactive applications,
-a user should provide his/her consent to allow sending the error report.
-
-\section automatic_app_restart Automatic Application Restart
-
-<b>Since v.1.2.4</b>, you can tell CrashRpt to restart your application automatically when crash occurs.
-This can be done by specifying the \ref CR_INST_APP_RESTART flag for the \ref CR_INSTALL_INFO::dwFlags structure member.
-
-You can pass command line parameters to the executable being restarted using \ref CR_INSTALL_INFO::pszRestartCmdLine, but can't specify another executable
-for restart. Only the same executable can be restarted that was used to start the current process.  
-
-The application is restarted only if at least 60 seconds have elapsed since its start up. This is done
-to avoid cyclic restarts of an application that crashes right on its start up. Also, the application is
-restarted only if the user does provide his/her consent.
-
-If you generate an error report manually, the caller process is not terminated automatically. If you 
-do not want to terminate the caller process, and want to avoid
-starting the second instance of the application, specify the \ref CR_EXCEPTION_INFO::bManual flag.
-
-\section testing_if_intercepted Testing If Exceptions are Intercepted
-
-When you install crash reporting support to your program, it is important to test if CrashRpt
-intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation. 
-You may call this function in each thread of your program to ensure all exceptions will be caught.
-
-\section get_err_msg Getting Error Messages
-
 Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
 text error message of the last called function, use crGetLastErrorMsg().
 
+\section api_by_topic CrashRpt API by Topic
+
+The following pages cover features provided by CrashRpt API:
+
+- \ref enabling_crash_reporting 
+- \ref sending_error_reports
+- \ref misc_api_features
+
 \section api_reference CrashRpt API Reference
+
+Below is the complete list of API provided by CrashRpt:
 
 - \ref CrashRptAPI
 - \ref CrashRptStructs
 - \ref CrashRptWrappers
 - \ref DeprecatedAPI 
-
-\section using_crashrpt_api_faq FAQ
-
-<b>I need to modify some crashrpt configuration info (i.e. uPriorities) based on information 
-collected after crInstall(). What is the best way ?</b>
-
-Currently, there are no ways to modify the CrashRpt configuration info after calling crInstall(). 
-It is recommend to hardcode the info you pass to crInstall() function, that means not reading 
-it from an INI file or from another source.
-
-However, if you strongly wish to read crashrpt configuration info from an external file, call 
-crInstall() after reading the info from that file. Simple file reading functionality is not 
-likely to crash. So the probability you miss a crash while reading the file is small. 
-
-<b>We ship a software (game etc.) and certain crashes only happen on certain hardware. So we 
-need some sort of functionality that gathers GPU/CPU/general hardware information upon crash 
-report generation. What do we do?</b>
-
-We introduced a function crAddProperty() specially for purposes of extending the crash description 
-XML as you wish. You can also use the crAddFile2() function, which allows to add a user-defined 
-file to the crash report. 
-
-<b>I want to uniquely identify the installation by what the error reports are sent. What do I do?</b>
-
-In CrashRpt v.1.2.1, we introduced a function crAddProperty() specially for purposes of extending 
-the crash description XML as you wish. You can create the installation GUID in your program, store 
-it in the registry or in a file and pass this GUID to the crAddProperty() function, so the named 
-property will be added to the crashrpt.xml and you will be able to identify the installation and 
-associate the bugs together.
-
-The following code example shows how to do this (code provided by tdev):
-
-\code
-  // ... upon program start, check if GUID is not existing, if not create one:
-  GUID *g = new GUID();
-  CoCreateGuid(g);
-  
-  char buf[120];
-  sprintf( buf, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-    g->Data1, g->Data2, g->Data3, UINT(g->Data4[0]), UINT(g->Data4[1]), UINT(g->Data4[2]), 
-    UINT(g->Data4[3]), UINT(g->Data4[4]), UINT(g->Data4[5]), UINT(g->Data4[6]), UINT(g->Data4[7]));
-  delete g;
-  std::string guid = std::string(buf);
-
-  //... later, add it to the crashreport:
-  crAddProperty("SystemGUID", guid);
-\endcode
-
-<b>My software's worker thread hangs up on user's machine (but no crash happens). How do I debug the 
-problem?</b>
-
-To collect information about such error, you may provide an ability to generate error report 
-manually, for example on a key combination press. When the key combination is pressed, generate 
-error report manually using crGenerateErrorReport() function.
- 
-<b>What is the minidump type? What minidump type should I use?</b>
-
-The minidump type defines what information is contained in the minidump. The default minidump 
-type is <b>MiniDumpNormal</b>. However, the <b>MiniDumpNormal</b> type contains only essential info required 
-to recover the stack traces for each thread. To recover the state of global variables, other 
-minidump types should be used. For additional info, see the 
-<a href="http://www.debuginfo.com/articles/effminidumps.html">Effective Minidumps</a> article. 
 
 */

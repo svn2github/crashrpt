@@ -3,8 +3,10 @@
 \page simple_example An Example of Using CrashRpt API
 
 The following example shows how to use CrashRpt API functions and structures 
-to enable crash reporting support. For additional information on CrashRpt API functions
-and structures, please refer to \ref using_crashrpt_api.
+to enable crash reporting support in a console C++ application. We use console 
+application for simplicity, but in general the application may be WinAPI/MFC/ATL/WTL 
+based, as well. For additional information on CrashRpt API functions and structures, 
+please refer to \ref using_crashrpt_api.
 
 First create a console Win32 application and call it MyApp. Then configure the MyApp application
 as described in \ref configuring_project.
@@ -269,6 +271,6 @@ see \ref preparing_to_software_release):
 When files are copied, run the application. As error occurs, you should be able to see an
 error report window (for additional information, see \ref error_report)
 
-
+<i>Further reading:</i> \ref internationalization_support.
 
 */

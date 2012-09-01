@@ -7,7 +7,6 @@ This section covers the following topics:
 - \subpage analyzing_error_reports
 - \subpage using_crash_descriptor
 - \subpage using_minidump
-- \subpage writing_robust_code
 - \subpage automating_crash_report_processing
 
 */

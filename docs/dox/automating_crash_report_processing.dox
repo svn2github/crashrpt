@@ -14,16 +14,22 @@ analyzing their content may become boring and take a lot of time.
 
 \image html reports_path.png 
 
-<b>Since v1.2.0</b>, CrashRpt provides a way for automating the report processing.
-The command line tool named \b crprober.exe is introduced for processing error report 
+The easiest way to process error reports automatically is to install the 
+CrashFix web application. CrashFix server allows to easily receive, store, 
+organize and analyze crash reports sent by your C++ application. For additional information,
+please see the \ref crashfix_server page.
+
+An alternative way is to use a command-line tool named <i>crprober.exe</i> provided  
+by CrashRpt. The tool is designed for processing error report 
 files and outputting the results to a text file or to terminal.
-The <b>CrashRptProbe API</b> is introduced to provide base crash report processing services to
-your custom error report processing applications.
+For additional information, please refer to the \ref crprober_tool page.
 
-This section is divided into the following topics:
+The <i>crprober.exe</i> tool uses <i>CrashRptProbe API</i> internally. The API 
+is designed to provide programming access to crash report file contents and
+can be useful if you want to write your own crash report processing application.
+For additional information, please refer to the \ref using_crashrptprobe_api and
+\ref crashrptprobe_api_examples pages.
 
-- \subpage crprober_tool
-- \subpage using_crashrptprobe_api
-- \subpage crashrptprobe_api_examples
+<i>Further reading:</i> \ref crashfix_server.
     
 */

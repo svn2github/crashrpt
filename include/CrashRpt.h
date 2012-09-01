@@ -404,7 +404,9 @@ typedef struct tagCR_INSTALL_INFOW
 	LPCWSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
 	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
 }
-CR_INSTALL_INFOW, *PCR_INSTALL_INFOW;
+CR_INSTALL_INFOW;
+
+typedef CR_INSTALL_INFOW* PCR_INSTALL_INFOW;
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOA
@@ -436,7 +438,9 @@ typedef struct tagCR_INSTALL_INFOA
 	LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
 	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
 }
-CR_INSTALL_INFOA, *PCR_INSTALL_INFOA;
+CR_INSTALL_INFOA;
+
+typedef CR_INSTALL_INFOA* PCR_INSTALL_INFOA;
 
 /*! \brief Character set-independent mapping of CR_INSTALL_INFOW and CR_INSTALL_INFOA structures.
 *  \ingroup CrashRptStructs
@@ -620,7 +624,7 @@ crInstallToCurrentThread2(DWORD dwFlags);
 *    No need to call this function for the main execution thread. The crUninstall()
 *    will automatically uninstall C++ exception handlers for the main thread.
 *
-*   \sa crInstallToCurrentThread(), crInstallToCurrentThread2(),
+*   \sa crInstallToCurrentThread2(),
 *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
 */
 
@@ -1046,7 +1050,9 @@ typedef struct tagCR_EXCEPTION_INFO
     BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
     HANDLE hSenderProcess;     //!< Handle to the CrashSender.exe process.
 }
-CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
+CR_EXCEPTION_INFO;
+
+typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
 
 /*! \ingroup CrashRptAPI  
 *  \brief Manually generates an errror report.

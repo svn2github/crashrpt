@@ -12,7 +12,7 @@ Tests optionally can be launched from a temporary folder having Chinese
 UNICODE characters in its name. This can be used to test UNICODE compatibility. To
 skip this, just press Enter when prompted.
 
-Test cases are organized into several test suites. Below is the list of test suites:
+Tests are organized into several test suites. Below is the list of test suites:
 
 - CrashRptAPITests : CrashRpt API function tests
 - CrashRptProbeAPITests : CrashRptProbe API function tests
@@ -25,8 +25,8 @@ or to run tests from selected test suites. To run tests from all test suites, pr
 To run tests from selected test suites, type their names when prompted (separate names by space).
 
 \note Automated tests may require an additional software to be installed on your machine (local host). For example, to
-pass HTTP delivery tests, you need to have a Web-server installed on you local host, and having crashrpt.php
-script inside of your htdocs directory. To pass SMTP delivery tests, you need to have an SMTP server configured
+pass HTTP delivery tests, you need to have a Web-server installed on you local host, and having <i>crashrpt.php</i>
+script inside of your <i>htdocs</i> directory. To pass SMTP delivery tests, you need to have an SMTP server configured
 on your local host. 
 
 Below is an example of the output of the <b>Tests.exe</b> console program:
@@ -34,7 +34,8 @@ Below is an example of the output of the <b>Tests.exe</b> console program:
 \code
 
 
-Do you want to run tests from a folder containing Chinese characters to test UNICODE compatibility (y/n)?
+Do you want to run tests from a folder containing Chinese characters to 
+test UNICODE compatibility (y/n)?
 Your choice >
 
 === Automated tests for CrashRpt v.1.2.10 ===
@@ -46,7 +47,8 @@ The list of avaliable test suites:
  - DeliveryTests : Error report delivery tests
  - LangFileTests : CrashRpt language file tests
 
-Enter which test suites to run (separate names by space) or enter empty line to run all test suites.
+Enter which test suites to run (separate names by space) or enter empty 
+line to run all test suites.
 Your choice >
 
 Running tests...

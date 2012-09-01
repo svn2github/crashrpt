@@ -5,11 +5,7 @@
 The crash description is an XML file that contains basic information about the crash.
 It complements the information contained in mindump file. 
 
-\note The structure of XML file has changed since the version 1.0 of CrashRpt. The old structure
-provided mostly unusable information taken from crash minidump (exception address, 
-module list and so on). 
-
-A typical crash description is presented below.
+A typical crash description file is presented below.
 
 \code
 
@@ -48,11 +44,11 @@ means version 1.1.3, the value of '1201' means version 1.2.1.
 The element  \c CrashGUID is a unique ID of the error report. It can be used, for example,
 as a primary key if you plan to store crash reports in a database.
 
-The element  \c AppName is the name of your application that was passed to \b crInstall() 
-as \b pszAppName member of \b CR_INSTALL_INFO structure.
+The element  \c AppName is the name of your application that was passed to \ref crInstall() 
+as \ref CR_INSTALL_INFO::pszAppName structure member.
 
-The element  \c AppVersion is the version of your application that was passed to \b crInstall() 
-as \b pszAppVersion member of \b CR_INSTALL_INFO structure. You are typically interested
+The element  \c AppVersion is the version of your application that was passed to \ref crInstall() 
+as \ref CR_INSTALL_INFO::pszAppVersion structure member. You are typically interested
 in analysing error reports from the latest version of your software and ignore reports from 
 older versions.
 
@@ -111,5 +107,6 @@ of CRT is used in your application.
 
 \c MemoryUsageKbytes is the amount of memory (in kilobytes) in use by your problem at the moment of crash.
 
+<i>Further reading:</i> \ref using_minidump.
 
 */

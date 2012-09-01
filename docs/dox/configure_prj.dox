@@ -13,7 +13,7 @@ location of CrashRpt include and lib files, do the following.
 If you use Visual Studio .NET 2003, 2005, or 2008, open menu <i>Tools->
 Options</i>. Then in appeared dialog, select <i>Projects and Solutions->VC++ Directories</i>.
 
-If you use Visual Studio 2010, open the Property Manager window, multi-select 
+If you use Visual Studio 2010 or 2012, open the Property Manager window, multi-select 
 all projects in CrashRpt solution and right click the selection. In the appeared 
 dialog, open <i>Configuration Properties->VC++ Directories</i>. 
 
@@ -91,15 +91,6 @@ The steps 1 and 2 are presented on the figures below.
 
 \image html linker_debug_settings.png "Enabling Debugging Information in Linker"
 
-\section configure_prj_faq FAQ
-
-<b>Does using crashrpt makes it easier for somebody to reverse engineer my code?</b>
-
-Actually not. To use CrashRpt you enable program database generation in Release 
-configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file 
-for your project. PDB file contains information that can be used to reverse engineer 
-your code, however you typically store it locally and do not distribute with your 
-software release package. So, using crashrpt doesn't affect the difficulty of reverse 
-engineering your code. 
+<i>Further reading:</i> \ref using_crashrpt_api.
 
 */

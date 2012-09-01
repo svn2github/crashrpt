@@ -18,12 +18,22 @@ to compile CrashRpt in <b>Visual C++ 2010</b> or in <b>Visual C++ Express 2010</
 To build the solution, choose the \b Release build configuration and press 
 F7 to start building process.
 
-If you use another version of Visual Studio, you can generate solution/project files
-for your version of Visual Studio using CMake. See below for instructions.
+\section releaselib Release LIB Configuration
+
+The Release LIB configuration is an addition to the standard Debug and Release build 
+configurations. Typically, you do not compile CrashRpt in this configuration. However, 
+it may be useful if you use static CRT linkage.
+
+In the Release LIB configuration, the build generates CrashSender.exe executable file 
+and CrashRptLIB.lib static library. In this configuration, CrashSender.exe and 
+CrashRptLIB.lib use static linkage to CRT. 
 
 \section cmake_build Generating Project Files with CMake
 
-<b>Since v.1.3.0</b>, you can generate Visual Studio project files using 
+If you use another version (not 2010) of Visual Studio, you can generate solution/project files
+for your version of Visual Studio using CMake. See below for instructions.
+
+You can generate Visual Studio project files using 
 <a href="http://www.cmake.org/">CMake</a> cross-platform make system. Although CrashRpt
 doesn't support operating systems other than Windows and doesn't support compilers other
 than Visual C++, CMake is useful, because it makes it easier to maintain multiple build
@@ -64,16 +74,13 @@ There are several projects in CrashRpt solution.
 
 \image html solution_explorer.png "Structure of CrashRpt solution as seen in Solution Explorer window" 
 
-- \b crashcon is a console application that helps to test how CrashRpt
+- \b ConsoleDemo is a console application that helps to test how CrashRpt
   works with console applications.
 
 - \b CrashRpt project contains 
   API implementation and provides functionality for intercepting exceptions.
 
 - \b CrashRptProbe project contains functionality for processing error reports.
-
-- \b CrashRptTest is a GUI application that helps to test that 
-   CrashRpt API functions work as expected.
 
 - \b CrashSender project contains functionality 
   for displaying GUI, sending the error report and showing error report sending progress.
@@ -84,17 +91,23 @@ There are several projects in CrashRpt solution.
 
 - \b libpng project contains PNG file management functionality.
 
+- \b MFCDemo is a GUI application that helps to test that 
+   CrashRpt API functions work as expected with a MFC-based application.
+
 - \b minizip project contains ZIP file management functionality.
 
 - \b Tests project contains automated tests.
 
 - \b tinyxml project contains XML file management functionality.
 
+- \b WTLDemo is a GUI application that helps to test that 
+   CrashRpt API functions work as expected with a WTL-based application.
+
 - \b zlib project contains file compression functionality.
 
 \section compiling_x64_platform Compilation for 64-bit (x64) Platform
 
-<b>Since v.1.2.1</b>, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms.
+CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms.
 You can choose the current platform by opening menu Build->Configuration Manager... 
 and by selecting the desired platform from the 'Active solution platform:' combo box.
 
@@ -118,7 +131,14 @@ commercial Visual Studio having ATL.
 
 So, there are two ways to compile CrashRpt in Visual C++ Express:
 
-<b>The first way.</b> You need to have Platform SDK for 
+<b>Recommended way.</b> Install <a href="http://www.microsoft.com/whdc/devtools/wdk/wdkpkg.mspx">Windows Driver Kit</a>, 
+version 7.0 or later, because it contains ATL 7.1 source code. 
+When WinDDK is installed, in VC++ Express window, open Tools->Options...->Projects and Solutions->
+VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
+and then add <i>C:\\WinDDK\6001.18002\\inc\\crt\\atl71</i> path to the list of include 
+directories.
+
+<b>Alternative way.</b> You need to have Platform SDK for 
 Windows Server 2003, because this Platform SDK contains ATL 3.0 source code. 
 Download and install Microsoft Platform SDK for Windows Server 2003, for example
 <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en">
@@ -128,13 +148,6 @@ In VC++ Express window, open Tools->Options...->Projects and Solutions->
 VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
 and then add <i><Platform_SDK_Folder>\\Include\\atl</i> path to the list of include 
 directories (replace the <Platform_SDK_Folder> with the actual directory name).
-
-<b>The second way.</b> Install <a href="http://www.microsoft.com/whdc/devtools/wdk/wdkpkg.mspx">Windows Driver Kit</a>, 
-version 7.0 or later, because it contains ATL 7.1 source code. 
-When WinDDK is installed, in VC++ Express window, open Tools->Options...->Projects and Solutions->
-VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
-and then add <i>C:\\WinDDK\6001.18002\\inc\\crt\\atl71</i> path to the list of include 
-directories.
 
 \section builddox Generating Project Documentation
 
@@ -154,16 +167,6 @@ doxygen Doxyfile
 
 When doxygen finishes, go to the top level directory and open \c index.html.
 
-\section compilation_faq FAQ
-
-<b>What is the Release LIB build configuration?</b>
-
-The Release LIB configuration is an addition to the standard Debug and Release build 
-configurations. Typically, you do not compile CrashRpt in this configuration. However, 
-it may be useful if you use static CRT linkage.
-
-In the Release LIB configuration, the build generates CrashSender.exe executable file 
-and CrashRptLIB.lib static library. In this configuration, CrashSender.exe and 
-CrashRptLIB.lib use static linkage to CRT. 
+<i>Further reading:</i> \ref configuring_project.
 
 */

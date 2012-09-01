@@ -18,10 +18,10 @@ The minidump is usually created with the help of the DbgHelp DLL's
 
 
 The crash minidump file may contain:
-  - general system information
-  - call stack and local variables for each execution thread
-  - values of global variables
-  - the list of loaded and unloaded modules
+  - general system information;
+  - call stack and local variables for each execution thread;
+  - values of global variables;
+  - the list of loaded and unloaded modules.
 
 The actual content of the minidump depends on the minidump type you pass 
 as \ref CR_INSTALL_INFO::uMiniDumpType member.
@@ -33,19 +33,19 @@ modules of your application.
 \section opening_minidump_in_vs Opening Minidump in Visual Studio
 
 In order to illustrate how to open a minidump file, I will use the minidump file created for 
-\b CrashRptTest.exe demo application that is distributed with CrashRpt archive. I use 
+\b WTLDemo.exe demo application that is distributed with CrashRpt archive. I use 
 the following steps to create such minidump:
 
   - I download CrashRpt archive to some directory. Then I unzip my archive
     to <i>D:\\Projects\\CrashRpt\\dmptest</i> folder.
-  - In the top-level directory, I open <i>CrashRpt_vs2005.sln</i> file (because I have Visual Studio 2005 installed)
+  - In the top-level directory, I open <i>CrashRpt_vs2010.sln</i> file (because I have Visual Studio 2010 installed)
     and compile CrashRpt in Release configuration as described in \ref compiling_crashrpt. 
   - Then I go to the <i>bin</i> directory. I see that the Visual Studio created several
     EXE, DLL and PDB files for me. Then I close Visual Studio window.
   - Next I save the binary files, debugging information and source code to some directory as described in 
     \ref preparing_to_software_release. I just copy the <i>bin</i> directory to <i>D:\\Projects\\CrashRptSaved</i> directory
     and (because I use SVN to store my code) make SVN checkout to <i>D:\\Projects\\CrashRptSaved\\src</i> directory.
-  - Next I go to the <i>bin</i> directory again and run the \b CrashRptTest.exe. When dialog appears, I click the
+  - Next I go to the <i>bin</i> directory again and run the \b WTLDemo.exe. When dialog appears, I click the
     "Crash" button. When <i>Error Report</i> dialog appears, I click the "What does this error report contains?"
     link. Then in the <i>Error Report Details</i> dialog, I click the "Export..." button to export the error report
     files as a ZIP archive. I export my error report to <i>D:\\Projects\\ErrorReports</i> directory.
@@ -66,7 +66,7 @@ double-click its file name. Alternatively, if you have several versions of Visua
 commercial one and an Express edition) right-click the filename and in the context menu select <i>Open With</i> 
 and then choose what Visual Studio version to use. 
 
-A new Visual Studio window will appear. In the Visual Studio window, you should be able to see the solution called 
+A new Visual Studio window appears. In the Visual Studio window, you should be able to see the solution called 
 <i>crashdump</i> and having single project node called <b>crashdump.dmp</b>.
 
 \image html crashdump_sln.png "Solution Explorer: crashdump"
@@ -86,7 +86,7 @@ the <i>Output window</i>, open menu <i>View</i> and click the <i>Output</i> menu
 Now look at the <i>Modules</i> window. If you do not see such window, open menu <i>Debug->Windows</i> and select 
 the <i>Modules</i> menu item. Click the <i>Symbol Status</i> column header twice to sort modules by symbol 
 load status in descending order. Now you should be able to see that symbols are loaded for 
-<b>CrashRptTest.exe</b> and <b>CrashRpt.dll</b> modules. 
+<b>WTLDemo.exe</b> and <b>CrashRpt.dll</b> modules. 
 
 \image html modules.png "Modules: Symbols load status for each module"
    
@@ -102,8 +102,6 @@ type you use and on other factors, such as code optimizations.
 \image html code_line.png "Line of the code where exception occurred"
 
 If the reason of the crash is clear, you even may edit the source code right in place to fix the problem. 
-But I wouldn't recommend to do this, because the code you are browsing is a 'snapshot', not a working copy. 
-And there is a bug in Visual Studio 2005 that makes a filename lowercase when you save the changes. 
 
 In order to better understand the reason of the crash, I would like to know what C++ class or function called the 
 crEmulateCrash() function and for what purpose. I can do this with the help of the <i>Call stack</i> window 
@@ -143,7 +141,7 @@ code can't be displayed' (see the figure below).
 
 \image html no_symbols_loaded.png "No Symbols Loaded"
 
-Also look at the <i>Modules</i> window - symbol status for <b>CrashRptTest.exe</b> and <b>CrashRpt.dll</b> modules shows that 
+Also look at the <i>Modules</i> window - symbol status for <b>WTLDemo.exe</b> and <b>CrashRpt.dll</b> modules shows that 
 there were no matching binaries found. In order to fix this, you should specify symbol search path
 manually. Open menu <i>Tools->Options->Debugging->Symbols</i> and enter the path to the directory where your PDB files 
 are located (see the figure below for example). 
@@ -192,8 +190,8 @@ Similarly you need to set the executable and source search paths with the .exepa
 and \c .srcpath commands.
 
 \code
-.exepath D:\CrashRptSaved\CrashRptTest_v1.1.0
-.srcpath D:\Projects\CrashRpt\CrashRptTest\src
+.exepath D:\CrashRptSaved\WTLDemo_v1.1.0
+.srcpath D:\Projects\CrashRpt\demos\WTLDemo
 \endcode
 
 The final step is to change the debugger context to the context record associated 
@@ -217,5 +215,7 @@ building environment may also be different, so generated binaries may be differe
 
 The recommended way is to save the original PDB files (that were produced when building 
 the project), binary files (EXE and DLL) along with the source code. 
+
+<i>Further reading:</i> \ref automating_crash_report_processing.
 
 */
