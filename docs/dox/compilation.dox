@@ -18,6 +18,9 @@ to compile CrashRpt in <b>Visual C++ 2010</b> or in <b>Visual C++ Express 2010</
 To build the solution, choose the \b Release build configuration and press 
 F7 to start building process.
 
+When build finishes, CrashRpt executable files can be found in \b bin directory,
+and library files can be found inside of \b lib directory.
+
 \section releaselib Release LIB Configuration
 
 The Release LIB configuration is an addition to the standard Debug and Release build 
@@ -146,8 +149,8 @@ from here</a>.
 
 In VC++ Express window, open Tools->Options...->Projects and Solutions->
 VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
-and then add <i><Platform_SDK_Folder>\\Include\\atl</i> path to the list of include 
-directories (replace the <Platform_SDK_Folder> with the actual directory name).
+and then add <i>&lt;Platform_SDK_Folder&gt;\\Include\\atl</i> path to the list of include 
+directories (replace the &lt;Platform_SDK_Folder&gt; with the actual directory name).
 
 \section builddox Generating Project Documentation
 

@@ -6,11 +6,11 @@ CrashRpt contains several demo programs intended to show how CrashRpt
 intercepts critical errors and how it delivers error reports to software
 vendor:
  - WTLDemo application demonstrates how CrashRpt works with WTL-based
-   applications.
+   applications;
  - MFCDemo application demonstrates how CrashRpt works with MFC-based
    applications;
  - ConsoleDemo application demonstrates how CrashRpt works with console
-   applications;
+   applications.
 
 \section crashrpttest WTLDemo
 

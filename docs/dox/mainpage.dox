@@ -14,7 +14,7 @@ postprocessing library for C++ applications running in Windows.
   - \ref demos
   - <a class="el" href="http://code.google.com/p/crashrpt/wiki/FAQ">Frequently Asked Questions</a>
   - <a class="el" href="../../Changelog.txt">Change Log</a>
-- \subpage using_crashrpt
+- \subpage using_crashrpt  
   - \ref compiling_crashrpt
   - \ref configuring_project
   - \ref using_crashrpt_api

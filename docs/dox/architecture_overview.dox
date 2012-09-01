@@ -31,12 +31,6 @@ in its \b main() function. In a multi-threaded program, client additionally
 sets exception handlers in the beginning of thread procedure of each worker thread.
 For additional info, see \ref using_crashrpt_api.
 
-CrashRpt is designed to use C runtime libraries (CRT) as a Multi-threaded DLL 
-(/MD compiler flag). All modules in the client application must be linked to 
-the same version of CRT DLL in order to use CrashRpt. If some dependent module 
-of the application uses different version of CRT or is statically linked to CRT, 
-exceptions are not intercepted in that module. For more information, see \ref exception_handling.
-
 \section error_report_analyzis_functionality Error Report Analyzis Functionality
 
 Error report analyzis functionality consists of two modules:

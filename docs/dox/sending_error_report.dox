@@ -14,11 +14,11 @@ additional crash information (desktop screen shot, crash minidump, application-d
 The parent process is then terminated and error report delivery is continued
 in background in <i>CrashSender.exe</i> process.
 
-If your want to just collect and save crash report files on disc, but not to send the report,
+If your want to just collect and save crash report files to disc, but not to send the report,
 you can specify \ref CR_INST_DONT_SEND_REPORT flag for CR_INSTALL_INFO::dwFlags member.
 This forces <i>CrashSender.exe</i> to exit after crash report data collection is finished.
 
-By default, CrashRpt stores error report files un uncompressed state. If you want to
+By default, CrashRpt stores error report files in uncompressed state. If you want to
 additionally compress error reports and store them as ZIP archives, specify the
 \ref CR_INST_STORE_ZIP_ARCHIVES flag for CR_INSTALL_INFO::dwFlags member.
 
@@ -227,7 +227,7 @@ connection without any user interaction. The error report is sent as an E-mail m
 attachments.
 
 Many SMTP servers may block direct access to them to avoid spam (for example Google Mail does so). 
-This way may also fail if firewall blocks outgoing connections on port 25. Because of this reason,
+This delivery method may also fail if firewall blocks outgoing connections on port 25. Because of this reason,
 this delivery method is recommended to use if you install your application to a single machine with
 installed SMTP server (for example, server applications may fit this requirements). 
 
@@ -257,7 +257,7 @@ CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird
 or Microsoft Outlook, to send an error report as email. The error report is 
 sent as an E-mail message with attachments. This may require some user interaction.
 Because of this reason, this delivery method has the lowest priority by default and is 
-unavailable in silent (non-GUI) more.
+unavailable in silent (non-GUI) mode.
 
 To specify the recipient of E-mail messages, you use the \ref CR_INSTALL_INFO::pszEmailTo
 structure member. You can specify the subject of E-mail message using the \ref CR_INSTALL_INFO::pszEmailSubject

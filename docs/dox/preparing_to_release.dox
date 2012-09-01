@@ -6,7 +6,7 @@
 \section savefiles Saving the Debugging Information Locally Before Software Release
 
 When you are ready for a software release, the following steps must be
-performed to be able to properly read end user error reports later.
+performed to be able to properly read error reports sent by end users of your application.
   
 - Create a directory, for example name it 'CrashRptSaved'.
 - In that directory create a subdirectory for your software release,
@@ -48,7 +48,7 @@ that you place these files to the directory where your application executable fi
 The \b CrashRpt.dll and \b CrashSender.exe are core CrashRpt modules. \b dbghelp.dll (Microsoft Debug Help Library) 
 is a dependent module.
 
-<b>Since v.1.1.3</b> it is also required that you copy a language INI file \b crashrpt_lang.ini to the folder 
+It is also required that you copy a language INI file \b crashrpt_lang.ini to the folder 
 where \b CrashSender.exe is located. 
 
 You can distribute several INI files with your software. On install, rename an appropriate 

@@ -108,7 +108,7 @@ Hovewer, it may be needed to let user to attach new files to error report or
 remove existing files from error report. 
 
 To let user remove a file from error report, you have to pass
-the \ref CR_AS_ALLOW_DELETE flag to crAddFile2() function. When this flag is specified,
+the \ref CR_AF_ALLOW_DELETE flag to crAddFile2() function. When this flag is specified,
 user will be able to right-click the file in <i>Error Report Details</i> dialog
 and choose <i>Delete Selected File(s)</i> from the context menu to delete the file.
 Note that user is unable to delete standard files, such as <i>crashrpt.xml</i> or
@@ -118,7 +118,7 @@ To let user attach more files to error report, specify the \ref CR_INST_ALLOW_AT
 flag for \ref CR_INSTALL_INFO::dwFlags structure member. When this is specified,
 the user will be able to right-click the list of files on <i>Error Report Details</i>
 dialog and choose <i>Attach More File(s)</i> item from the context menu. The <i>Open File</i>
-dialog appears where user can select what files to attach.
+dialog appears in which user can select what files to attach.
 
 \section adding_a_custom_property Adding a Custom Property
 
@@ -151,7 +151,7 @@ with the contents of the error report and accepts the terms of the Privacy Polic
 \section adding_a_reg_key Adding a Registry Key
 
 Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
-analysis. Since v.1.2.6, you can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
+analysis. You can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
 
 
 <i>Further reading:</i> \ref sending_error_reports.

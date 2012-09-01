@@ -8,7 +8,8 @@ interface, as described in \ref internationalization_support.
 
 \section maindlg Error Report Dialog
 
-First the <b>Error Report</b> dialog is displayed (see the figure below). 
+When a crash occurs in the client application, the <b>Error Report</b> 
+dialog is displayed (see the figure below). 
 
 \image html maindlg.png "Error Report Dialog"
 
