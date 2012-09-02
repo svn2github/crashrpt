@@ -130,12 +130,8 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">crashcond</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">crashcond</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">crashcon</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">crashcon</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">crashcon</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">crashcon</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)d</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)d</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
