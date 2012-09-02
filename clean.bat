@@ -5,6 +5,7 @@ erase *.ncb
 erase *.opt
 erase *.ilk
 erase *.sdf
+erase ZERO_CHECK.*
 
 erase bin\*.pdb
 erase bin\*.ilk
@@ -26,25 +27,38 @@ erase lib\*LIB.lib
 
 rmdir /S /Q thirdparty\lib
 
-rmdir /S /Q reporting\crashcon\Debug
-rmdir /S /Q reporting\crashcon\Release
-rmdir /S /Q "reporting\crashcon\Release LIB"
-rmdir /S /Q reporting\crashcon\x64
-erase /A H reporting\crashcon\*.user
-erase reporting\crashcon\*.aps
+rmdir /S /Q demos\ConsoleDemo\Debug
+rmdir /S /Q demos\ConsoleDemo\Release
+rmdir /S /Q "demos\ConsoleDemo\Release LIB"
+rmdir /S /Q demos\ConsoleDemo\x64
+rmdir /S /Q demos\ConsoleDemo\CMakeFiles
+rmdir /S /Q demos\ConsoleDemo\ConsoleDemo.dir
+erase /A H demos\ConsoleDemo\*.user
+erase demos\ConsoleDemo\*.aps
+
+rmdir /S /Q demos\WTLDemo\Debug
+rmdir /S /Q demos\WTLDemo\Release
+rmdir /S /Q "demos\WTLDemo\Release LIB"
+rmdir /S /Q demos\WTLDemo\x64
+rmdir /S /Q demos\WTLDemo\CMakeFiles
+rmdir /S /Q demos\WTLDemo\WTLDemo.dir
+erase /A H demos\WTLDemo\*.user
+erase demos\WTLDemo\*.aps
+
+rmdir /S /Q demos\MFCDemo\Debug
+rmdir /S /Q demos\MFCDemo\Release
+rmdir /S /Q "demos\MFCDemo\Release LIB"
+rmdir /S /Q demos\MFCDemo\x64
+rmdir /S /Q demos\MFCDemo\CMakeFiles
+rmdir /S /Q demos\MFCDemo\MFCDemo.dir
+erase /A H demos\MFCDemo\*.user
+erase demos\MFCDemo\*.aps
 
 rmdir /S /Q reporting\crashrpt\Debug
 rmdir /S /Q reporting\crashrpt\Release
 rmdir /S /Q reporting\crashrpt\x64
 erase /A H reporting\crashrpt\*.user
 erase reporting\crashrpt\*.aps
-
-rmdir /S /Q reporting\CrashRptTest\Debug
-rmdir /S /Q reporting\CrashRptTest\Release
-rmdir /S /Q "reporting\CrashRptTest\Release LIB"
-rmdir /S /Q reporting\CrashRptTest\x64
-erase /A H reporting\CrashRptTest\*.user
-erase reporting\CrashRptTest\*.aps
 
 rmdir /S /Q reporting\CrashSender\Debug
 rmdir /S /Q reporting\CrashSender\Release
