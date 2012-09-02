@@ -10,9 +10,9 @@ set (CRASHRPT_VER 1301)
 
 
 # Check supported generators
-if(NOT MSVC OR ${MSVC_VERSION} LESS 1310)
-	message("This version of Visual Studio is not supported: ${CMAKE_GENERATOR}.")
-endif(NOT MSVC OR ${MSVC_VERSION} LESS 1310)
+if(NOT MSVC OR ${MSVC_VERSION} LESS 1400)
+	message(FATAL_ERROR "This version of Visual Studio is not supported: ${CMAKE_GENERATOR}.")
+endif(NOT MSVC OR ${MSVC_VERSION} LESS 1400)
 
 # Build options
 option(CRASHRPT_BUILD_SHARED_LIBS "If set (default), CrashRpt modules are built as dynamic-link libraries, otherwise as static libs." ON)

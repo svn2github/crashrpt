@@ -10,7 +10,7 @@ At this point you should have the CrashRpt source code compiled as described in
 To let your Visual C++ compiler and linker know about the
 location of CrashRpt include and lib files, do the following.
 
-If you use Visual Studio .NET 2003, 2005, or 2008, open menu <i>Tools->
+If you use Visual Studio 2005 or 2008, open menu <i>Tools->
 Options</i>. Then in appeared dialog, select <i>Projects and Solutions->VC++ Directories</i>.
 
 If you use Visual Studio 2010 or 2012, open the Property Manager window, multi-select 
@@ -66,10 +66,10 @@ Ensure that all modules that exist in your application use the same version of C
 If some dependent modules were compiled using an older version of CRT, you should recompile them 
 to ensure the single version or CRT DLL is used. 
 
-For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your 
-application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. 
+For example, assume you use Visual Studio 2008 and CRT 9.0 linked as DLL, but some dependent module in your 
+application was compiled in Visual Studio 2005 and uses CRT 8.0 linked as DLL. 
 In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because error handlers 
-are installed for CRT 8.0 only. 
+are installed for CRT 9.0 only. 
 
 \section prgdb Enabling Program Database (/Zi, /DEBUG) in Release Configuration
 

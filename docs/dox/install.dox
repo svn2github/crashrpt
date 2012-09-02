@@ -148,7 +148,7 @@ refer to \ref automating_crash_report_processing page.
 
 Unlike some cross-platform libraries, CrashRpt supports only one OS (Windows), 
 only one programming language (C++) and only one compiler (Visual C++). 
-CrashRpt supports Visual C++ .NET 2003, 2005, 2008, 2010, 2012 and Visual C++ 
+CrashRpt supports Visual C++ 2005, 2008, 2010, 2012 and Visual C++ 
 Express. It can be compiled for 32-bit and 64-bit platform. For more information,
 please refer to \ref compiling_crashrpt page.
 
