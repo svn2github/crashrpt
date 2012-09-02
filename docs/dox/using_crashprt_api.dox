@@ -27,9 +27,9 @@ text error message of the last called function, use crGetLastErrorMsg().
 
 The following pages cover features provided by CrashRpt API:
 
-- \ref enabling_crash_reporting 
-- \ref sending_error_reports
-- \ref misc_api_features
+- \subpage enabling_crash_reporting 
+- \subpage sending_error_reports
+- \subpage misc_api_features
 
 \section api_reference CrashRpt API Reference
 

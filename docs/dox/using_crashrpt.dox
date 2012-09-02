@@ -4,11 +4,11 @@
 
 This section covers the following topics:
 
-  - \ref compiling_crashrpt
-  - \ref configuring_project
-  - \ref using_crashrpt_api
-  - \ref simple_example
-  - \ref internationalization_support
-  - \ref preparing_to_software_release
+  - \subpage compiling_crashrpt
+  - \subpage configuring_project
+  - \subpage using_crashrpt_api
+  - \subpage simple_example
+  - \subpage internationalization_support
+  - \subpage preparing_to_software_release
 
 */

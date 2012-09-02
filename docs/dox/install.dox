@@ -17,7 +17,7 @@ Crash reporting is a technique allowing to receive user feedback and improve
 quality and stability of your software. To enable crash reporting in your app, 
 you integrate it with CrashRpt -- a light-weight crash reporting library.
 
-CrashRpt's function is to automatically report crash data to the software vendor. 
+CrashRpt's purpose is to automatically report crash data to the software vendor. 
 Crash reports often include data such as stack traces, type of crash, and version 
 of software. This information helps software developers to diagnose and fix the 
 underlying problem causing the crash.

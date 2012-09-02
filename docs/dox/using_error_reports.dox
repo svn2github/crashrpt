@@ -4,9 +4,9 @@
 
 This section covers the following topics:
 
-  - \ref analyzing_error_reports
-  - \ref using_crash_descriptor
-  - \ref using_minidump
-  - \ref automating_crash_report_processing
+  - \subpage analyzing_error_reports
+  - \subpage using_crash_descriptor
+  - \subpage using_minidump
+  - \subpage automating_crash_report_processing
 
 */

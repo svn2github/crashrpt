@@ -57,7 +57,7 @@ For additional information on CrashFix features,
 please refer to 
 <a class="el" href="http://crashfixsoftware.com/index.php/site/page?view=documentation">CrashFix Documentation</a>.
 
-\section crashfix_integration Integration Instructions
+\section crashfix_integration Configuring CrashRpt to Send Error Reports to CrashFix Server
 
 Below, instructions are provided on how to configure CrashRpt 
 to send crash reports to CrashFix server.
@@ -67,7 +67,8 @@ structure. In order to send crash reports to CrashFix server, you must
 set the following structure fields:
 
 - Set \b pszAppName field with the name of the project you want to store 
-  crash reports in. For example, if you have created MyApp project, set 
+  crash reports in (you should create a new project in CrashFix web application). 
+  For example, if you have created MyApp project, set 
   the \b pszAppName field with the value "MyApp".
 
 - Set \b pszAppVersion field with the version of your application. For 
@@ -86,30 +87,32 @@ info.uPriorities[CR_SMTP] = CR_NEGATIVE_PRIORITY;   // Not use SMTP.
 info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY;  // Not use Simple MAPI.  
 \endcode
 
-- For dwFlags field, append the flag CR_INST_HTTP_BINARY_ENCODING.
-  Other fields of the structure may be configured as recommended in CrashRpt documentation.
+- For \b dwFlags field, append the flag \ref CR_INST_HTTP_BINARY_ENCODING.
+
+- Other fields of the structure may be configured on your choise (see \ref using_crashrpt_api page
+  for more information).
   
 Below is an example of the code you may finally have:
 
 \code
-    CR_INSTALL_INFO info;
+CR_INSTALL_INFO info;
 
-    memset(&info, 0, sizeof(CR_INSTALL_INFO));
-    info.cb = sizeof(CR_INSTALL_INFO);  
-    info.pszAppName = _T("Editor");    // Define application name.
-    info.pszAppVersion = _T("1.0.0");  // Define application version.
-    // URL for sending reports over HTTP.			
-    info.pszUrl = _T("http://example.com/crashfix/index.php/crashReport/uploadExternal");         
-    // Define delivery transport priorities. 
-    info.uPriorities[CR_HTTP] = 1;                     // Use HTTP.
-    info.uPriorities[CR_SMTP] = CR_NEGATIVE_PRIORITY;  // Not use SMTP.
-    info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY; // Not use Simple MAPI.  
-    // Define flags.
-    info.dwFlags = 0;                    
-    // Install all available exception handlers.
-    info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS; 
-    // Use binary encoding for HTTP uploads (recommended).    
-    info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;  
+memset(&info, 0, sizeof(CR_INSTALL_INFO));
+info.cb = sizeof(CR_INSTALL_INFO);  
+info.pszAppName = _T("MyApp");     // Define application name.
+info.pszAppVersion = _T("1.0.0");  // Define application version.
+// URL for sending reports over HTTP.			
+info.pszUrl = _T("http://example.com/crashfix/index.php/crashReport/uploadExternal");         
+// Define delivery transport priorities. 
+info.uPriorities[CR_HTTP] = 1;                     // Use HTTP.
+info.uPriorities[CR_SMTP] = CR_NEGATIVE_PRIORITY;  // Not use SMTP.
+info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY; // Not use Simple MAPI.  
+// Define flags.
+info.dwFlags = 0;                    
+// Install all available exception handlers.
+info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS; 
+// Use binary encoding for HTTP uploads (recommended).    
+info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;  
 \endcode
 
 See also:

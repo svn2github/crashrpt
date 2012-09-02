@@ -4,8 +4,8 @@
 
 This section covers the following topics:
 
-  - \ref exception_handling
-  - \ref writing_robust_code
-  - \ref automated_tests    
+  - \subpage exception_handling
+  - \subpage writing_robust_code
+  - \subpage automated_tests    
 
 */

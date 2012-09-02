@@ -1,6 +1,6 @@
 /*!
 
-\page automated_tests Running Automated Tests
+\page automated_tests Running Unit Tests
 
 CrashRpt distribution contains project <b>Tests</b> that implements automated tests 
 for CrashRpt functionality.
