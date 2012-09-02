@@ -65,12 +65,14 @@ locally for later delivery. This is acomplished through specifying
 \ref CR_INST_SEND_QUEUED_REPORTS flag for \ref CR_INSTALL_INFO::dwFlags member.
 
 On application start up, CrashRpt checks if it is time to remind user about recent error 
-reports ready for delivery, shows notification balloon and offers user to deliver them. 
+reports ready for delivery, shows notification balloon and offers user to deliver them (see the figure below). 
+CrashRpt shows notification balloon if at least one week elapsed since the last 
+notification.
 
 \image html balloon.png "Notification Balloon"
 
-CrashRpt shows notification balloon if at least one week elapsed since the last 
-notification.
+When user clicks the balloon, the <i>Sending Recent Error Reports</i> dialog appears (shown in
+the figure below).
 
 \image html send_queued_reports.png "Sending Recent Error Reports"
 

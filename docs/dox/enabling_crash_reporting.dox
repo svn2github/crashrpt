@@ -152,7 +152,17 @@ with the contents of the error report and accepts the terms of the Privacy Polic
 
 Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
 analysis. You can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
+ 
+\section order_of_function_calls The Order of Function Calls
 
+Typically, you call the functions described above in the following order:
+ - Initialize CrashRpt with \ref crInstall() function;
+ - Add custom files, properties, desktop screenshots, registry keys to the error report;
+ - Run the main application code or window message loop;
+ - When the main application code exits, uninitialize CrashRpt with \ref crUninstall();
+ - Exit the application.  
+
+For CrashRpt API usage example, please refer to \ref simple_example page.
 
 <i>Further reading:</i> \ref sending_error_reports.
 
