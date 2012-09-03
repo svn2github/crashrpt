@@ -261,7 +261,7 @@ BOOL CMailMsg::Send()
     message.lpszConversationID                = NULL;
     message.flFlags                           = 0;
     message.lpOriginator                      = pRecipients;
-	message.nRecipCount                       = m_to.size();
+	message.nRecipCount                       = (ULONG)m_to.size();
     message.lpRecips                          = &pRecipients[1];
     message.nFileCount                        = nAttachments;
     message.lpFiles                           = nAttachments ? pAttachments : NULL;

@@ -2290,7 +2290,7 @@ BOOL CErrorReportSender::SendRecentReports()
 		// This is needed to send error report in the same order they appear in the list
 		// (list may be sorted in different order).
 		if(IsWindow(m_hWndNotify))
-			nReport = ::SendMessage(m_hWndNotify, WM_NEXT_ITEM_HINT, 0, 0);
+			nReport = (int)::SendMessage(m_hWndNotify, WM_NEXT_ITEM_HINT, 0, 0);
 
 		bSend = SendNextReport(nReport);
 	}

@@ -509,7 +509,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg)
 		// Convert login to ASCII
 		LPCSTR lpszLogin = strconv.t2a(m_sLogin);
 		// And encode it in BASE-64
-		sEncodedLogin = base64_encode(reinterpret_cast<const unsigned char*>(lpszLogin),strlen(lpszLogin));
+		sEncodedLogin = base64_encode(reinterpret_cast<const unsigned char*>(lpszLogin),(int)strlen(lpszLogin));
 		sEncodedLogin+="\r\n";
 		LPCTSTR lpwszLogin = strconv.a2t((LPCSTR)(sEncodedLogin.c_str()));
 		memset(response,0,1024);   
@@ -529,7 +529,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg)
 		// Convert to ASCII
 		LPCSTR lpszPassword = strconv.t2a(m_sPassword);
 		// BASE-64 encode
-		sEncodedPassword = base64_encode(reinterpret_cast<const unsigned char*>(lpszPassword),strlen(lpszPassword));
+		sEncodedPassword = base64_encode(reinterpret_cast<const unsigned char*>(lpszPassword),(int)strlen(lpszPassword));
 		sEncodedPassword+="\r\n";
 		LPCTSTR lpwszPassword = strconv.a2t((LPCSTR)(sEncodedPassword.c_str()));
 		memset(response,0,1024);

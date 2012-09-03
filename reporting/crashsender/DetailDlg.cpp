@@ -430,7 +430,7 @@ LRESULT CDetailDlg::OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHand
 			continue;
 
 		// Find file item in error report
-		int nItem = m_list.GetItemData(i);
+		int nItem = (int)m_list.GetItemData(i);
 		ERIFileItem* pfi = pSender->GetCrashInfo()->GetReport(m_nCurReport)->GetFileItemByIndex(nItem);
 		if(!pfi->m_bAllowDelete)
 			bAllowDelete = FALSE;
@@ -479,7 +479,7 @@ LRESULT CDetailDlg::OnPopupOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
     CString sFileName = pFileItem->m_sSrcFile;
 
 	// Open the file with shell-provided functionality
-    DWORD dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
+    DWORD_PTR dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
         0, 0, SW_SHOWNORMAL);
     ATLASSERT(dwRet > 32);
 	dwRet;
@@ -501,7 +501,7 @@ LRESULT CDetailDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 			continue;
 
 		// Determine appropriate file item
-		int nItem = m_list.GetItemData(i);		
+		int nItem = (int)m_list.GetItemData(i);		
 		ERIFileItem* pfi = pSender->GetCrashInfo()->GetReport(m_nCurReport)->GetFileItemByIndex(nItem);
 		if(pfi)
 		{

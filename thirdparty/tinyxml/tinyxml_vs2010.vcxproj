@@ -102,7 +102,7 @@
     <TargetName>tinyxmld</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)thirdparty\lib</OutDir>
+    <OutDir>$(SolutionDir)thirdparty\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)thirdparty\lib\$(Platform)\</OutDir>
