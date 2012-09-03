@@ -48,14 +48,16 @@ and press the Save button. The application will terminate with an error message.
 
 The MFCDemo application was created from scratch using the Visual Studio MFC 
 wizard, and then it has been slightly modified to integrate it with CrashRpt. 
-Most modifications reside in <i>MFCDemoApp.cpp</i> file.
+In <i>MFCDemo.cpp</i> file, <i>CMFCDemoApp::Run()</i> method was overridden, and
+in <i>MFCDemoDoc.cpp</i>, the method <i>CMFCDemoDoc::Serialize()</i> was modified
+to cause crash.
 
 \image html mfcdemo.png "MFCDemo Application Window"
 
 The MFCDemo does not upload error reports to any server, it just demonstrates 
 how error report delivery works.To make this demo to upload error reports to your
 own server or to your E-mail address, you need to edit its configuration 
-(see the <i>MFCDemoApp.cpp</i> file inside of <i>/demos/MFCDemo</i> 
+(see the <i>MFCDemo.cpp</i> file inside of <i>/demos/MFCDemo</i> 
 folder) and then recompile the demo.
 
 \section crashcon ConsoleDemo 
