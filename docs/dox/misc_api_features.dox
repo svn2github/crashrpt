@@ -79,6 +79,20 @@ You can specify this flag if you need to attract user's attention to those field
 
 \image html more_info_fields.png "Showing User E-mail and Problem Description Fields"
 
+\section crashender_cmdline CrashSender.exe Command-line Options
+
+The following is not a real "API feature", but a useful command-line option for <i>CrashSender.exe</i>
+executable. 
+
+As of v.1.3.1, CrashRpt allows to specify a command line parameter <i>/terminate</i> for <i>CrashSender.exe</i>. 
+This resolves a problem with installers that will want to update or remove the EXE file during software installation
+process. Earlier, there was no way to programmatically tell the <i>CrashSender.exe</i> program to exit immediatelly.
+
+Since v.1.3.1, launching "CrashSender.exe /terminate" from command shell would 
+look for all open <i>CrashSender.exe</i> processes 
+and terminate them immediately (without sending crash reports or waiting for completion). 
+Terminating the process is acomplished with <b>TerminateProcess()</b> function.
+
 <i>Further reading:</i> \ref simple_example.
 
 */
