@@ -858,10 +858,13 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
     if((dwFlags&CR_INST_ALL_POSSIBLE_HANDLERS)==0)
         dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS;
 
+	// Get current thread ID.
     DWORD dwThreadId = GetCurrentThreadId();
 
+	// Lock the critical section.
     CAutoLock lock(&m_csThreadExceptionHandlers);
 
+	// Try and find our thread ID in the list of threads.
     std::map<DWORD, ThreadExceptionHandlers>::iterator it = 
         m_ThreadExceptionHandlers.find(dwThreadId);
 

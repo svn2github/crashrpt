@@ -23,6 +23,9 @@ HANDLE g_hModuleCrashRpt = NULL; // Handle to CrashRpt.dll module.
 CComAutoCriticalSection g_cs;    // Critical section for thread-safe accessing error messages.
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
+// Forward declaration.
+int crClearErrorMsg();
+
 CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
 {
     int nStatus = -1;
@@ -166,9 +169,11 @@ CRASHRPTAPI(int) crUninstall()
 {
     crSetErrorMsg(_T("Success."));
 
+	// Get crash handler singleton
     CCrashHandler *pCrashHandler = 
         CCrashHandler::GetCurrentProcessCrashHandler();
 
+	// Check if found
     if(pCrashHandler==NULL ||
         !pCrashHandler->IsInitialized())
     {     
@@ -181,11 +186,18 @@ CRASHRPTAPI(int) crUninstall()
     if(nUnset!=0)
         return 2;
 
+	// Destroy the crash handler.
     int nDestroy = pCrashHandler->Destroy();
     if(nDestroy!=0)
         return 3;
 
+	// Free the crash handler object.
     delete pCrashHandler;
+
+	// Clear last error message list.
+	g_cs.Lock();
+    g_sErrorMsg.clear();
+    g_cs.Unlock();
 
     return 0;
 }
@@ -232,6 +244,9 @@ crUninstallFromCurrentThread()
     int nResult = pCrashHandler->UnSetThreadExceptionHandlers();
     if(nResult!=0)
         return 2; // Error?
+
+	// Clear last error message for this thread.
+	crClearErrorMsg();
 
     // OK.
     return 0;
@@ -517,37 +532,21 @@ int crSetErrorMsg(PTSTR pszErrorMsg)
     return 0;
 }
 
+int crClearErrorMsg()
+{  
+	// This method erases the error message for the caller thread.
+	// This may be required to avoid "memory leaks".
 
-CRASHRPTAPI(int) 
-crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
-{
-    crSetErrorMsg(_T("Unspecified error."));
-
-    CCrashHandler *pCrashHandler = 
-        CCrashHandler::GetCurrentProcessCrashHandler();
-
-    if(pCrashHandler==NULL)
-    {    
-        crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
-        return EXCEPTION_CONTINUE_SEARCH; 
-    }
-
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);  
-    ei.exctype = CR_SEH_EXCEPTION;
-    ei.pexcptrs = ep;
-    ei.code = code;
-
-    int res = pCrashHandler->GenerateErrorReport(&ei);
-    if(res!=0)
+    g_cs.Lock();
+    DWORD dwThreadId = GetCurrentThreadId();
+	std::map<DWORD, CString>::iterator itMsg = 
+        g_sErrorMsg.find(dwThreadId);
+    if(itMsg==g_sErrorMsg.end())
     {
-        // If goes here than GenerateErrorReport() failed  
-        return EXCEPTION_CONTINUE_SEARCH;  
-    }  
-
-    crSetErrorMsg(_T("Success."));
-    return EXCEPTION_EXECUTE_HANDLER;  
+        g_sErrorMsg.erase(itMsg);
+    }    
+    g_cs.Unlock();
+    return 0;
 }
 
 //-----------------------------------------------------------------------------------------------
