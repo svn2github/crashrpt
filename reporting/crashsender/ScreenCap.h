@@ -1,33 +1,11 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 #ifndef __SCREENCAP_H__
@@ -60,15 +38,25 @@ struct MonitorInfo
 // Desktop screen shot info
 struct ScreenshotInfo
 {
+	// Constructor
     ScreenshotInfo()
     {
         m_bValid = FALSE;
     }
 
-    BOOL m_bValid;
-    CRect m_rcVirtualScreen;
-    std::vector<MonitorInfo> m_aMonitors; // The list of monitors.
-    std::vector<WindowInfo> m_aWindows; // The list of windows.
+    BOOL m_bValid;           // If TRUE, this structure's fields are valid.
+	time_t m_CreateTime;     // Time of screenshot capture.
+    CRect m_rcVirtualScreen; // Coordinates of virtual screen rectangle.
+    std::vector<MonitorInfo> m_aMonitors; // The list of monitors captured.
+    std::vector<WindowInfo> m_aWindows; // The list of windows captured.	
+};
+
+// Screenshot type
+enum SCREENSHOT_TYPE
+{
+	SCREENSHOT_TYPE_VIRTUAL_SCREEN      = 0, // Screenshot of entire desktop.
+	SCREENSHOT_TYPE_MAIN_WINDOW         = 1, // Screenshot of given process' main window.
+	SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS = 2  // Screenshot of all process windows.
 };
 
 // What format to use when saving screenshots
@@ -84,16 +72,31 @@ class CScreenCapture
 {
 public:
 
-    // Constructor
+    // Constructor.
     CScreenCapture();
-    ~CScreenCapture();
 
-    // Returns virtual screen rectangle
+	// Destructor.
+    ~CScreenCapture();
+	
+	// Takes desktop screenshot and returns information about it.
+	BOOL TakeDesktopScreenshot(	
+			LPCTSTR szSaveToDir,
+			ScreenshotInfo& ssi, 
+			SCREENSHOT_TYPE type=SCREENSHOT_TYPE_VIRTUAL_SCREEN, 
+			DWORD dwProcessId = 0, 
+			SCREENSHOT_IMAGE_FORMAT fmt=SCREENSHOT_FORMAT_PNG,
+			int nJpegQuality = 95,
+			BOOL bGrayscale=FALSE,
+			int nIdStartFrom=0);
+
+private:
+
+	// Returns current virtual screen rectangle
     void GetScreenRect(LPRECT rcScreen);
 
     // Returns an array of visible windows for the specified process or 
     // the main window of the process.
-    BOOL FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, 
+    BOOL FindWindows(DWORD dwProcessId, BOOL bAllProcessWindows, 
         std::vector<WindowInfo>* paWindows);
 
     // Captures the specified screen area and returns the list of image files
@@ -104,25 +107,57 @@ public:
         SCREENSHOT_IMAGE_FORMAT fmt, 
         int nJpegQuality,
         BOOL bGrayscale,
-        std::vector<MonitorInfo>& monitor_list,
-        std::vector<CString>& out_file_list);
+        std::vector<MonitorInfo>& monitor_list);
+
+	// Monitor enumeration callback.
+	static BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, 
+		HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM dwData);
+
+	// Window enumeration callback.
+	static BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam);
 
     /* PNG management functions */
 
     // Initializes PNG file header
     BOOL PngInit(int nWidth, int nHeight, BOOL bGrayscale, CString sFileName);
+
     // Writes a scan line to the PNG file
     BOOL PngWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale);
+
     // Closes PNG file
     BOOL PngFinalize();
 
     /* JPEG management functions */
 
+	// Initializes JPEG file header.
     BOOL JpegInit(int nWidth, int nHeight, BOOL bGrayscale, int nQuality, CString sFileName);
+
+	// Writes a scan line to JPEG file.
     BOOL JpegWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale);
+
+	// Closes PNG file.
     BOOL JpegFinalize();
 
-    /* Member variables. */
+	/* BMP management functions */
+
+	// Initializes BMP file header
+    BOOL BmpInit(int nWidth, int nHeight, BOOL bGrayscale, CString sFileName);
+
+    // Writes a scan line to the BMP file
+    BOOL BmpWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale);
+
+    // Closes BMP file
+    BOOL BmpFinalize();
+
+	// The following structure stores window find data.
+	struct FindWindowData
+	{
+		DWORD dwProcessId;                   // Process ID.
+		BOOL bAllProcessWindows;             // If TRUE, finds all process windows, else only the main one
+		std::vector<WindowInfo>* paWindows;  // Output array of window handles
+	};
+
+    /* Internal member variables. */
 
     CPoint m_ptCursorPos;                 // Current mouse cursor pos
     std::vector<CRect> m_arcCapture;      // Array of capture rectangles
@@ -137,8 +172,7 @@ public:
     png_infop m_info_ptr;                 // libpng stuff
     struct jpeg_compress_struct m_cinfo;  // libjpeg stuff
     struct jpeg_error_mgr m_jerr;         // libjpeg stuff
-    std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices
-    std::vector<CString> m_out_file_list; // The list of output image files
+    std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices   
 };
 
 #endif //__SCREENCAP_H__

@@ -14,7 +14,7 @@ A typical crash description file is presented below.
   <CrashGUID>374db652-d268-4b0b-94dc-c014150c8cfe</CrashGUID>
   <AppName>CrashRpt Tests</AppName>
   <AppVersion>1.2.7</AppVersion>
-  <ImageName>D:\Projects\CrashRpt\src\bin\CrashRptTestd.exe</ImageName>
+  <ImageName>D:\Projects\CrashRpt\src\bin\WTLDemo.exe</ImageName>
   <OperatingSystem>Windows 7 Ultimate Build 7100</OperatingSystem>
   <OSIs64Bit>1</OSIs64Bit>
   <GeoLocation>en-us</GeoLocation>

@@ -6,9 +6,10 @@ CrashRpt library provides several API functions, structures and classes that can
 project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). 
 
 \note Older versions of CrashRpt provided different set of API functions that are now 
-declared obsolete. Those obsolete API functions are still supported for compatibility with older versions of CrashRpt,
-but it is recommended that you use the newer functions instead. Here is the complete list of
-\ref DeprecatedAPI.
+declared obsolete. Those obsolete API functions are still supported for compatibility 
+with older versions of CrashRpt, but may be removed in the future. 
+It is recommended that you use the newer functions instead. 
+Here is the complete list of \ref DeprecatedAPI.
 
 All CrashRpt functions have \c cr prefix, CrashRpt structures have \c CR prefix 
 and CrashRpt classes have \c Cr prefix.
@@ -21,7 +22,7 @@ expands into crInstallW() if you use wide character set or into crInstallA() if 
 character set.
 
 Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
-text error message of the last called function, use crGetLastErrorMsg().
+text error message of the last called function, use the crGetLastErrorMsg() function.
 
 \section api_by_topic CrashRpt API by Topic
 

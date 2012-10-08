@@ -43,6 +43,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _WIN32_IE	0x0600
 #define _RICHEDIT_VER	0x0200
 
+typedef __int64 off_t, _off_t;
+#define _OFF_T_DEFINED
+
 #include <errno.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>

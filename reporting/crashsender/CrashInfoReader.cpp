@@ -1,33 +1,11 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 // File: CrashInfoReader.cpp
@@ -372,21 +350,78 @@ LONG64 CErrorReportInfo::CalcUncompressedReportSize()
 // CCrashInfoReader impl
 //---------------------------------------------------------------------
 
+CCrashInfoReader::CCrashInfoReader()
+{
+	// Init internal variables.
+	m_nCrashRptVersion = 0;
+	m_nSmtpPort = 25;
+	m_nSmtpProxyPort = 25;
+	m_bHttpBinaryEncoding = FALSE;
+	m_bSilentMode = FALSE;
+	m_bSendErrorReport = TRUE;
+	m_bSendMandatory = FALSE;
+	m_bShowAdditionalInfoFields = FALSE;
+	m_bAllowAttachMoreFiles = FALSE;
+	m_bStoreZIPArchives = FALSE;
+	m_bSendRecentReports = FALSE;
+	m_bAppRestart = FALSE;
+	m_uPriorities[CR_HTTP] = 3;
+	m_uPriorities[CR_SMTP] = 2;
+	m_uPriorities[CR_SMAPI] = 1;
+	m_bGenerateMinidump = TRUE;
+	m_MinidumpType = MiniDumpNormal;
+	m_bAddScreenshot = FALSE;
+	m_dwScreenshotFlags = 0;
+	m_nJpegQuality = 0;
+	m_ptCursorPos = CPoint(0, 0);
+	m_rcAppWnd = CRect(0, 0, 0, 0);
+	m_bAddVideo = FALSE;
+	m_dwVideoFlags = 0;
+	m_nVideoDuration = 0;
+	m_nVideoFrameInterval = 0;
+	m_nVideoQuality = 0;
+	m_DesiredFrameSize.cx = 0;
+	m_DesiredFrameSize.cy = 0;
+	m_hWndVideoParent = NULL;
+	m_bClientAppCrashed = FALSE;
+	m_bQueueEnabled = FALSE;
+	m_dwProcessId = 0;
+	m_dwThreadId = 0;
+	m_pExInfo = NULL;
+	m_nExceptionType = 0;
+	m_dwExceptionCode = 0;
+	m_uFPESubcode = 0;
+	m_uInvParamLine = 0;
+	m_pCrashDesc = NULL;
+}
+
 int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
 { 
+	// This method unpacks crash information from a shared memory (file-mapping)
+	// and inits the internal variables.
+
     strconv_t strconv;
     CErrorReportInfo eri;
 
-    // Init shared memory
-    BOOL bInitMem = m_SharedMem.Init(szFileMappingName, TRUE, 0);
-    if(!bInitMem)
-        return 1;
+	// Init shared memory
+	if(!m_SharedMem.IsInitialized())
+	{
+		// Init shared memory
+		BOOL bInitMem = m_SharedMem.Init(szFileMappingName, TRUE, 0);
+		if(!bInitMem)
+		{
+			m_sErrorMsg = _T("Error initializing shared memory.");
+			return 1;
+		}
+	}
 
+	// Unpack crash description from shared memory
     m_pCrashDesc = (CRASH_DESCRIPTION*)m_SharedMem.CreateView(0, sizeof(CRASH_DESCRIPTION));
 
     int nUnpack = UnpackCrashDescription(eri);
     if(0!=nUnpack)
     {
+		m_sErrorMsg = _T("Error unpacking crash description.");
         return 2;
     }
 	
@@ -443,11 +478,14 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
         }
     }
 
+	// Done
     return 0;
 }
 
 int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
 {
+	// This method unpacks crash description data from shared memory.
+
     if(memcmp(m_pCrashDesc->m_uchMagic, "CRD", 3)!=0)
         return 1; // Invalid magic word
 
@@ -514,6 +552,13 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
     UnpackString(m_pCrashDesc->m_dwCustomSenderIconOffs, m_sCustomSenderIcon);  
 	UnpackString(m_pCrashDesc->m_dwSmtpLoginOffs, m_sSmtpLogin);  
 	UnpackString(m_pCrashDesc->m_dwSmtpPasswordOffs, m_sSmtpPassword);  
+	m_bAddVideo = m_pCrashDesc->m_bAddVideo;
+    m_dwVideoFlags = m_pCrashDesc->m_dwVideoFlags; 
+	m_nVideoDuration = m_pCrashDesc->m_nVideoDuration;
+	m_nVideoFrameInterval = m_pCrashDesc->m_nVideoFrameInterval;
+    m_DesiredFrameSize = m_pCrashDesc->m_DesiredFrameSize;
+	m_hWndVideoParent = m_pCrashDesc->m_hWndVideoParent;
+	m_bClientAppCrashed = m_pCrashDesc->m_bClientAppCrashed;
 
     DWORD dwOffs = m_pCrashDesc->m_wSize;
     while(dwOffs<m_pCrashDesc->m_dwTotalSize)

@@ -108,7 +108,7 @@
     <OutDir>$(SolutionDir)thirdparty\lib\$(Platform)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">
-    <OutDir>$(SolutionDir)thirdparty\lib</OutDir>
+    <OutDir>$(SolutionDir)thirdparty\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">
     <OutDir>$(SolutionDir)thirdparty\lib\$(Platform)\</OutDir>

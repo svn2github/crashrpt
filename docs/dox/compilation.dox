@@ -15,26 +15,33 @@ The top-level directory of CrashRpt distribution contains solution file
 for Visual Studio 2010 (<b>CrashRpt_vs2010.sln</b>). Open this solution file
 to compile CrashRpt in <b>Visual C++ 2010</b> or in <b>Visual C++ Express 2010</b>.
 
-To build the solution, choose the \b Release build configuration and press 
+\note If you use another version (not 2010) of Visual Studio, you can generate solution/project files
+for your version of Visual Studio using CMake. See below for instructions.
+
+To build the solution, choose the <i>Release</i> build configuration and press 
 F7 to start building process.
 
 When build finishes, CrashRpt executable files can be found in \b bin directory,
 and library files can be found inside of \b lib directory.
 
-\section releaselib Release LIB Configuration
+\section releaselib Debug, Release and Release LIB Configurations
 
-The Release LIB configuration is an addition to the standard Debug and Release build 
-configurations. Typically, you do not compile CrashRpt in this configuration. However, 
-it may be useful if you use static CRT linkage.
+Typically, you compile CrashRpt in <i>Release</i> configuration. In this configuration,
+the build produces optimized binary files that can be used in production environment. 
 
-In the Release LIB configuration, the build generates CrashSender.exe executable file 
-and CrashRptLIB.lib static library. In this configuration, CrashSender.exe and 
-CrashRptLIB.lib use static linkage to CRT. 
+The <i>Debug</i> configuration is used for CrashRpt debugging and should not be used for production
+mode. In this configuration, the build generates d-postfixed files, for example, <i>CrashRptd.dll</i>,
+<i>CrashSenderd.exe</i> and so on.
+
+The <i>Release LIB</i> configuration is an addition to the standard <i>Debug</i> and <i>Release</i> build 
+configurations. Typically, you should compile CrashRpt in <i>Release</i> configuration, but  
+the <i>Release LIB</i> configuration may be useful if you use static CRT linkage.
+
+In the <i>Release LIB</i> configuration, the build generates <i>CrashSender.exe</i> executable file 
+and <i>CrashRptLIB.lib</i> static library. In this configuration, <i>CrashSender.exe</i> and 
+<i>CrashRptLIB.lib</i> use static linkage to CRT. 
 
 \section cmake_build Generating Project Files with CMake
-
-If you use another version (not 2010) of Visual Studio, you can generate solution/project files
-for your version of Visual Studio using CMake. See below for instructions.
 
 You can generate Visual Studio project files using 
 <a href="http://www.cmake.org/">CMake</a> cross-platform make system. Although CrashRpt
@@ -92,7 +99,11 @@ There are several projects in CrashRpt solution.
 
 - \b jpeg project contains JPEG file management functionality.
 
+- \b libogg project contains OGG video container management functionality (used together with \b libtheora).
+
 - \b libpng project contains PNG file management functionality.
+
+- \b libtheora project contains OGG Theora video codec functionality.
 
 - \b MFCDemo is a GUI application that helps to test that 
    CrashRpt API functions work as expected with a MFC-based application.

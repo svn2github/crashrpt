@@ -217,7 +217,6 @@
   <ItemGroup>
     <ClCompile Include="ioapi.c" />
     <ClCompile Include="iowin32.c" />
-    <ClCompile Include="minizip.c" />
     <ClCompile Include="mztools.c" />
     <ClCompile Include="unzip.c" />
     <ClCompile Include="zip.c" />

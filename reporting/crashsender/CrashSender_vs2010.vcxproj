@@ -159,7 +159,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\libtheora\include;$(SolutionDir)thirdparty\libogg\include;$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -175,7 +175,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>tinyxmld.lib;jpegd.lib;zlibd.lib;minizipd.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;libpngd.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libtheorad.lib;liboggd.lib;tinyxmld.lib;jpegd.lib;zlibd.lib;minizipd.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;libpngd.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashSenderd.pdb</ProgramDatabaseFile>
@@ -200,7 +200,7 @@
       <ProxyFileName>CrashSender_p.c</ProxyFileName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\libogg\include;$(SolutionDir)thirdparty\libtheora\include;$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -218,7 +218,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>jpeg.lib;tinyxml.lib;zlib.lib;libpng.lib;minizip.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;psapi.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libtheora.lib;libogg.lib;jpeg.lib;tinyxml.lib;zlib.lib;libpng.lib;minizip.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;psapi.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\lib%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashSender.pdb</ProgramDatabaseFile>
@@ -243,7 +243,7 @@
       <ProxyFileName>CrashSender_p.c</ProxyFileName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\libogg\include;$(SolutionDir)thirdparty\libtheora\include;$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN64;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -261,7 +261,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>tinyxml.lib;jpeg.lib;psapi.lib;zlib.lib;libpng.lib;minizip.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;minizip.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libtheora.lib;libogg.lib;tinyxml.lib;jpeg.lib;psapi.lib;zlib.lib;libpng.lib;minizip.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;minizip.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -285,7 +285,7 @@
       <ProxyFileName>CrashSender_p.c</ProxyFileName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\include;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\libtheora\include;$(SolutionDir)thirdparty\libogg\include;$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -303,7 +303,7 @@
       <AdditionalIncludeDirectories>..\..\thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>tinyxml.lib;jpeg.lib;zlib.lib;minizip.lib;libpng.lib;psapi.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libogg.lib;libtheora.lib;tinyxml.lib;jpeg.lib;zlib.lib;minizip.lib;libpng.lib;psapi.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\thirdparty\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\CrashSender.pdb</ProgramDatabaseFile>
@@ -328,7 +328,7 @@
       <ProxyFileName>CrashSender_p.c</ProxyFileName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\libtheora\include;$(SolutionDir)thirdparty\libogg\include;$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN64;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <FloatingPointExceptions>false</FloatingPointExceptions>
@@ -344,7 +344,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>jpeg.lib;tinyxml.lib;psapi.lib;zlib.lib;libpng.lib;minizip.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;minizip.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libtheora.lib;libogg.lib;jpeg.lib;tinyxml.lib;psapi.lib;zlib.lib;libpng.lib;minizip.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;minizip.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\lib\$(Platform);$(SolutionDir)thirdparty\dbghelp\lib\amd64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -356,17 +356,18 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\libtheora\include;$(SolutionDir)thirdparty\libogg\include;$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>jpegd.lib;tinyxmld.lib;zlibd.lib;minizipd.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;libpngd.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libtheorad.lib;liboggd.lib;jpegd.lib;tinyxmld.lib;zlibd.lib;minizipd.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;libpngd.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\lib\$(Platform);$(SolutionDir)thirdparty\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -426,6 +427,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VideoRec.cpp" />
+    <ClCompile Include="VideoRecDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\crashrpt\Utility.h" />
@@ -446,9 +449,12 @@
     <ClInclude Include="SequenceLayout.h" />
     <ClInclude Include="smtpclient.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="VideoRec.h" />
+    <ClInclude Include="VideoRecDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\CrashSender.ico" />
+    <None Include="res\VideoRec.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CrashSender.rc" />

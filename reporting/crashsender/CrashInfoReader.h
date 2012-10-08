@@ -1,33 +1,11 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 // File: CrashInfoReader.h
@@ -198,7 +176,7 @@ public:
 
 	// Sets desktop screenshot parameters.
 	void SetScreenshotInfo(ScreenshotInfo &si);
-		
+			
 private:
 	
 	// Calculates total size of files included into error report.
@@ -225,7 +203,7 @@ private:
     BOOL            m_bOSIs64Bit;          // Is operating system 64-bit?
     CString         m_sGeoLocation;        // Geographic location.
     ScreenshotInfo  m_ScreenshotInfo;      // Screenshot info.
-    ULONG64         m_uTotalSize;          // Summary size of this (uncompressed) report.
+	ULONG64         m_uTotalSize;          // Summary size of this (uncompressed) report.
     BOOL            m_bSelected;           // Is this report selected for delivery or not?
     DELIVERY_STATUS m_DeliveryStatus;      // Error report delivery status.
 
@@ -282,7 +260,15 @@ public:
     int         m_nJpegQuality;         // Jpeg image quality (used when taking screenshot).
     CPoint      m_ptCursorPos;          // Mouse cursor position on crash.
     CRect       m_rcAppWnd;             // Rectangle of the application's main window.  
-    BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
+	BOOL        m_bAddVideo;            // Wether to add video recording.
+	DWORD       m_dwVideoFlags;         // Flags for video recording.
+	int         m_nVideoDuration;       // Video duration.
+	int         m_nVideoFrameInterval;  // Video frame interval.
+	int         m_nVideoQuality;        // Video quality.
+	SIZE        m_DesiredFrameSize;     // Desired video frame size.
+	HWND        m_hWndVideoParent;      // Video recording dialog parent.
+	BOOL        m_bClientAppCrashed;    // If TRUE, the client app has crashed; otherwise the client app exited successfully.
+	BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
 	// Below are exception information fields.
     DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
     DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
@@ -297,6 +283,9 @@ public:
 
     /* Member functions */
 
+	// Constructor
+	CCrashInfoReader();
+	
     // Gets crash info from shared memory.
     int Init(LPCTSTR szFileMappingName);
 
@@ -342,7 +331,7 @@ public:
 
 	// Removes several files by names.
 	BOOL RemoveFilesFromCrashReport(int nReport, std::vector<CString> FilesToRemove);
-
+	
 private:
 
     // Retrieves some crash info from crash description XML.

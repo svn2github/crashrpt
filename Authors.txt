@@ -1,0 +1,12 @@
+CrashRpt authors: 
+
+Mike Carruth - CrashRpt project originator
+Oleg "zeXspectrum" Krivtsov - current CrashRpt project maintainer
+
+Thanks to:
+
+"crcode.s" -
+Thomas Fischer -  
+Andy Schoenle -
+Zaccanti -
+"hadop" - 

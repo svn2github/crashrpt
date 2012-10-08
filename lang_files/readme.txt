@@ -6,6 +6,12 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.4.0 ---
+
+ * In [DetailDlg]
+  - DescVideo - new
+
+
 --- v.1.3.1 ---
 
  * In [DetailDlg]

@@ -19,7 +19,7 @@ and uninitialize CrashRpt.
 
 <b>A note for MFC users.</b>
 
-If your application is MFC-based, you should override your <i>CWinApp::Run()</i> method and install CrashRpt there. 
+If your application is MFC-based, you should overload your <i>CWinApp::Run()</i> method and install CrashRpt there. 
 In the CPP file containing your App class, add the following code:
 
 \code
@@ -90,7 +90,7 @@ You may call this function in each thread of your program to ensure all exceptio
 By default, CrashRpt generates crash minidump file on crash and includes it into the crash report.
 You can specify what minidump type to generate using \ref CR_INSTALL_INFO::uMiniDumpType
 structure member. The default minidump type is <b>MiniDumpNormal</b>. For the list of available 
-minidump types, see the documentation for the MiniDumpWriteDump() function in MSDN.
+minidump types, see the documentation for the \b MiniDumpWriteDump() function in MSDN.
 
 It is also possible to disable crash minidump generation by specifying the \ref CR_INST_NO_MINIDUMP 
 flag for \ref CR_INSTALL_INFO::dwFlags structure member.
@@ -148,21 +148,60 @@ always provide a link to your Privacy Policy page describing what information yo
 crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
 with the contents of the error report and accepts the terms of the Privacy Policy.
 
+\section adding_video Adding a Video of a Crash
+
+As of v.1.4.0, CrashRpt is able to capture end user's desktop and record what happened 
+just before crash to an .ogg video file and include the file to crash report. The recorded information may help the 
+software vendor to better understand what actions the end user performed before client application 
+crashed and reproduce the error.
+
+To record the desktop state to a video file and add the file to crash report,
+use the \ref crAddVideo() function.
+
+When the function is called, the notification dialog is displayed (see below). 
+If the end user agrees to capture the screen and record the video, he/she
+clicks the 'Allow' button; otherwise he/she clicks the 'Cancel' button.
+
+\image html video_rec.png "Video Recording Dialog"
+
+The <a href="http://en.wikipedia.org/wiki/Ogg">OGG</a> together with
+<a href="">Theora</a> are widely used video container and video codec, respectively, 
+provided by the open-source OGG Project.
+OGG files can be opened and played in a browser like Google Chrome or Mozilla Firefox or in 
+another video player understanding this format, like ffmpeg.
+
 \section adding_a_reg_key Adding a Registry Key
 
 Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
 analysis. You can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
- 
+
+\section specifying_privacy_policy Specifying the Privacy Policy File
+
+Crash information collected by CrashRpt may contain some user-identifying or private data 
+(e.g. desktop screenshots and so on). That's why you should 
+always provide a link to your Privacy Policy file describing what information you collect on 
+crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
+with the contents of the error report and accepts the terms of the Privacy Policy. 
+
+To specify the file containing your Privacy Policy text, use the \ref CR_INSTALL_INFO::pszPrivacyPolicyURL
+structure member. This parameter can be either a web-based URL (e.g. <i>http://example.com/privacy.html</i>),
+or an absolute path to local file (e.g. <i>file:///C:/MyApp/privacy.html</i>). The file
+may be an HTML page, a TXT file or an RTF file.
+
 \section order_of_function_calls The Order of Function Calls
 
 Typically, you call the functions described above in the following order:
  - Initialize CrashRpt with \ref crInstall() function;
- - Add custom files, properties, desktop screenshots, registry keys to the error report;
+ - Add custom files, properties, desktop screenshots, video, registry keys to the error report;
  - Run the main application code or window message loop;
  - When the main application code exits, uninitialize CrashRpt with \ref crUninstall();
  - Exit the application.  
 
-For CrashRpt API usage example, please refer to \ref simple_example page.
+In general, you may add files, properties, desktop screenshots, video, registry keys any time
+after you call the \ref crInstall() function and before you call the \ref crUninstall function.
+It is also possible (but not recommended) to add those files inside of the crash callback function.
+
+For a CrashRpt API usage example, please refer to \ref simple_example page.
 
 <i>Further reading:</i> \ref sending_error_reports.
 

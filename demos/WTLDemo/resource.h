@@ -44,6 +44,7 @@
 #define IDC_EXCTYPE                     1043
 #define IDC_BUTTON1                     1044
 #define IDC_CRASH                       1044
+#define IDC_SCREENCAP                   1044
 #define IDC_EXCTYPE2                    1045
 #define IDC_RADIO1                      1046
 #define IDC_RADIO2                      1047

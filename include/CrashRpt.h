@@ -1,33 +1,11 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 /*! \file   CrashRpt.h
@@ -75,12 +53,15 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! \ingroup CrashRptAPI
 *  \brief Client crash callback function prototype
-*  \param[in] lpvState Currently not used, equals to NULL.
+*  \param[in] lpvState Points to exception information.
 *
 *  \remarks
 *
 *  The crash callback function is called when crash occurs. This way client application is
 *  notified about the crash.
+*
+*  Exception information is passed through the \b lpvState parameter that should be cast
+*  to pointer to \ref CR_EXCEPTION_INFO structure. See below for an example. 
 *
 *  It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) inside of this callback.
 *  The application state may be unstable.
@@ -88,6 +69,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *  One reason the application may use this callback for is to close handles to open log files that the 
 *  application plans to include into the error report. Log files should be accessible for reading, otherwise
 *  CrashRpt won't be able to include them into error report.
+*
+*  It is also possible (but not recommended) to add files, properties, desktop screenshots, video, 
+*  registry keys inside of the crash callback function.
 *  
 *  The crash callback function should typically return \c TRUE to allow generate error report.  
 *  Returning \c FALSE will prevent crash report generation.
@@ -98,9 +82,12 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *  // define the crash callback
 *  BOOL CALLBACK CrashCallback(LPVOID lpvState)
 *  {    
-*    // Do something...
+*     // Get a pointer to exception info
+*     CR_EXCEPTION_INFO* pExceptionInfo = (CR_EXCEPTION_INFO*)lpvState;
 *
-*    return TRUE;
+*     // Do something...
+*
+*     return TRUE;
 *  }
 *  \endcode
 *
@@ -456,6 +443,9 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
 /*! \ingroup CrashRptAPI 
 *  \brief  Installs exception handlers for the caller process.
 *
+*  \return
+*    This function returns zero if succeeded.
+*
 *  \param[in] pInfo General information.
 *
 *  \remarks
@@ -534,23 +524,23 @@ crInstallA(
 #endif //UNICODE
 
 /*! \ingroup CrashRptAPI 
-*  \brief Unsinstalls exception handlers previously installed with crInstall().
+*  \brief Uninitializes the CrashRpt library and unsinstalls exception handlers previously installed with crInstall().
 *
 *  \return
 *    This function returns zero if succeeded.
 *
 *  \remarks
 *
-*    Call this function on application exit to uninstall exception
+*    Call this function on application exit to uninitialize the library and uninstall exception
 *    handlers previously installed with crInstall(). After function call, the exception handlers
 *    are restored to states they had before calling crInstall().
 *
 *    This function fails if crInstall() wasn't previously called in context of the
 *    caller process.
 *
-*    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
+*    When this function fails, use the crGetLastErrorMsg() function to retrieve the error message.
 *
-*  \sa crInstallW(), crInstallA(), crInstall(), crUninstall(),
+*  \sa crInstallW(), crInstallA(), crInstall(),
 *      CrAutoInstallHelper
 */
 
@@ -570,9 +560,6 @@ crUninstall();
 *  several execution threads, you ought to call the function for each thread,
 *  except the main one.
 *   
-*  The function works the same way as obsolete crInstallToCurrentThread(), but provides
-*  an ability to select what exception handlers to install.
-*
 *  \a dwFlags defines what exception handlers to install. Use zero value
 *  to install all possible exception handlers. Or use a combination of the following constants:
 *
@@ -600,7 +587,7 @@ crUninstall();
 *   \endcode
 * 
 *  \sa 
-*    crInstallToCurrentThread()
+*    crInstall()
 */
 
 CRASHRPTAPI(int)
@@ -687,7 +674,6 @@ crUninstallFromCurrentThread();
 *    versions of crAddFile2() function. The crAddFile2() macro defines character set
 *    independent mapping.
 *
-*    This function is available <b>since v.1.2.1</b>. This function replaces the crAddFile() function.
 *
 *  \sa crAddFile2W(), crAddFile2A(), crAddFile2()
 */
@@ -840,6 +826,134 @@ crAddScreenshot2(
                  int nJpegQuality
                  );
 
+// Flags for crAddVideo function.
+#define CR_AV_VIRTUAL_SCREEN  0  //!< Capture the whole virtual screen.
+#define CR_AV_MAIN_WINDOW     1  //!< Capture the area of application's main window.
+#define CR_AV_PROCESS_WINDOWS 2  //!< Capture all visible process windows.
+#define CR_AV_QUALITY_LOW     0  //!< Low quality video encoding, smaller file size.
+#define CR_AV_QUALITY_GOOD    4  //!< Good encoding quality, larger file size.
+#define CR_AV_QUALITY_BEST    8  //!< The best encoding quality, the largest file size.
+#define CR_AV_NO_GUI         16  //!< Do not display the notification dialog.
+
+/*! \ingroup CrashRptAPI  
+*  \brief Allows to record what happened before crash to a video file and include the file to crash report.
+* 
+*  \return This function returns zero if succeeded. Use \ref crGetLastErrorMsg() to retrieve the error message on failure.
+*
+*  \param[in] dwFlags Flags, optional.
+*  \param[in] nDuration Video duration (in milliseconds). Optional.
+*  \param[in] nFrameInterval Interval between subsequent frames (in milliseconds). Optional.
+*  \param[in] pDesiredFrameSize Defines the desired video frame size, optional.
+*  \param[in] hWndParent Window that becomes the parent for GUI displayed by this function. Optional.
+*  
+*  \remarks 
+*
+*  \b dwFlags can be a combination of the following constants:
+*
+*    use one of the following constants to specify what part of virtual screen to capture:
+*    - \ref CR_AV_VIRTUAL_SCREEN  Use this to capture the whole desktop (virtual screen). This is the default.
+*    - \ref CR_AV_MAIN_WINDOW     Use this to capture the main application main window.
+*    - \ref CR_AV_PROCESS_WINDOWS Use this to capture all visible windows that belong to the process.
+* 
+*    use one of the following constants to define the desired video encoding quality:
+*    - \ref CR_AV_QUALITY_LOW     Low-quality video encoding. This is the default.
+*    - \ref CR_AV_QUALITY_GOOD    Good encoding quality, larger file.
+*    - \ref CR_AV_QUALITY_BEST    The best encoding quality, the largest file.
+*
+*  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
+*  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such a window, it considers the first found process window as
+*  the main window.
+*
+*  When the function is called, it displays a dialog notifying the user about video recording.
+*  The displayed dialog's parent window can be specified with the \b hWndParent argument.
+*  If the \b hWndParent is \a NULL, the currently active process window becomes the parent.
+*  If you do not want to display the dialog, specify the \ref CR_AV_NO_GUI flag for \b dwFlags argument.
+*
+*  The recorded video will be maximum \b nDuration milliseconds long with \b nFrameInterval
+*  milliseconds interval between subsequent video frames. If \b nDuration and\or \b nFrameInterval
+*  are set to zero (0), the default implementation-defined duration and frame interval are used.
+*
+*  The \b pDesiredFrameSize parameter allows to define the desired video frame size.
+*  Frame width and height must be a multiple of 16 (OGG Theora video codec's requirement). 
+*  If they are not, they are modified automatically to be a multiple of 16.
+*
+*  To preserve correct aspect ratio of the captured area, set \b pDesiredFrameSize->cx or \b pDesiredFrameSize->cy
+*  to zero. For example, setting \b pDesiredFrameSize->cx=640 and \b pDesiredFrameSize->cy=0
+*  results in video frames whose width is 640 pixels and height is calculated to preserve the
+*  correct aspect ratio of the captured area. If both \b cx and \b cy are specified, the aspect ratio
+*  of the captured area is not preserved.
+*
+*  Setting the \b pDesiredFrameSize
+*  parameter to \a NULL makes the function to determine the best video frame size automatically.
+*
+*  This function can be used to record the state of end user's desktop just before the moment 
+*  of crash and add the video file to the error report. The recorded information may help the 
+*  software vendor to better understand the state of the client application at the moment of 
+*  crash and reproduce the error.
+*
+*  When this function is called, CrashRpt launches another process named \b CrashSender.exe. 
+*  The \b CrashSender.exe process then continuously captures the desktop screenshots in background 
+*  mode and stores them to disk as image files. To avoid high CPU load, image files are stored 
+*  in uncompressed state as raw bitmap (BMP) files. When the count of screenshot files exceeds 
+*  the predefined maximum number, the old screenshot files are reused cyclically. 
+*
+*  If the client application does not crash and its main code or main window loop exits successfully, 
+*  the captured desktop screenshot files are removed by the \ref crUninstall() function call and
+*  \b CrashSender.exe process is terminated.
+*
+*  If the client application crashes at some moment of time, the recorded screenshot files are compressed by 
+*  <a href="http://www.theora.org/">OGG Theora video codec</a> and written into an .OGG file. The 
+*  uncompressed temporary screenshots are then removed, and the resulting
+*  OGG file is included into crash report archive.
+*
+*  The <a href="http://en.wikipedia.org/wiki/Ogg">OGG video format</a> is a widely used 
+*  video container provided by the open-source OGG Project.
+*  OGG files can be opened in a browser like Google Chrome or Mozilla Firefox or in 
+*  another video player understanding this format, like ffmpeg.
+*
+*  Use this function only when necessary, because it may cause end user's computer performance
+*  loss. It also requires some amount of free disk space.
+*
+*  The recorded video may contain user-identifying or private information. Always 
+*  specify the purposes you will use collected information for in your Privacy Policy. 
+*
+*  Usage example:
+*
+*  \code
+*
+*  // First install CrashRpt with crInstall() function
+*
+*  ...
+*
+*  SIZE FrameSize = {0, 600}; // Frames 600 px in height
+*                      // Frame width is calculated automatically
+*
+*  // Start capturing desktop. Desktop capture video will
+*  // be added to crash report on crash
+*  int nResult = crAddVideo(
+*         CR_AV_VIRTUAL_SCREEN|CR_AV_QUALITY_GOOD, // Capture entire desktop
+*                                               // Good encoding quality
+*         10000,   // 10 seconds long video
+*         300,     // 300 msec between frames (3.33 FPS)
+*         &FrameSize,
+*         NULL
+*    );
+*
+*  \endcode
+*
+*  \sa
+*   crAddFile2(), crAddScreenshot2(), crAddRegKey(), crUninstall().
+*/
+
+CRASHRPTAPI(int)
+crAddVideo(
+            DWORD dwFlags,
+			int nDuration,
+			int nFrameInterval,
+            PSIZE pDesiredFrameSize,
+			HWND hWndParent
+            );
+
 /*! \ingroup CrashRptAPI  
 *  \brief Adds a string property to the crash report. 
 * 
@@ -973,11 +1087,15 @@ crAddRegKeyA(
 
 
 /*! \ingroup CrashRptStructs
-*   \brief The structure used by the crGenerateErrorReport() function.
+*   \brief This structure contains information about the crash.
 *  
-*  This structure defines the information needed to generate crash minidump file and
+*  The information provided by this structure includes the exception type, exception code, 
+*  exception pointers and so on. These are needed to generate crash minidump file and
 *  provide the developer with other information about the error. This structure is used by
-*  the crGenerateErrorReport() function.
+*  the crGenerateErrorReport() function. Pointer to this structure is also passed to the
+*  crash callback function (see the \ref LPGETLOGFILE() function prototype).
+*
+*  Structure members details are provided below:
 *
 *  \b cb [in] 
 *
@@ -1033,7 +1151,7 @@ crAddRegKeyA(
 *
 *     As of v.1.2.8, \a hSenderProcess parameter will contain the handle to the <b>CrashSender.exe</b> process when 
 *     \ref crGenerateErrorReport function returns. The caller may use this handle to wait until <b>CrashSender.exe</b> 
-*     process exits and check the exit code.
+*     process exits and check the exit code. When the handle is not needed anymore, release it with the \b CloseHandle() function.
 */
 
 typedef struct tagCR_EXCEPTION_INFO

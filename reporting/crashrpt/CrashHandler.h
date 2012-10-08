@@ -1,39 +1,17 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 // File: CrashHandler.h
 // Description: Exception handling functionality.
 // Authors: mikecarruth, zexspectrum
-// Date: 
+// Date: 2009
 
 #ifndef _CRASHHANDLER_H_
 #define _CRASHHANDLER_H_
@@ -137,6 +115,9 @@ public:
     // Adds desktop screenshot on crash
     int AddScreenshot(DWORD dwFlags, int nJpegQuality);
 
+	// Adds a video recording of desktop state just before crash.
+	int AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, SIZE* pDesiredFrameSize, HWND hWndParent);
+
     // Adds a registry key on crash
     int AddRegKey(__in_z LPCTSTR szRegKey, __in_z LPCTSTR szDstFileName, DWORD dwFlags);
 
@@ -211,12 +192,15 @@ public:
     DWORD PackProperty(CString sName, CString sValue);
     // Packs a registry key
     DWORD PackRegKey(CString sKeyName, CString sDstFileName);
-
+		
     // Launches the CrashSender.exe process.
     int LaunchCrashSender(
         LPCTSTR szCmdLineParams, 
         BOOL bWait, 
-        __out_opt HANDLE* phProcess);  
+        __out_opt HANDLE* phProcess); 
+
+	// Returns TRUE if CrashSender.exe process is still alive.
+	BOOL IsSenderProcessAlive();
 
     // Sets internal pointers to exception handlers to NULL.
     void InitPrevExceptionHandlerPointers();
@@ -281,16 +265,24 @@ public:
     BOOL m_bAddScreenshot;         // Should we add screenshot?
     DWORD m_dwScreenshotFlags;     // Screenshot flags.
     int m_nJpegQuality;            // Quality of JPEG screenshot images.
+	BOOL  m_bAddVideo;             // Wether to add video recording.
+	DWORD m_dwVideoFlags;          // Flags for video recording.
+	int   m_nVideoDuration;        // Video duration.
+	int   m_nVideoFrameInterval;   // Video frame interval.
+	SIZE   m_DesiredFrameSize;     // Video frame size.
+	HWND m_hWndVideoParent;        // Parent window for video recording dialog.
     CString m_sCustomSenderIcon;   // Resource name that can be used as custom Error Report dialog icon.
     std::map<CString, FileItem> m_files; // File items to include.
     std::map<CString, CString> m_props;  // User-defined properties to include.
     std::map<CString, CString> m_RegKeys; // Registry keys to dump.  
     CCritSec m_csCrashLock;        // Critical section used to synchronize thread access to this object. 
     HANDLE m_hEvent;               // Event used to synchronize CrashRpt.dll with CrashSender.exe.
+	HANDLE m_hEvent2;              // Another event used to synchronize CrashRpt.dll with CrashSender.exe.
     CSharedMem m_SharedMem;        // Shared memory.  
     CRASH_DESCRIPTION* m_pCrashDesc; // Pointer to crash description shared mem view.
     CSharedMem* m_pTmpSharedMem;   // Used temporarily
     CRASH_DESCRIPTION* m_pTmpCrashDesc; // Used temporarily
+	HANDLE m_hSenderProcess;       // Handle to CrashSender.exe process.
 };
 
 

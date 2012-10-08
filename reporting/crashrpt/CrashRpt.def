@@ -17,5 +17,6 @@ EXPORTS
    crAddRegKeyW                   @25
    crAddRegKeyA                   @26
    crAddScreenshot2               @27
+   crAddVideo                     @28
    
 

@@ -84,6 +84,7 @@ BEGIN
     LTEXT           "Exception type:",IDC_STATIC,7,83,50,8
     DEFPUSHBUTTON   "Crash!",IDOK,77,169,60,14
     LTEXT           "Select a thread and exception type and press the ""Crash"" button.",IDC_STATIC,7,14,284,21
+    PUSHBUTTON      "Capture Screen",IDC_SCREENCAP,7,124,102,15
 END
 
 IDD_DOCUMENT DIALOGEX 0, 0, 299, 162

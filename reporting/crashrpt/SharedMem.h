@@ -1,33 +1,11 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 // File: SharedMem.h
@@ -131,7 +109,14 @@ struct CRASH_DESCRIPTION
     BOOL m_bSendRecentReports;     // If TRUE, CrashSender.exe needs to send queued error reports.
 								   // If FALSE, CrashSender.exe needs to send single report.
 	DWORD m_dwSmtpLoginOffs;       // Offset of SMTP login name.
-	DWORD m_dwSmtpPasswordOffs;    // Offset of SMTP login name.    
+	DWORD m_dwSmtpPasswordOffs;    // Offset of SMTP login name. 
+	BOOL  m_bAddVideo;             // Wether to add video recording.
+	DWORD m_dwVideoFlags;          // Flags for video recording.
+	int   m_nVideoDuration;        // Video duration.
+	int   m_nVideoFrameInterval;   // Video frame interval.
+	SIZE  m_DesiredFrameSize;      // Video frame size.
+	HWND m_hWndVideoParent;        // Parent window for video recording dialog.
+	BOOL m_bClientAppCrashed;      // If TRUE, the client app has crashed; otherwise the client has exited without crash.          
 };
 
 #define SHARED_MEM_MAX_SIZE 10*1024*1024   /* 10 MB */
@@ -147,6 +132,9 @@ public:
 
     // Initializes shared memory
     BOOL Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize);
+
+	// Whether initialized or not
+	BOOL IsInitialized();
 
     // Destroys the object
     BOOL Destroy();

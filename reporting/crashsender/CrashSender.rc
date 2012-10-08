@@ -13,11 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Neutral resources
+// English (United States) resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-#pragma code_page(1251)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -78,16 +78,6 @@ BEGIN
     END
 END
 
-#endif    // Neutral resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Russian (Russia) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-#pragma code_page(1251)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -169,6 +159,17 @@ BEGIN
     LTEXT           "Action",IDC_ACTIONDESC,16,15,263,9,SS_WORDELLIPSIS
 END
 
+IDD_VIDEOREC DIALOGEX 0, 0, 226, 126
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Video Recording"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Allow",IDOK,46,105,65,14
+    PUSHBUTTON      "Cancel",IDCANCEL,115,105,65,14
+    LTEXT           "Text",IDC_TEXT,37,7,182,86
+    ICON            IDI_VIDEOREC,IDC_ICONVIDEO,7,7,21,20
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -216,19 +217,17 @@ BEGIN
         VERTGUIDE, 16
         BOTTOMMARGIN, 37
     END
+
+    IDD_VIDEOREC, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 219
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Russian (Russia) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -263,6 +262,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\CrashSender.ico"
+IDI_VIDEOREC            ICON                    "res\\VideoRec.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -1,33 +1,11 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 // File: CrashHandler.cpp
@@ -69,11 +47,19 @@ CCrashHandler::CCrashHandler()
     m_nSmtpProxyPort = 2525;
     memset(&m_uPriorities, 0, 3*sizeof(UINT));    
     m_lpfnCallback = NULL;
-    m_bAddScreenshot = FALSE;
+    m_bAddScreenshot = FALSE;	
     m_dwScreenshotFlags = 0;    
     m_nJpegQuality = 95;
+	m_bAddVideo = FALSE;
+	m_dwVideoFlags = 0;
+	m_nVideoDuration = 60*1000; // 60 sec
+	m_nVideoFrameInterval = 500; // 500 msec
+	m_DesiredFrameSize.cx = 0; // default video frame size
+	m_DesiredFrameSize.cy = 0;
     m_hEvent = NULL;  
+	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
+	m_hSenderProcess = NULL;
 
     // Init exception handler pointers
     InitPrevExceptionHandlerPointers();
@@ -507,14 +493,17 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     else 
         sSharedMemName = m_sCrashGUID;
 
-    // Initialize shared memory.
-    BOOL bSharedMem = pSharedMem->Init(sSharedMemName, FALSE, SHARED_MEM_MAX_SIZE);
-    if(!bSharedMem)
-    {
-        ATLASSERT(0);
-        crSetErrorMsg(_T("Couldn't initialize shared memory."));
-        return NULL; 
-    }
+	if(!pSharedMem->IsInitialized())
+	{
+		// Initialize shared memory.
+		BOOL bSharedMem = pSharedMem->Init(sSharedMemName, FALSE, SHARED_MEM_MAX_SIZE);
+		if(!bSharedMem)
+		{
+			ATLASSERT(0);
+			crSetErrorMsg(_T("Couldn't initialize shared memory."));
+			return NULL; 
+		}
+	}
 
     // Create memory view.
     m_pTmpCrashDesc = 
@@ -539,6 +528,10 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_bAddScreenshot = m_bAddScreenshot;
     m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;      
     memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
+	m_pTmpCrashDesc->m_bAddVideo = m_bAddVideo;
+	m_pTmpCrashDesc->m_hWndVideoParent = m_hWndVideoParent;
+	m_pTmpCrashDesc->m_dwProcessId = GetCurrentProcessId();
+	m_pTmpCrashDesc->m_bClientAppCrashed = FALSE;
 
     m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
     m_pTmpCrashDesc->m_dwAppVersionOffs = PackString(m_sAppVersion);
@@ -659,6 +652,19 @@ int CCrashHandler::Destroy()
         crSetErrorMsg(_T("Can't destroy not initialized crash handler."));
         return 1;
     }  
+
+	// Free event
+	if(m_hEvent)
+	{
+		CloseHandle(m_hEvent);
+		m_hEvent = NULL;
+	}
+
+	if(m_hEvent2)
+	{
+		CloseHandle(m_hEvent2);
+		m_hEvent2 = NULL;
+	}
 
     // Reset exception callback
     if (m_oldSehHandler)
@@ -1073,6 +1079,90 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
     return 0;
 }
 
+// Adds a video recording of desktop state just before crash.
+int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, 
+	SIZE* pDesiredFrameSize, HWND hWndParent)
+{
+	// Check duration - it should be less than 10 minutes
+	if(nDuration<0 || nDuration>10*60*1000)
+	{
+		crSetErrorMsg(_T("Invalid video duration."));
+		return 2;
+	}
+		
+	if(nDuration==0)
+	{
+		// Default duration - 1 min
+		nDuration = 60*1000;
+	}
+
+	// Check frame interval
+	if(nFrameInterval<0 || nFrameInterval>nDuration)
+	{
+		crSetErrorMsg(_T("Invalid frame interval."));
+        return 3;
+	}
+
+	if(nFrameInterval==0)
+	{
+		// Default frame interval - 500 msec
+		nDuration = 500;
+	}
+
+	// Check if we already have a video recording enabled.
+	if(m_bAddVideo==TRUE)
+	{
+        crSetErrorMsg(_T("Can not add video recording twice."));
+        return 4;
+	}
+
+	// Save video recording parameters
+	m_bAddVideo = TRUE;
+    m_dwVideoFlags = dwFlags;
+	m_nVideoDuration = nDuration;
+	m_nVideoFrameInterval = nFrameInterval;
+	if(pDesiredFrameSize)
+		m_DesiredFrameSize = *pDesiredFrameSize;
+	else
+	{
+		m_DesiredFrameSize.cx = 0;
+	}
+
+	if(hWndParent!=NULL)
+		m_hWndVideoParent = hWndParent;
+	else
+		m_hWndVideoParent = GetActiveWindow();
+
+	// Pack this info into shared memory
+    m_pTmpCrashDesc->m_bAddVideo = TRUE;
+    m_pTmpCrashDesc->m_dwVideoFlags = dwFlags;
+	m_pTmpCrashDesc->m_nVideoDuration = nDuration;
+	m_pTmpCrashDesc->m_nVideoFrameInterval = nFrameInterval;
+    m_pTmpCrashDesc->m_DesiredFrameSize = m_DesiredFrameSize;
+	m_pTmpCrashDesc->m_hWndVideoParent = m_hWndVideoParent;
+	
+	CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), m_sCrashGUID);
+    m_hEvent2 = CreateEvent(NULL, FALSE, FALSE, sEventName);
+    if(m_hEvent2==NULL)
+    {
+        crSetErrorMsg(_T("Couldn't create synchronization event."));
+        return 5; 
+    }
+
+	// Launch the CrashSender.exe process that will continuously record video 
+	// in background.    
+    if(0!=LaunchCrashSender(m_SharedMem.GetName(), FALSE, &m_hSenderProcess))
+    {
+		crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
+        return 6;
+    }
+	
+	// OK
+	crSetErrorMsg(_T("Success."));
+	return 0;
+}
+
 // Generates error report
 int CCrashHandler::GenerateErrorReport(
         PCR_EXCEPTION_INFO pExceptionInfo)
@@ -1100,6 +1190,9 @@ int CCrashHandler::GenerateErrorReport(
 		pExceptionInfo->pexcptrs = &ExceptionPointers;
     }
 
+	// Set "client app crashed" flag
+	m_pCrashDesc->m_bClientAppCrashed = TRUE;
+	m_pCrashDesc->m_bAddVideo = FALSE;
     // Save current process ID, thread ID and exception pointers address to shared mem.
     m_pCrashDesc->m_dwProcessId = GetCurrentProcessId();
     m_pCrashDesc->m_dwThreadId = GetCurrentThreadId();
@@ -1127,7 +1220,7 @@ int CCrashHandler::GenerateErrorReport(
         m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
 
     // Let client know about the crash via the crash callback function. 
-    if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
+    if (m_lpfnCallback!=NULL && m_lpfnCallback(pExceptionInfo)==FALSE)
     {
         crSetErrorMsg(_T("The operation was cancelled by client."));
         return 2;
@@ -1138,7 +1231,29 @@ int CCrashHandler::GenerateErrorReport(
     // notify user about crash, compress the report into ZIP archive and send 
     // the error report. 
 
-    int result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
+    int result = 0;
+	
+	// If we are not recording video or video recording has been cancelled by some reason
+	if(!m_bAddVideo || (m_bAddVideo && !IsSenderProcessAlive())) 
+	{
+		// Run the CrashSender.exe
+		result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
+	}
+	else
+	{		
+		// The CrashSender.exe process is already launched by the AddVideo method.
+		// We need to signal the event to make CrashSender.exe generate error report.
+		SetEvent(m_hEvent2);
+		
+		/* Wait until CrashSender finishes with making screenshot, 
+        copying files, creating minidump and encoding recorded video. */  
+
+        WaitForSingleObject(m_hEvent, INFINITE);
+
+		// Free event (it is not needed since now).
+		CloseHandle(m_hEvent2);
+		m_hEvent2 = NULL;
+	}
     
 	// Generate new GUID for new crash report 
 	// (if, for example, user will generate new error report manually).
@@ -1146,6 +1261,18 @@ int CCrashHandler::GenerateErrorReport(
     {
         ATLASSERT(0);
         crSetErrorMsg(_T("Couldn't generate crash GUID."));
+        return 1; 
+    }
+
+	// And recreate the event that will be used to synchronize with CrashSender.exe process
+	CloseHandle(m_hEvent); // Free old event
+    CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), m_sCrashGUID);
+    m_hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+    if(m_hEvent==NULL)
+    {
+        ATLASSERT(m_hEvent!=NULL);
+        crSetErrorMsg(_T("Couldn't create synchronization event."));
         return 1; 
     }
 
@@ -1168,6 +1295,19 @@ int CCrashHandler::GenerateErrorReport(
     // OK
     crSetErrorMsg(_T("Success."));
     return 0; 
+}
+
+BOOL CCrashHandler::IsSenderProcessAlive()
+{
+	// If process handle is still accessible, check its exit code
+	DWORD dwExitCode = 1;
+	BOOL bRes = GetExitCodeProcess(m_hSenderProcess, &dwExitCode);
+	if(!bRes || (bRes && dwExitCode!=STILL_ACTIVE))
+	{
+		return FALSE; // Process seems to exit!
+	}
+
+	return TRUE;
 }
 
 // Adds a registry key dump to the error report
@@ -1296,9 +1436,9 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
 // Launches CrashSender.exe process
 int CCrashHandler::LaunchCrashSender(LPCTSTR szCmdLineParams, BOOL bWait, HANDLE* phProcess)
 {
-    crSetErrorMsg(_T("Success."));
+    crSetErrorMsg(_T("Unspecified error."));
 
-    /* Create CrashSender process */
+    /* Create CrashSender.exe process */
 
     STARTUPINFO si;
     memset(&si, 0, sizeof(STARTUPINFO));
@@ -1349,6 +1489,8 @@ int CCrashHandler::LaunchCrashSender(LPCTSTR szCmdLineParams, BOOL bWait, HANDLE
         pi.hProcess = NULL;
     }
 
+	// Done
+	crSetErrorMsg(_T("Success."));
     return 0;
 }
 

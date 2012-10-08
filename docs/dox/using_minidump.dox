@@ -174,7 +174,7 @@ instructions below:
 You can use \b WinDbg program from <b>Microsoft Debugging Tools for Windows</b> for opening 
 crash minidumps. It is freely distributed. 
 
-Let's show how to use WinDbg using an example. Run the sample <i>CrashRptTest</i> application that presents in
+Let's show how to use WinDbg using an example. Run the sample <i>WTLDemo</i> application that presents in
 CrashRpt package, and then click the button to generate an exception. Then extract the <b>crashdump.dmp</b> file 
 from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D key combination.
 
@@ -183,7 +183,7 @@ to the command window (ALT+1) and enter \c .sympath followed by a space followed
 semi-colon delimited list of directories to search.
 
 \code
-.sympath D:\CrashRptSaved\CrashRptTest_v1.1.0
+.sympath D:\CrashRptSaved\WTLDemo_v1.1.0
 \endcode
 
 Similarly you need to set the executable and source search paths with the .exepath 
@@ -203,7 +203,7 @@ with the exception by entering the \c .ecxr command.
 
 If everything is configured correctly, you should now be able to walk the call stack, 
 see local variables, and loaded modules. You can even have WinDbg highlight the offending 
-line of code by double clicking the CrashRptTest frame in the Call Stack window (ALT+6). 
+line of code by double clicking the WTLDemo frame in the Call Stack window (ALT+6). 
 Note: The exact line number may be a little off due to linker optimizations.
 
 <b>If I've saved all the source code, should building from the source recreate the correct 

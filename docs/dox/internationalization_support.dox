@@ -101,11 +101,10 @@ In the <b>Encoding</b> field, select <b>Unicode</b>.
 
 Then test your changes by substituting the language file. Rename your file into
 <b>crashrpt_lang.ini</b> and copy it to the directory where \b CrashSender.exe is located (the \c bin directory under the
-CrashRpt top-level directory) and run \b CrashRptTest.exe.
+CrashRpt top-level directory) and run \b WTLDemo.exe.
 
-To contribute your changes, please leave us a message in our 
-<a href="http://groups.google.com/group/crashrpt">Forum</a>. We will let you know how your changes 
-can be uploaded. 
+To contribute your changes, please create a message in our 
+<a href="http://groups.google.com/group/crashrpt">Forum</a> and attach your file to that message.  
 
 If you want to upgrade your language file from a previous version to the latest CrashRpt version, do the following. 
 To determine the differences between your language file and the language file for the latest CrashRpt version,

@@ -121,6 +121,8 @@ add_subdirectory("thirdparty/jpeg")
 add_subdirectory("thirdparty/libpng")
 add_subdirectory("thirdparty/minizip")
 add_subdirectory("thirdparty/zlib")
+add_subdirectory("thirdparty/libogg")
+add_subdirectory("thirdparty/libtheora")
 
 
 

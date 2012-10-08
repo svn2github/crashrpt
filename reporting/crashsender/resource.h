@@ -13,6 +13,9 @@
 #define IDD_RESEND                      215
 #define IDD_PROGRESSMULTI               216
 #define IDD_ACTIONPROGRESS              216
+#define IDD_VIDEOREC                    217
+#define IDI_ICON1                       218
+#define IDI_VIDEOREC                    218
 #define IDS_NAME                        1000
 #define IDS_DESC                        1001
 #define IDS_TYPE                        1002
@@ -66,6 +69,7 @@
 #define IDC_ACTIONDESC                  1045
 #define IDC_CURRENTACTION               1046
 #define IDC_CANCEL                      1047
+#define IDC_ICONVIDEO                   1048
 #define ID_MENU1_COPYTHISLINE           32772
 #define ID_MENU1_COPYTHEWHOLELOG        32773
 #define ID_MENU1_COPYSEL                32774
@@ -120,9 +124,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        217
+#define _APS_NEXT_RESOURCE_VALUE        219
 #define _APS_NEXT_COMMAND_VALUE         32813
-#define _APS_NEXT_CONTROL_VALUE         1048
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

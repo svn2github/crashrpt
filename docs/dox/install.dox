@@ -62,6 +62,12 @@ in the table below.
 <tr>
 <td><a href="http://www.ijg.org/">JPEG library</a>
 <td><a href="http://www.ijg.org/">Independent JPEG Group license</a>
+<tr>
+<td><a href="http://www.theora.org/">libtheora</a>
+<td><a href="http://www.theora.org/faq/#14">BSD-style license</a>
+<tr>
+<td><a href="http://xiph.org/ogg/">libogg</a>
+<td><a href="http://xiph.org/ogg/">BSD-style license</a>
 </table>
                  
 \section main_features Main Features
@@ -102,7 +108,7 @@ error reports, please refer to \ref error_report page.
 CrashRpt provides UI allowing user to review the crash report and it can display its 
 UI using different languages, which makes it even more suitable for multi-lingual 
 applications. For software vendors who care about user's privacy, CrashRpt supports 
-privacy policy definition. CrashRpt user interface can be customized to fix software 
+privacy policy definition. CrashRpt user interface can be customized to fit software 
 vendor's needs. For examples of CrashRpt user interface, please refer to 
 <a href="http://code.google.com/p/crashrpt/wiki/MoreScreenshots">More Screenshots</a> page.
 

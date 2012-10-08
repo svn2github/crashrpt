@@ -1,33 +1,11 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
 
-Copyright (c) 2003, Michael Carruth
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, 
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-* Neither the name of the author nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 #include "stdafx.h"
@@ -45,6 +23,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "base64.h"
 #include <sys/stat.h>
 #include "dbghelp.h"
+#include "VideoRec.h"
+#include "VideoRecDlg.h"
 
 CErrorReportSender* CErrorReportSender::m_pInstance = NULL;
 
@@ -97,6 +77,35 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
         SetProcessDefaultLayout(LAYOUT_RTL);  
     }
 
+	// Determine whether to record video
+	if(GetCrashInfo()->m_bAddVideo)
+	{
+		// The following enters the video recording loop
+		// and returns when the parent process signals the event.
+		BOOL bRec = RecordVideo();
+		if(!bRec)
+		{
+			// Clean up temp files
+			m_VideoRec.Destroy();
+			return FALSE;
+		}
+
+		// Reread crash information from the file mapping object.
+		int nInit = m_CrashInfo.Init(szFileMappingName);
+		if(nInit!=0)
+		{
+			m_sErrorMsg.Format(_T("Error reading crash info: %s"), m_CrashInfo.GetErrorMsg().GetBuffer(0));
+			return FALSE;
+		}
+
+		// Check if the client app has crashed or exited successfully.
+		if(!m_CrashInfo.m_bClientAppCrashed)
+		{
+			// Clean up temp files
+			m_VideoRec.Destroy();
+		}
+	}
+	
     if(!m_CrashInfo.m_bSendRecentReports)
     {
         // Start crash info collection work assynchronously
@@ -241,11 +250,9 @@ void CErrorReportSender::UnblockParentProcess()
     // Notify the parent process that we have finished with minidump,
     // so the parent process is able to unblock and terminate itself.
 
-	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
-
-    // Open the event the parent process had created for us
+	// Open the event the parent process had created for us
     CString sEventName;
-    sEventName.Format(_T("Local\\CrashRptEvent_%s"), pSender->GetCrashInfo()->GetReport(0)->GetCrashGUID());
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), GetCrashInfo()->GetReport(0)->GetCrashGUID());
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
     if(hEvent!=NULL)
         SetEvent(hEvent); // Signal event
@@ -297,11 +304,21 @@ BOOL CErrorReportSender::DoWork(int Action)
         // Notify the parent process that we have finished with minidump,
         // so the parent process is able to unblock and terminate itself.
         UnblockParentProcess();
-
+		
         // Copy user-provided files.
         CollectCrashFiles();
 
         if(m_Assync.IsCancelled()) // Check if user-cancelled
+        {      
+            // Add a message to log
+            m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
+            return FALSE;
+        }
+
+		// Encode recorded video to an .OGG file
+		EncodeVideo();
+		
+		if(m_Assync.IsCancelled()) // Check if user-cancelled
         {      
             // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
@@ -381,9 +398,10 @@ BOOL CErrorReportSender::Finalize()
 	// Wait until worker thread exits.
 	WaitForCompletion();
 
-    if(m_CrashInfo.m_bSendErrorReport && !m_CrashInfo.m_bQueueEnabled)
+    if((m_CrashInfo.m_bSendErrorReport && !m_CrashInfo.m_bQueueEnabled) ||
+		(m_CrashInfo.m_bAddVideo && !m_CrashInfo.m_bClientAppCrashed))
     {
-        // Remove report files if queue disabled
+        // Remove report files if queue disabled (or if client app not crashed).
         Utility::RecycleFile(m_CrashInfo.GetReport(0)->GetErrorReportDirName(), true);    
     }
 
@@ -415,8 +433,7 @@ BOOL CErrorReportSender::Finalize()
 BOOL CErrorReportSender::TakeDesktopScreenshot()
 {
     CScreenCapture sc; // Screen capture object
-    ScreenshotInfo ssi; // Screenshot params
-    std::vector<CString> screenshot_names; // The list of screenshot files
+    ScreenshotInfo ssi; // Screenshot params    
 
     // Add a message to log
     m_Assync.SetProgress(_T("[taking_screenshot]"), 0);    
@@ -437,80 +454,45 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     DWORD dwFlags = m_CrashInfo.m_dwScreenshotFlags;
 
     // Determine what image format to use (JPG or PNG)
-    SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG;
+    SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG; // PNG by default
 
     if((dwFlags&CR_AS_USE_JPEG_FORMAT)!=0)
-        fmt = SCREENSHOT_FORMAT_JPG;
+        fmt = SCREENSHOT_FORMAT_JPG; // Use JPEG format
 
-    // Determine what to use - color or grayscale
+    // Determine what to use - color or grayscale image
     BOOL bGrayscale = (dwFlags&CR_AS_GRAYSCALE_IMAGE)!=0;
 
-    std::vector<CRect> wnd_list; // List of window handles
-
+	SCREENSHOT_TYPE type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
     if((dwFlags&CR_AS_MAIN_WINDOW)!=0) // We need to capture the main window
-    {     
-        // Take screenshot of the main window
-        std::vector<WindowInfo> aWindows; 
-        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_CrashInfo.m_dwProcessId);
-        if(hProcess!=NULL)
-        {
-            sc.FindWindows(hProcess, FALSE, &aWindows);
-            CloseHandle(hProcess);
-        }
-        if(aWindows.size()>0)
-        {
-            wnd_list.push_back(aWindows[0].m_rcWnd);
-            ssi.m_aWindows.push_back(aWindows[0]);
-        }
-    }
+		type = SCREENSHOT_TYPE_MAIN_WINDOW;
     else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0) // Capture all process windows
-    {          
-        std::vector<WindowInfo> aWindows; 
-        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_CrashInfo.m_dwProcessId);
-        if(hProcess!=NULL)
-        {
-            sc.FindWindows(hProcess, TRUE, &aWindows);
-            CloseHandle(hProcess);
-        }
-
-        int i;
-        for(i=0; i<(int)aWindows.size(); i++)
-            wnd_list.push_back(aWindows[i].m_rcWnd);
-        ssi.m_aWindows = aWindows;
-    }
+		type = SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS;
     else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
-    {
-        // Take screenshot of the entire desktop
-        CRect rcScreen;
-        sc.GetScreenRect(&rcScreen);    
-        wnd_list.push_back(rcScreen);
-    }
-
-    ssi.m_bValid = TRUE;
-    sc.GetScreenRect(&ssi.m_rcVirtualScreen);  
-
-	// Take the screen shot
-    BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
+		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+    
+    // Take the screen shot
+    BOOL bTakeScreenshot = sc.TakeDesktopScreenshot(		
         m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName(), 
-        0, fmt, m_CrashInfo.m_nJpegQuality, bGrayscale, 
-        ssi.m_aMonitors, screenshot_names);
+		ssi, type, m_CrashInfo.m_dwProcessId, fmt, m_CrashInfo.m_nJpegQuality, bGrayscale);
     if(bTakeScreenshot==FALSE)
     {
         return FALSE;
     }
 
+	// Save screenshot info
     m_CrashInfo.GetReport(0)->SetScreenshotInfo(ssi);
 
     // Prepare the list of screenshot files we will add to the error report
     std::vector<ERIFileItem> FilesToAdd;
     size_t i;
-    for(i=0; i<screenshot_names.size(); i++)
+	for(i=0; i<ssi.m_aMonitors.size(); i++)
     {
+		CString sFileName = ssi.m_aMonitors[i].m_sFileName;
         CString sDestFile;
-        int nSlashPos = screenshot_names[i].ReverseFind('\\');
-        sDestFile = screenshot_names[i].Mid(nSlashPos+1);
+        int nSlashPos = sFileName.ReverseFind('\\');
+        sDestFile = sFileName.Mid(nSlashPos+1);
         ERIFileItem fi;
-        fi.m_sSrcFile = screenshot_names[i];
+        fi.m_sSrcFile = sFileName;
         fi.m_sDestFile = sDestFile;
         fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
         m_CrashInfo.GetReport(0)->AddFileItem(&fi);
@@ -520,7 +502,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     return TRUE;
 }
 
-// This callbask function is called by MinidumpWriteDump
+// This callback function is called by MinidumpWriteDump
 BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
     PVOID CallbackParam,
     PMINIDUMP_CALLBACK_INPUT CallbackInput,
@@ -1985,7 +1967,7 @@ int CErrorReportSender::Base64EncodeAttachment(CString sFileName,
         return 1;  // File not found.
 
     // Allocate buffer of file size
-    uFileSize = st.st_size;
+    uFileSize = (int)st.st_size;
     uchFileData = new BYTE[uFileSize];
 
     // Read file data to buffer.
@@ -2442,3 +2424,141 @@ int CErrorReportSender::TerminateAllCrashSenderProcesses()
 
     return 0;
 }
+
+BOOL CErrorReportSender::RecordVideo()
+{	
+	// The following method enters the video recording loop
+	// and returns when the parent process signals the event.
+
+	DWORD dwFlags = m_CrashInfo.m_dwVideoFlags;	  
+
+	// Show notification dialog
+	if((dwFlags & CR_AV_NO_GUI) == 0)
+	{
+		CVideoRecDlg dlg;
+		INT_PTR res = dlg.DoModal(
+			IsWindow(m_CrashInfo.m_hWndVideoParent)?m_CrashInfo.m_hWndVideoParent:NULL);
+		if(res!=IDOK)
+			return FALSE;
+	}
+
+    // Determine screenshot type.
+    SCREENSHOT_TYPE type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+    if((dwFlags&CR_AV_MAIN_WINDOW)!=0) // We need to capture the main window
+		type = SCREENSHOT_TYPE_MAIN_WINDOW;
+    else if((dwFlags&CR_AV_PROCESS_WINDOWS)!=0) // Capture all process windows
+		type = SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS;
+    else // (dwFlags&CR_AV_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
+		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+
+	// Determine what encoding quality to use
+	int quality = 10;
+	if((dwFlags&CR_AV_QUALITY_GOOD)!=0)
+		quality = 40;
+	else if((dwFlags&CR_AV_QUALITY_BEST)!=0)
+		quality = 63;
+	
+	// Add a message to log
+	CString sMsg;
+	sMsg.Format(_T("Start video recording."));
+	m_Assync.SetProgress(sMsg, 0, false);
+
+	// Open the event we will use for synchronization with the parent process
+	CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), GetCrashInfo()->GetReport(0)->GetCrashGUID());
+    HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+	if(hEvent==NULL)
+	{
+		// Add a message to log
+		sMsg.Format(_T("Error opening event."));
+		m_Assync.SetProgress(sMsg, 0, false);
+		return FALSE;
+	}
+    
+	// Init video recorder object
+	if(!m_VideoRec.Init(m_CrashInfo.GetReport(0)->GetErrorReportDirName(),
+				type, m_CrashInfo.m_dwProcessId, m_CrashInfo.m_nVideoDuration,
+				m_CrashInfo.m_nVideoFrameInterval,
+				quality, &m_CrashInfo.m_DesiredFrameSize))
+	{
+		// Add a message to log
+		sMsg.Format(_T("Error initializing video recorder."));
+		m_Assync.SetProgress(sMsg, 0, false);
+		return FALSE;
+	}
+
+	// Video recording loop.
+	for(;;)
+	{
+		// Wait for a while
+		BOOL bExitLoop = WAIT_OBJECT_0==WaitForSingleObject(hEvent, m_CrashInfo.m_nVideoFrameInterval);
+
+		// This will record a single BMP file
+		m_VideoRec.RecordVideoFrame();
+
+		if(bExitLoop)
+			break; // Event is signaled; break the loop
+					
+		// Check if the client app is still alive
+		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, m_CrashInfo.m_dwProcessId);
+		if(hProcess==NULL)
+			return FALSE; // Process seems to be terminated!
+
+		// If process handle is still accessible, check its exit code
+		DWORD dwExitCode = 1;
+		if(GetExitCodeProcess(hProcess, &dwExitCode) && dwExitCode!=STILL_ACTIVE)
+		{
+			CloseHandle(hProcess);
+			return FALSE; // Process seems to exit!
+		}
+
+		CloseHandle(hProcess);
+	}
+
+	// Add a message to log
+	sMsg.Format(_T("Video recording completed."));
+	m_Assync.SetProgress(sMsg, 0, false);
+
+	// Return TRUE to indicate video recording completed successfully.
+	return TRUE;
+}
+
+BOOL CErrorReportSender::EncodeVideo()
+{
+	// Add a message to log
+    m_Assync.SetProgress(_T("[encoding_video]"), 0);    
+
+    // Check if video capture is allowed
+    if(!m_VideoRec.IsInitialized())
+    {
+        // Add a message to log
+        m_Assync.SetProgress(_T("Desktop video recording disabled; skipping."), 0);    
+        // Exit, nothing to do here
+        return TRUE;
+    }
+	
+	 // Add a message to log
+    m_Assync.SetProgress(_T("Encoding recorded video, please wait..."), 1);    
+	
+	// Encode recorded video to a webm file
+	if(!m_VideoRec.EncodeVideo())
+	{
+		// Add a message to log
+		m_Assync.SetProgress(_T("Error encoding video."), 100, false);    
+		return FALSE;
+	}
+
+	// Add file to crash report
+	ERIFileItem fi;
+	fi.m_sSrcFile = m_VideoRec.GetOutFile();
+	fi.m_sDestFile = Utility::GetFileName(fi.m_sSrcFile);
+    fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescVideo"));    
+    m_CrashInfo.GetReport(0)->AddFileItem(&fi);
+
+	// Add a message to log
+    m_Assync.SetProgress(_T("Finished encoding video."), 100, false);    
+
+	return TRUE;
+}
+
+
