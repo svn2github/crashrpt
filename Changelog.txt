@@ -1,5 +1,19 @@
 ======= Change History ========
 
+--- Ver. 1.4.0 ---
+
+- New: CrashRpt is now able to capture end user's desktop and record what happened 
+       just before crash to an .ogg video file and include the file to crash report. 
+       The recorded information may help the software vendor to better understand 
+       what actions the end user performed before client application crashed and 
+       reproduce the error (issue 122). 
+
+- New: Added new crAddVideo() function to record the desktop state to a video file 
+       and add the file to crash report.
+
+- New: Added code of Theora video codec and OGG container (libtheora and libogg).
+
+
 --- Ver. 1.3.1 ---
 
 - New: Removed support of obsolete Visual Studio .NET 2003. 
