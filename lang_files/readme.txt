@@ -10,6 +10,7 @@ a previous version to the latest version.
 
  * In [DetailDlg]
   - DescVideo - new
+ * New section [VideoRecDlg]
 
 
 --- v.1.3.1 ---
