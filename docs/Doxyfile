@@ -19,7 +19,7 @@
 # text before the first occurrence of this tag. Doxygen uses libiconv (or the
 # iconv built into libc) for the transcoding. See
 # http://www.gnu.org/software/libiconv for the list of possible encodings.
-
+                                         
 DOXYFILE_ENCODING      = UTF-8
 
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded
@@ -31,7 +31,7 @@ PROJECT_NAME           = CrashRpt
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.3.1
+PROJECT_NUMBER         = 1.4.0
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.

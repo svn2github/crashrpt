@@ -14,6 +14,7 @@
 - New: Added code of Theora video codec and OGG container (libtheora and libogg).
 
 - Fixed: Memory Leak (or rather memory not deallocated before program exit) (issue 169)
+- Fixed: Can not restart application. Use CR_INST_APP_RESTART flag (issue 165)
 
 
 --- Ver. 1.3.1 ---

@@ -174,7 +174,7 @@ BOOL CErrorReportSender::Run()
 		{
 			// Compress report files and send the report
 			SetExportFlag(FALSE, _T(""));
-			DoWorkAssync(COMPRESS_REPORT|SEND_REPORT);    
+			DoWorkAssync(COMPRESS_REPORT|RESTART_APP|SEND_REPORT);    
 		}
 		else // If we shouldn't send error report now
 		{      
@@ -329,6 +329,12 @@ BOOL CErrorReportSender::DoWork(int Action)
         m_Assync.SetProgress(_T("[confirm_send_report]"), 100, false);
     }
 
+	if(Action&RESTART_APP) // We need to restart the parent process
+    { 
+        // Restart the application
+        RestartApp();
+    }
+
     if(Action&COMPRESS_REPORT) // We have to compress error report file into ZIP archive
     { 
         // Compress error report files
@@ -340,13 +346,7 @@ BOOL CErrorReportSender::DoWork(int Action)
             return FALSE; // Error compressing files
         }
     }
-
-    if(Action&RESTART_APP) // We need to restart the parent process
-    { 
-        // Restart the application
-        RestartApp();
-    }
-
+	
     if(Action&SEND_REPORT) // We need to send the report over the Internet
     {
         // Send the error report.
@@ -1505,6 +1505,10 @@ BOOL CErrorReportSender::RestartApp()
     if(m_CrashInfo.m_bAppRestart==FALSE)
         return FALSE; // No need to restart
 
+	// Reset restart flag to avoid restarting the app twice
+	// (if app has been restarted already).
+	m_CrashInfo.m_bAppRestart = FALSE;
+
 	// Add a message to log and reset progress 
     m_Assync.SetProgress(_T("Restarting the application..."), 0, false);
 
@@ -1533,7 +1537,8 @@ BOOL CErrorReportSender::RestartApp()
 
 	// Create process using the command line prepared earlier
     BOOL bCreateProcess = CreateProcess(
-        m_CrashInfo.GetReport(m_nCurReport)->GetImageName(), sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+        m_CrashInfo.GetReport(m_nCurReport)->GetImageName(), 
+		sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
     
 	// The following is to avoid a handle leak
 	if(pi.hProcess)
