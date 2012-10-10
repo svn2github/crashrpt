@@ -92,6 +92,12 @@ You can specify what minidump type to generate using \ref CR_INSTALL_INFO::uMini
 structure member. The default minidump type is <b>MiniDumpNormal</b>. For the list of available 
 minidump types, see the documentation for the \b MiniDumpWriteDump() function in MSDN.
 
+The crash minidump file is generated with the Microsoft Debug Help library (<i>dbghelp.dll</i>).
+By default, CrashRpt searches for <i>dbghelp.dll</i> using the default search sequence (the directory
+where <i>CrashRpt.dll</i> is located, then system directory). Optionally,
+you may specify the path to <i>dbghelp.dll</i> using the \ref CR_INSTALL_INFO::pszDebugHelpDLL structure
+member.
+
 It is also possible to disable crash minidump generation by specifying the \ref CR_INST_NO_MINIDUMP 
 flag for \ref CR_INSTALL_INFO::dwFlags structure member.
 

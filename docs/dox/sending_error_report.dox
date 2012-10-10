@@ -14,6 +14,10 @@ additional crash information (desktop screen shot, crash minidump, application-d
 The parent process is then terminated and error report delivery is continued
 in background in <i>CrashSender.exe</i> process.
 
+The <i>CrashSender.exe</i> is by default assumed to be located in the same folder
+as <i>CrashRpt.dll</i>. Optionally, you can specify a different path using the
+\ref CR_INSTALL_INFO::pszCrashSenderPath structure member.
+
 If your want to just collect and save crash report files to disc, but not to send the report,
 you can specify \ref CR_INST_DONT_SEND_REPORT flag for CR_INSTALL_INFO::dwFlags member.
 This forces <i>CrashSender.exe</i> to exit after crash report data collection is finished.
