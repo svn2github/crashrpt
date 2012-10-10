@@ -67,8 +67,8 @@ install exception handlers in each worker thread.
 \section crash_callback Notifying the Application on Crash
 
 Sometimes the client application should be notified on crash to be able to perform some actions.
-You can define a crash callback function (see LPGETLOGFILE() prototype) and pass its pointer to crInstall()
-using \ref CR_INSTALL_INFO::pfnCrashCallback structure member. The specified crash callback function 
+You can define a crash callback function (see PFNCRASHCALLBACK() prototype) and pass its pointer to crInstall()
+using \ref CR_INSTALL_INFO::pfnCrashCallback2 structure member. The specified crash callback function 
 will be called on crash.
 
 For example, the application may use this callback for closing handles to open 

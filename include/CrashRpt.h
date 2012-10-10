@@ -51,26 +51,26 @@ be found in the Authors.txt file in the root of the source tree.
 /*! \defgroup CrashRptStructs CrashRpt Structures */
 /*! \defgroup CrashRptWrappers CrashRpt Wrapper Classes */
 
-/*! \ingroup CrashRptAPI
+/*! \ingroup DeprecatedAPI
 *  \brief Client crash callback function prototype
-*  \param[in] lpvState Points to exception information.
+*  \param[in] lpvState Must be set to NULL.
 *
 *  \remarks
 *
+*  This function is deprecated, it is recommended to use \ref PFNCRASHCALLBACK()
+*  instead.
+*
 *  The crash callback function is called when crash occurs. This way client application is
 *  notified about the crash.
-*
-*  Exception information is passed through the \b lpvState parameter that should be cast
-*  to pointer to \ref CR_EXCEPTION_INFO structure. See below for an example. 
 *
 *  It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) inside of this callback.
 *  The application state may be unstable.
 *
 *  One reason the application may use this callback for is to close handles to open log files that the 
-*  application plans to include into the error report. Log files should be accessible for reading, otherwise
+*  application plans to include into the error report. Files should be accessible for reading, otherwise
 *  CrashRpt won't be able to include them into error report.
 *
-*  It is also possible (but not recommended) to add files, properties, desktop screenshots, video, 
+*  It is also possible (but not recommended) to add files, properties, desktop screenshots, 
 *  registry keys inside of the crash callback function.
 *  
 *  The crash callback function should typically return \c TRUE to allow generate error report.  
@@ -82,18 +82,229 @@ be found in the Authors.txt file in the root of the source tree.
 *  // define the crash callback
 *  BOOL CALLBACK CrashCallback(LPVOID lpvState)
 *  {    
-*     // Get a pointer to exception info
-*     CR_EXCEPTION_INFO* pExceptionInfo = (CR_EXCEPTION_INFO*)lpvState;
-*
 *     // Do something...
 *
 *     return TRUE;
 *  }
 *  \endcode
 *
-*  \sa crAddFile2()
+*  \sa crAddFile2(), PFNCRASHCALLBACK()
 */
 typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
+
+// Exception types used in CR_EXCEPTION_INFO::exctype structure member.
+#define CR_SEH_EXCEPTION                0    //!< SEH exception.
+#define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
+#define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.
+#define CR_CPP_PURE_CALL                3    //!< C++ pure virtual function call (VS .NET and later).
+#define CR_CPP_NEW_OPERATOR_ERROR       4    //!< C++ new operator fault (VS .NET and later).
+#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error (VS .NET only).
+#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception (VS 2005 and later).
+#define CR_CPP_SIGABRT                  7    //!< C++ SIGABRT signal (abort).
+#define CR_CPP_SIGFPE                   8    //!< C++ SIGFPE signal (flotating point exception).
+#define CR_CPP_SIGILL                   9    //!< C++ SIGILL signal (illegal instruction).
+#define CR_CPP_SIGINT                   10   //!< C++ SIGINT signal (CTRL+C).
+#define CR_CPP_SIGSEGV                  11   //!< C++ SIGSEGV signal (invalid storage access).
+#define CR_CPP_SIGTERM                  12   //!< C++ SIGTERM signal (termination request).
+
+
+/*! \ingroup CrashRptStructs
+*   \brief This structure contains information about the crash.
+*  
+*  The information provided by this structure includes the exception type, exception code, 
+*  exception pointers and so on. These are needed to generate crash minidump file and
+*  provide the developer with other information about the error. This structure is used by
+*  the crGenerateErrorReport() function. Pointer to this structure is also passed to the
+*  crash callback function (see the \ref PFNCRASHCALLBACK() function prototype).
+*
+*  Structure members details are provided below:
+*
+*  \b cb [in] 
+*
+*  This must contain the size of this structure in bytes.
+*
+*  \b pexcptrs [in, optional]
+*
+*    Should contain the exception pointers. If this parameter is NULL, 
+*    the current CPU state is used to generate exception pointers.
+*
+*  \b exctype [in]
+*  
+*    The type of exception. This parameter may be one of the following:
+*     - \ref CR_SEH_EXCEPTION             SEH (Structured Exception Handling) exception
+*     - \ref CR_CPP_TERMINATE_CALL        C++ terminate() function call
+*     - \ref CR_CPP_UNEXPECTED_CALL       C++ unexpected() function call
+*     - \ref CR_CPP_PURE_CALL             Pure virtual method call (Visual Studio .NET 2003 and later) 
+*     - \ref CR_CPP_NEW_OPERATOR_ERROR    C++ 'new' operator error (Visual Studio .NET 2003 and later)
+*     - \ref CR_CPP_SECURITY_ERROR        Buffer overrun (Visual Studio .NET 2003 only) 
+*     - \ref CR_CPP_INVALID_PARAMETER     Invalid parameter error (Visual Studio 2005 and later) 
+*     - \ref CR_CPP_SIGABRT               C++ SIGABRT signal 
+*     - \ref CR_CPP_SIGFPE                C++ floating point exception
+*     - \ref CR_CPP_SIGILL                C++ illegal instruction
+*     - \ref CR_CPP_SIGINT                C++ SIGINT signal
+*     - \ref CR_CPP_SIGSEGV               C++ invalid storage access
+*     - \ref CR_CPP_SIGTERM               C++ termination request
+* 
+*   \b code [in, optional]
+*
+*      Used if \a exctype is \ref CR_SEH_EXCEPTION and represents the SEH exception code. 
+*      If \a pexptrs is NULL, this value is used when generating exception information for initializing
+*      \c pexptrs->ExceptionRecord->ExceptionCode member, otherwise it is ignored.
+*
+*   \b fpe_subcode [in, optional]
+*
+*      Used if \a exctype is equal to \ref CR_CPP_SIGFPE. It defines the floating point
+*      exception subcode (see \c signal() function ducumentation in MSDN).
+* 
+*   \b expression, \b function, \b file and \b line [in, optional]
+*
+*     These parameters are used when \a exctype is \ref CR_CPP_INVALID_PARAMETER. 
+*     These members are typically non-zero when using debug version of CRT.
+*
+*  \b bManual [in]
+*
+*     Since v.1.2.4, \a bManual parameter should be equal to TRUE if the report is generated manually. 
+*     The value of \a bManual parameter affects the automatic application restart behavior. If the application
+*     restart is requested by the \ref CR_INST_APP_RESTART flag of CR_INSTALL_INFO::dwFlags structure member, 
+*     and if \a bManual is FALSE, the application will be
+*     restarted after error report generation. If \a bManual is TRUE, the application won't be restarted.
+*
+*  \b hSenderProcess [out]
+*
+*     As of v.1.2.8, \a hSenderProcess parameter will contain the handle to the <b>CrashSender.exe</b> process when 
+*     \ref crGenerateErrorReport function returns. The caller may use this handle to wait until <b>CrashSender.exe</b> 
+*     process exits and check the exit code. When the handle is not needed anymore, release it with the \b CloseHandle() function.
+*/
+
+typedef struct tagCR_EXCEPTION_INFO
+{
+    WORD cb;                   //!< Size of this structure in bytes; should be initialized before using.
+    PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
+    int exctype;               //!< Exception type.
+    DWORD code;                //!< Code of SEH exception.
+    unsigned int fpe_subcode;  //!< Floating point exception subcode.
+    const wchar_t* expression; //!< Assertion expression.
+    const wchar_t* function;   //!< Function in which assertion happened.
+    const wchar_t* file;       //!< File in which assertion happened.
+    unsigned int line;         //!< Line number.
+    BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
+    HANDLE hSenderProcess;     //!< Handle to the CrashSender.exe process.
+}
+CR_EXCEPTION_INFO;
+
+typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
+
+/*! \ingroup CrashRptStructs
+*  \struct CR_CRASH_CALLBACK_INFOW()
+*  \brief This structure contains information passed to crash callback function.
+*
+*  \remarks
+*
+*    \ref CR_CRASH_CALLBACK_INFOW and \ref CR_CRASH_CALLBACK_INFOA are 
+*    wide-character and multi-byte character versions of \ref CR_CRASH_CALLBACK_INFO
+*    structure. In your program, use the \ref CR_CRASH_CALLBACK_INFO typedef which 
+*    is a character-set-independent version of the structure name.
+*
+*
+*/
+typedef struct tagCR_CRASH_CALLBACK_INFOW
+{
+    WORD cb;                            //!< Size of this structure in bytes.
+	int nStage;                         //!< Stage.
+	LPCWSTR pszErrorReportFolder;       //!< Directory where crash report files are located.
+    CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
+}
+CR_CRASH_CALLBACK_INFOW;
+
+/*! \ingroup CrashRptStructs
+*  \struct CR_CRASH_CALLBACK_INFOA
+*  \brief This structure contains information passed to crash callback function.
+*  \copydoc CR_CRASH_CALLBACK_INFOW
+*/
+typedef struct tagCR_CRASH_CALLBACK_INFOA
+{
+    WORD cb;                            //!< Size of this structure in bytes.
+	int nStage;                         //!< Stage.
+	LPCSTR pszErrorReportFolder;        //!< Directory where crash report files are located.
+    CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
+}
+CR_CRASH_CALLBACK_INFOA;
+
+/*! \brief Character set-independent mapping of CR_CRASH_CALLBACK_INFOW and CR_CRASH_CALLBACK_INFOA structures.
+*  \ingroup CrashRptStructs
+*/
+#ifdef UNICODE
+typedef CR_CRASH_CALLBACK_INFOW CR_CRASH_CALLBACK_INFO;
+#else
+typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
+#endif // UNICODE
+
+// Constants that may be returned by the crash callback function.
+#define CR_CB_CANCEL             0 //!< Cancel crash report generation.
+#define CR_CB_DODEFAULT          1 //!< Proceed with crash report generation.
+#define CR_CB_CONTINUE_EXECUTION 2 //!< Continue program execution (do not terminate program).
+
+// Stages of crash report generation (used by the crash callback function).
+#define CR_CB_STAGE_PREPARE      10  //!< After exception pointers've been retrieved.
+#define CR_CB_STAGE_AFTER_LAUNCH 20  //!< After the launch of CrashSender.exe process.
+
+/*! \ingroup CrashRptAPI
+*  \brief Client crash callback function prototype.
+*  \param[in] pInfo Points to information about the crash.
+*
+*  \remarks
+*
+*  The crash callback function is called when a crash occurs. This way client application is
+*  notified about the crash.
+*
+*  Crash information is passed to the callback function through the \b pInfo parameter as
+*  a pointer to \ref CR_CRASH_CALLBACK_INFO structure. See below for an example. 
+*
+*  It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) inside of this callback.
+*  The application state may be unstable.
+*
+*  One reason the application may use this callback for is to close handles to open log files that the 
+*  application plans to include into the error report. Files should be accessible for reading, otherwise
+*  CrashRpt won't be able to include them into error report.
+*
+*  It is also possible (but not recommended) to add files (see crAddFile2()), 
+*  properties (see crAddProperty()), desktop screenshots (see crAddScreenshot2())
+*  and registry keys (see crAddRegKey()) inside of the crash callback function.
+*  
+*  The crash callback function should typically return \ref CR_CB_DODEFAULT to proceed 
+*  with error report generation. Returning \ref CR_CB_CANCEL constant will prevent crash 
+*  report generation.
+*
+*  By default, CrashRpt terminanates the client application after crash report generation and
+*  launching the CrashSender.exe process.
+*
+*  The following example shows how to use the crash callback function.
+*
+*  \code
+*  // define the crash callback
+*  BOOL CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
+*  {    
+*     
+*     // Do something...
+*
+*     return CR_CB_DODEFAULT;
+*  }
+*  \endcode
+*
+*  \sa CR_CRASH_CALLBACK_INFO, crAddFile2(), crAddProperty(), crAddScreenshot2(), crAddRegKey()
+*/
+typedef int (CALLBACK *PFNCRASHCALLBACKW) (CR_CRASH_CALLBACK_INFOW* pInfo);
+
+typedef int (CALLBACK *PFNCRASHCALLBACKA) (CR_CRASH_CALLBACK_INFOA* pInfo);
+
+/*! \brief Character set-independent mapping of PFNCRASHCALLBACKW and PFNCRASHCALLBACKA function prototrypes.
+*  \ingroup CrashRptStructs
+*/
+#ifdef UNICODE
+typedef PFNCRASHCALLBACKW PFNCRASHCALLBACK;
+#else
+typedef PFNCRASHCALLBACKA PFNCRASHCALLBACK;
+#endif // UNICODE
 
 // Array indices for CR_INSTALL_INFO::uPriorities.
 #define CR_HTTP 0  //!< Send error report via HTTP (or HTTPS) connection.
@@ -194,10 +405,10 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 *       sending the error report. If this is NULL, it is assumed that CrashSender.exe is located in
 *       the same directory as CrashRpt.dll.
 *
-*    \b pfnCrashCallback [in, optional] 
+*    \b pfnCrashCallback2 [in, optional] 
 *
-*       This can be a pointer to the \ref LPGETLOGFILE() crash callback function. The crash callback function is
-*       called by CrashRpt when crash occurs and allows user to be notified.
+*       This can be a pointer to the \ref PFNCRASHCALLBACK() crash callback function. The crash callback function is
+*       called by CrashRpt when crash occurs and allows the client application to be notified about the crash.
 *       If this is NULL, crash callback function is not called.
 *
 *    \b uPriorities [in, optional]
@@ -376,7 +587,7 @@ typedef struct tagCR_INSTALL_INFOW
     LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
     LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
     LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-    LPGETLOGFILE pfnCrashCallback;  //!< User crash callback.
+    LPGETLOGFILE pfnCrashCallback;  //!< Deprecated, use \b pfnCrashCallback2 instead.
     UINT uPriorities[5];            //!< Array of error sending transport priorities.
     DWORD dwFlags;                  //!< Flags.
     LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
@@ -390,6 +601,7 @@ typedef struct tagCR_INSTALL_INFOW
     LPCWSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 	LPCWSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
 	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
+	PFNCRASHCALLBACKW pfnCrashCallback2; //!< Crash callback function.
 }
 CR_INSTALL_INFOW;
 
@@ -410,7 +622,7 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
     LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
     LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-    LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
+    LPGETLOGFILE pfnCrashCallback; //!< Deprecated, use \b pfnCrashCallback2 instead.
     UINT uPriorities[3];           //!< Array of error sending transport priorities.
     DWORD dwFlags;                 //!< Flags.
     LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
@@ -424,6 +636,7 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 	LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
 	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
+	PFNCRASHCALLBACKW pfnCrashCallback2; //!< Crash callback function.
 }
 CR_INSTALL_INFOA;
 
@@ -642,7 +855,7 @@ crUninstallFromCurrentThread();
 *    When this function is called, the file is marked to be added to the error report, 
 *    then the function returns control to the caller.
 *    When crash occurs, all marked files are added to the report by the \b CrashSender.exe process. 
-*    If a file is locked by someone for exclusive access, the file won't be included. Inside of \ref LPGETLOGFILE crash callback, 
+*    If a file is locked by someone for exclusive access, the file won't be included. Inside of \ref PFNCRASHCALLBACK() crash callback, 
 *    close open file handles and ensure files to be included are acessible for reading.
 *
 *    \a pszFile should be a valid absolute path of a file to add to crash report. 
@@ -1070,113 +1283,11 @@ crAddRegKeyA(
 #define crAddRegKey crAddRegKeyA
 #endif //UNICODE
 
-// Exception types
-#define CR_SEH_EXCEPTION                0    //!< SEH exception.
-#define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
-#define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.
-#define CR_CPP_PURE_CALL                3    //!< C++ pure virtual function call (VS .NET and later).
-#define CR_CPP_NEW_OPERATOR_ERROR       4    //!< C++ new operator fault (VS .NET and later).
-#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error (VS .NET only).
-#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception (VS 2005 and later).
-#define CR_CPP_SIGABRT                  7    //!< C++ SIGABRT signal (abort).
-#define CR_CPP_SIGFPE                   8    //!< C++ SIGFPE signal (flotating point exception).
-#define CR_CPP_SIGILL                   9    //!< C++ SIGILL signal (illegal instruction).
-#define CR_CPP_SIGINT                   10   //!< C++ SIGINT signal (CTRL+C).
-#define CR_CPP_SIGSEGV                  11   //!< C++ SIGSEGV signal (invalid storage access).
-#define CR_CPP_SIGTERM                  12   //!< C++ SIGTERM signal (termination request).
-
-
-/*! \ingroup CrashRptStructs
-*   \brief This structure contains information about the crash.
-*  
-*  The information provided by this structure includes the exception type, exception code, 
-*  exception pointers and so on. These are needed to generate crash minidump file and
-*  provide the developer with other information about the error. This structure is used by
-*  the crGenerateErrorReport() function. Pointer to this structure is also passed to the
-*  crash callback function (see the \ref LPGETLOGFILE() function prototype).
-*
-*  Structure members details are provided below:
-*
-*  \b cb [in] 
-*
-*  This must contain the size of this structure in bytes.
-*
-*  \b pexcptrs [in, optional]
-*
-*    Should contain the exception pointers. If this parameter is NULL, 
-*    the current CPU state is used to generate exception pointers.
-*
-*  \b exctype [in]
-*  
-*    The type of exception. This parameter may be one of the following:
-*     - \ref CR_SEH_EXCEPTION             SEH (Structured Exception Handling) exception
-*     - \ref CR_CPP_TERMINATE_CALL        C++ terminate() function call
-*     - \ref CR_CPP_UNEXPECTED_CALL       C++ unexpected() function call
-*     - \ref CR_CPP_PURE_CALL             Pure virtual method call (Visual Studio .NET 2003 and later) 
-*     - \ref CR_CPP_NEW_OPERATOR_ERROR    C++ 'new' operator error (Visual Studio .NET 2003 and later)
-*     - \ref CR_CPP_SECURITY_ERROR        Buffer overrun (Visual Studio .NET 2003 only) 
-*     - \ref CR_CPP_INVALID_PARAMETER     Invalid parameter error (Visual Studio 2005 and later) 
-*     - \ref CR_CPP_SIGABRT               C++ SIGABRT signal 
-*     - \ref CR_CPP_SIGFPE                C++ floating point exception
-*     - \ref CR_CPP_SIGILL                C++ illegal instruction
-*     - \ref CR_CPP_SIGINT                C++ SIGINT signal
-*     - \ref CR_CPP_SIGSEGV               C++ invalid storage access
-*     - \ref CR_CPP_SIGTERM               C++ termination request
-* 
-*   \b code [in, optional]
-*
-*      Used if \a exctype is \ref CR_SEH_EXCEPTION and represents the SEH exception code. 
-*      If \a pexptrs is NULL, this value is used when generating exception information for initializing
-*      \c pexptrs->ExceptionRecord->ExceptionCode member, otherwise it is ignored.
-*
-*   \b fpe_subcode [in, optional]
-*
-*      Used if \a exctype is equal to \ref CR_CPP_SIGFPE. It defines the floating point
-*      exception subcode (see \c signal() function ducumentation in MSDN).
-* 
-*   \b expression, \b function, \b file and \b line [in, optional]
-*
-*     These parameters are used when \a exctype is \ref CR_CPP_INVALID_PARAMETER. 
-*     These members are typically non-zero when using debug version of CRT.
-*
-*  \b bManual [in]
-*
-*     Since v.1.2.4, \a bManual parameter should be equal to TRUE if the report is generated manually. 
-*     The value of \a bManual parameter affects the automatic application restart behavior. If the application
-*     restart is requested by the \ref CR_INST_APP_RESTART flag of CR_INSTALL_INFO::dwFlags structure member, 
-*     and if \a bManual is FALSE, the application will be
-*     restarted after error report generation. If \a bManual is TRUE, the application won't be restarted.
-*
-*  \b hSenderProcess [out]
-*
-*     As of v.1.2.8, \a hSenderProcess parameter will contain the handle to the <b>CrashSender.exe</b> process when 
-*     \ref crGenerateErrorReport function returns. The caller may use this handle to wait until <b>CrashSender.exe</b> 
-*     process exits and check the exit code. When the handle is not needed anymore, release it with the \b CloseHandle() function.
-*/
-
-typedef struct tagCR_EXCEPTION_INFO
-{
-    WORD cb;                   //!< Size of this structure in bytes; should be initialized before using.
-    PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
-    int exctype;               //!< Exception type.
-    DWORD code;                //!< Code of SEH exception.
-    unsigned int fpe_subcode;  //!< Floating point exception subcode.
-    const wchar_t* expression; //!< Assertion expression.
-    const wchar_t* function;   //!< Function in which assertion happened.
-    const wchar_t* file;       //!< File in which assertion happened.
-    unsigned int line;         //!< Line number.
-    BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
-    HANDLE hSenderProcess;     //!< Handle to the CrashSender.exe process.
-}
-CR_EXCEPTION_INFO;
-
-typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
-
 /*! \ingroup CrashRptAPI  
-*  \brief Manually generates an errror report.
+*  \brief Manually generates an error report.
 *
 *  \return This function returns zero if succeeded. When failed, it returns a non-zero value.
-*     Use crGetLastErrorMsg() to retrieve the error message.
+*     Use crGetLastErrorMsg() function to retrieve the error message.
 *  
 *  \param[in] pExceptionInfo Exception information. 
 *
@@ -1185,8 +1296,8 @@ typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
 *    Call this function to manually generate a crash report. When crash information is collected,
 *    control is returned to the caller. The crGenerateErrorReport() doesn't terminate the caller process.
 *
-*    The crash report contains crash minidump, crash description in XML format and
-*    additional custom files added with crAddFile2().
+*    The crash report may contain the crash minidump file, crash description file in XML format and
+*    additional custom files added with a function like crAddFile2().
 *
 *    The exception information should be passed using \ref CR_EXCEPTION_INFO structure. 
 *

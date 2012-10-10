@@ -114,12 +114,12 @@ header in the beginning of the code:
 Next, we define the crash callback function and call it \b CrashCallback().
 The crash callback function will be called by CrashRpt when crash occurs, so we will
 be able to close the handle to log file.
-For more information on crash callback, see the the \ref LPGETLOGFILE()
+For more information on crash callback, see the the \ref PFNCRASHCALLBACK()
 prototype.
 
 \code
 // Define the callback function that will be called on crash
-BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
+int CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
 {  
   // The application has crashed!
 
@@ -131,8 +131,8 @@ BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
     g_hLog = NULL;// Clean up handle
   }
 
-  // Return TRUE to generate error report
-  return TRUE;
+  // Return CR_CB_DODEFAULT to generate error report
+  return CR_CB_DODEFAULT;
 }
 \endcode
 
@@ -176,7 +176,7 @@ int _tmain(int argc, _TCHAR* argv[])
   info.pszEmailSubject = _T("MyApp 1.0.0 Error Report");  
   info.pszEmailTo = _T("myapp_support@hotmail.com");    
   info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");  
-  info.pfnCrashCallback = CrashCallback;   
+  info.pfnCrashCallback2 = CrashCallback;   
   info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
   info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
@@ -250,7 +250,7 @@ Below we have it all in one:
 FILE* g_hLog = NULL; // Global handle to the application log file
 
 // Define the callback function that will be called on crash
-BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
+int CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
 {  
   // The application has crashed!
 
@@ -262,8 +262,8 @@ BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
     g_hLog = NULL;// Clean up handle
   }
 
-  // Return TRUE to generate error report
-  return TRUE;
+  // Return CR_CB_DODEFAULT to generate error report
+  return CR_CB_DODEFAULT;
 }
 
 // The following function writes an entry to the log file
@@ -313,7 +313,7 @@ int _tmain(int argc, _TCHAR* argv[])
   info.pszEmailSubject = _T("MyApp 1.0.0 Error Report");  
   info.pszEmailTo = _T("myapp_support@hotmail.com");    
   info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");  
-  info.pfnCrashCallback = CrashCallback;   
+  info.pfnCrashCallback2 = CrashCallback;   
   info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
   info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
