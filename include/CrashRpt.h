@@ -623,7 +623,7 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
     LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
     LPGETLOGFILE pfnCrashCallback; //!< Deprecated, use \b pfnCrashCallback2 instead.
-    UINT uPriorities[3];           //!< Array of error sending transport priorities.
+    UINT uPriorities[5];           //!< Array of error sending transport priorities.
     DWORD dwFlags;                 //!< Flags.
     LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
     LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
@@ -636,7 +636,7 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 	LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
 	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
-	PFNCRASHCALLBACKW pfnCrashCallback2; //!< Crash callback function.
+	PFNCRASHCALLBACKA pfnCrashCallback2; //!< Crash callback function.
 }
 CR_INSTALL_INFOA;
 

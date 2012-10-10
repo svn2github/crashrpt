@@ -102,7 +102,8 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
         ptszSmtpProxy,
         ptszCustomSenderIcon,
 		ptszSmtpLogin,
-		ptszSmtpPassword
+		ptszSmtpPassword,
+		pInfo->pfnCrashCallback2
         );
 
     if(nInitResult!=0)
@@ -131,38 +132,107 @@ cleanup:
 
 CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
 {
-    if(pInfo==NULL)
-        return 1; // Invalid input parameter
-
-    // Convert pInfo members to wide char
-
+    int nStatus = -1;
+    crSetErrorMsg(_T("Success."));
     strconv_t strconv;
+    CCrashHandler *pCrashHandler = NULL;
 
-    CR_INSTALL_INFOW ii;
-    memset(&ii, 0, sizeof(CR_INSTALL_INFOW));
-    ii.cb = sizeof(CR_INSTALL_INFOW);
-    ii.pfnCrashCallback = pInfo->pfnCrashCallback;
-    ii.pszAppName = strconv.a2w(pInfo->pszAppName);
-    ii.pszAppVersion = strconv.a2w(pInfo->pszAppVersion);
-    ii.pszCrashSenderPath = strconv.a2w(pInfo->pszCrashSenderPath);
-    ii.pszEmailSubject = strconv.a2w(pInfo->pszEmailSubject);
-    ii.pszEmailTo = strconv.a2w(pInfo->pszEmailTo);
-    ii.pszUrl = strconv.a2w(pInfo->pszUrl);
-    memcpy(&ii.uPriorities, pInfo->uPriorities, 3*sizeof(UINT));
-    ii.dwFlags = pInfo->dwFlags;
-    ii.pszPrivacyPolicyURL = strconv.a2w(pInfo->pszPrivacyPolicyURL);
-    ii.pszDebugHelpDLL = strconv.a2w(pInfo->pszDebugHelpDLL);
-    ii.uMiniDumpType = pInfo->uMiniDumpType;
-    ii.pszErrorReportSaveDir = strconv.a2w(pInfo->pszErrorReportSaveDir);
-    ii.pszRestartCmdLine = strconv.a2w(pInfo->pszRestartCmdLine);
-    ii.pszLangFilePath = strconv.a2w(pInfo->pszLangFilePath);
-    ii.pszEmailText = strconv.a2w(pInfo->pszEmailText);
-    ii.pszSmtpProxy = strconv.a2w(pInfo->pszSmtpProxy);
-	ii.pszCustomSenderIcon = strconv.a2w(pInfo->pszCustomSenderIcon);
-	ii.pszSmtpLogin = strconv.a2w(pInfo->pszSmtpLogin);
-	ii.pszSmtpPassword = strconv.a2w(pInfo->pszSmtpPassword);
+    // Validate input parameters.
+    if(pInfo==NULL || 
+        pInfo->cb!=sizeof(CR_INSTALL_INFOA))     
+    {     
+        crSetErrorMsg(_T("pInfo is NULL or pInfo->cb member is not valid."));
+        nStatus = 1;
+        goto cleanup;
+    }
 
-    return crInstallW(&ii);
+    // Check if crInstall() already was called for current process.
+    pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+
+    if(pCrashHandler!=NULL &&
+        pCrashHandler->IsInitialized())
+    {    
+        crSetErrorMsg(_T("Can't install crash handler to the same process twice."));
+        nStatus = 2; 
+        goto cleanup;
+    }
+
+    if(pCrashHandler==NULL)
+    {
+        pCrashHandler = new CCrashHandler();
+        if(pCrashHandler==NULL)
+        {    
+            crSetErrorMsg(_T("Error allocating memory for crash handler."));
+            nStatus = 3; 
+            goto cleanup;
+        }
+    }
+
+    LPCTSTR ptszAppName = strconv.a2t((LPSTR)pInfo->pszAppName);
+    LPCTSTR ptszAppVersion = strconv.a2t((LPSTR)pInfo->pszAppVersion);
+    LPCTSTR ptszCrashSenderPath = strconv.a2t((LPSTR)pInfo->pszCrashSenderPath);
+    LPCTSTR ptszEmailTo = strconv.a2t((LPSTR)pInfo->pszEmailTo);
+    LPCTSTR ptszEmailSubject = strconv.a2t((LPSTR)pInfo->pszEmailSubject);
+    LPCTSTR ptszUrl = strconv.a2t((LPSTR)pInfo->pszUrl);
+    LPCTSTR ptszPrivacyPolicyURL = strconv.a2t((LPSTR)pInfo->pszPrivacyPolicyURL);
+    LPCTSTR ptszDebugHelpDLL_file = strconv.a2t((LPSTR)pInfo->pszDebugHelpDLL);
+    MINIDUMP_TYPE miniDumpType = pInfo->uMiniDumpType;
+    LPCTSTR ptszErrorReportSaveDir = strconv.a2t((LPSTR)pInfo->pszErrorReportSaveDir);
+    LPCTSTR ptszRestartCmdLine = strconv.a2t((LPSTR)pInfo->pszRestartCmdLine);
+    LPCTSTR ptszLangFilePath = strconv.a2t((LPSTR)pInfo->pszLangFilePath);
+    LPCTSTR ptszEmailText = strconv.a2t((LPSTR)pInfo->pszEmailText);
+    LPCTSTR ptszSmtpProxy = strconv.a2t((LPSTR)pInfo->pszSmtpProxy);
+    LPCTSTR ptszCustomSenderIcon = strconv.a2t((LPSTR)pInfo->pszCustomSenderIcon);
+	LPCTSTR ptszSmtpLogin = strconv.a2t((LPSTR)pInfo->pszSmtpLogin);
+	LPCTSTR ptszSmtpPassword = strconv.a2t((LPSTR)pInfo->pszSmtpPassword);
+
+    int nInitResult = pCrashHandler->Init(
+		ptszAppName, 
+        ptszAppVersion, 
+        ptszCrashSenderPath,
+        pInfo->pfnCrashCallback,
+        ptszEmailTo,
+        ptszEmailSubject,
+        ptszUrl,
+        &pInfo->uPriorities,
+        pInfo->dwFlags,
+        ptszPrivacyPolicyURL,
+        ptszDebugHelpDLL_file,
+        miniDumpType,
+        ptszErrorReportSaveDir,
+        ptszRestartCmdLine,
+        ptszLangFilePath,
+        ptszEmailText,
+        ptszSmtpProxy,
+        ptszCustomSenderIcon,
+		ptszSmtpLogin,
+		ptszSmtpPassword,
+		NULL,
+		pInfo->pfnCrashCallback2
+        );
+
+    if(nInitResult!=0)
+    {    
+        nStatus = 4;
+        goto cleanup;
+    }
+
+    // OK.
+    nStatus = 0;
+
+cleanup:
+
+    if(nStatus!=0) // If failed
+    {
+        if(pCrashHandler!=NULL && 
+            !pCrashHandler->IsInitialized())
+        {
+            // Release crash handler object
+            CCrashHandler::ReleaseCurrentProcessCrashHandler();
+        }
+    }
+
+    return nStatus;
 }
 
 CRASHRPTAPI(int) crUninstall()

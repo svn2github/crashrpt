@@ -47,6 +47,8 @@ CCrashHandler::CCrashHandler()
     m_nSmtpProxyPort = 2525;
     memset(&m_uPriorities, 0, 3*sizeof(UINT));    
     m_lpfnCallback = NULL;
+	m_pfnCallback2W = NULL;
+	m_pfnCallback2A = NULL;
     m_bAddScreenshot = FALSE;	
     m_dwScreenshotFlags = 0;    
     m_nJpegQuality = 95;
@@ -91,7 +93,9 @@ int CCrashHandler::Init(
         LPCTSTR lpcszSmtpProxy,
         LPCTSTR lpcszCustomSenderIcon,
 		LPCTSTR lpcszSmtpLogin,
-		LPCTSTR lpcszSmtpPassword)
+		LPCTSTR lpcszSmtpPassword,
+		PFNCRASHCALLBACKW pfnCallback2W,
+		PFNCRASHCALLBACKA pfnCallback2A)
 { 
     crSetErrorMsg(_T("Unspecified error."));
 
@@ -103,6 +107,8 @@ int CCrashHandler::Init(
 
     // Save user supplied callback
     m_lpfnCallback = lpfnCallback;
+	m_pfnCallback2W = pfnCallback2W;
+	m_pfnCallback2A = pfnCallback2A;
 
     // Save application name
     m_sAppName = lpcszAppName;
@@ -1223,7 +1229,7 @@ int CCrashHandler::GenerateErrorReport(
         m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
 
     // Let client know about the crash via the crash callback function. 
-    if (m_lpfnCallback!=NULL && m_lpfnCallback(pExceptionInfo)==FALSE)
+    if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
     {
         crSetErrorMsg(_T("The operation was cancelled by client."));
         return 2;

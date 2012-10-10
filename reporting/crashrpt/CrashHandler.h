@@ -97,7 +97,9 @@ public:
         __in_opt LPCTSTR lpcszSmtpProxy = NULL,
         __in_opt LPCTSTR lpcszCustomSenderIcon = NULL,
 		__in_opt LPCTSTR lpcszSmtpLogin = NULL,
-		__in_opt LPCTSTR lpcszSmtpPassword = NULL);
+		__in_opt LPCTSTR lpcszSmtpPassword = NULL,
+		__in_opt PFNCRASHCALLBACKW pfnCallback2W = NULL,
+		__in_opt PFNCRASHCALLBACKA pfnCallback2A = NULL);
 
 	// Returns TRUE if object was initialized.
     BOOL IsInitialized();
@@ -261,7 +263,9 @@ public:
     CString m_sLangFileName;       // Language file.
     CString m_sPathToDebugHelpDll; // Path to dbghelp.dll.
     CString m_sUnsentCrashReportsFolder; // Path to the folder where to save error reports.
-    LPGETLOGFILE m_lpfnCallback;   // Client crash callback.    
+    LPGETLOGFILE m_lpfnCallback;   // Client crash callback (deprecated).
+	PFNCRASHCALLBACKW m_pfnCallback2W; // Client crash callback.
+	PFNCRASHCALLBACKA m_pfnCallback2A; // Client crash callback.
     BOOL m_bAddScreenshot;         // Should we add screenshot?
     DWORD m_dwScreenshotFlags;     // Screenshot flags.
     int m_nJpegQuality;            // Quality of JPEG screenshot images.
