@@ -74,7 +74,7 @@ are installed for CRT 9.0 only.
 \section prgdb Enabling Program Database (/Zi, /DEBUG) in Release Configuration
 
 To get the most out of the crash minidump, the debugger needs your application's debug 
-symbols. By default Release builds don't generate debug symbols. 
+symbols. 
 
 -# In the Solution Explorer window, right-click your project and open project Properties. 
 Then choose Configuration Properties->C/C++->General. In the <b>Debug Information Format</b> field,

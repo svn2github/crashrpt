@@ -2,8 +2,7 @@
 
 \mainpage CrashRpt Documentation
 
-<b>CrashRpt</b> is a light-weight open-source error handling, reporting and 
-postprocessing library for C++ applications running in Windows. 
+<b>CrashRpt</b> is a light-weight open-source error reporting library for C++ applications running in Windows. 
 
 \section toc Table of Contents
 

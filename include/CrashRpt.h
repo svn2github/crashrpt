@@ -194,18 +194,56 @@ CR_EXCEPTION_INFO;
 
 typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
 
+// Stages of crash report generation (used by the crash callback function).
+#define CR_CB_STAGE_PREPARE      10  //!< Stage after exception pointers've been retrieved.
+#define CR_CB_STAGE_FINISH       20  //!< Stage after the launch of CrashSender.exe process.
+
 /*! \ingroup CrashRptStructs
 *  \struct CR_CRASH_CALLBACK_INFOW()
-*  \brief This structure contains information passed to crash callback function.
+*  \brief This structure contains information passed to crash callback function PFNCRASHCALLBACK().
 *
 *  \remarks
+*  
+*  The information contained in this structure may be used by the crash callback function
+*  to determine what type of crash has occurred and perform some action. For example,
+*  the client application may prefer to continue its execution on some type of crash, and
+*  terminate itself on another type of crash.
 *
-*    \ref CR_CRASH_CALLBACK_INFOW and \ref CR_CRASH_CALLBACK_INFOA are 
-*    wide-character and multi-byte character versions of \ref CR_CRASH_CALLBACK_INFO
-*    structure. In your program, use the \ref CR_CRASH_CALLBACK_INFO typedef which 
-*    is a character-set-independent version of the structure name.
+*  Below, the stucture fields are described:
 *
+*  \b cb [in] 
 *
+*    This contains the size of this structure in bytes. 
+*
+*  \b nStage [in]
+*
+*    This field specifies the crash report generation stage. The callback function
+*    can be called once per each stage (depending on callback function's return value).
+*    Currently, there are two stages:
+*      - \ref CR_CB_STAGE_PREPARE   Stage after exception pointers've been retrieved.
+*      - \ref CR_CB_STAGE_FINISH    Stage after the launch of CrashSender.exe process.
+*
+*  \b pszErrorReportFolder [in]
+*
+*    This field contains the absolute path to the directory containing uncompressed 
+*    crash report files. 
+*
+*  \b pExceptionInfo [in]
+*
+*    This field contains a pointer to \ref CR_EXCEPTION_INFO structure.
+*
+*  \b bContinueExecution [in, out]
+*
+*    This field is set to FALSE by default. The crash callback function may set it
+*    to true if it wants to continue its execution after crash report generation 
+*    (otherwise the program will be terminated).
+*
+*  \ref CR_CRASH_CALLBACK_INFOW and \ref CR_CRASH_CALLBACK_INFOA are 
+*  wide-character and multi-byte character versions of \ref CR_CRASH_CALLBACK_INFO
+*  structure. In your program, use the \ref CR_CRASH_CALLBACK_INFO typedef which 
+*  is a character-set-independent version of the structure name.
+*
+*  \sa PFNCRASHCALLBACK()
 */
 typedef struct tagCR_CRASH_CALLBACK_INFOW
 {
@@ -213,6 +251,7 @@ typedef struct tagCR_CRASH_CALLBACK_INFOW
 	int nStage;                         //!< Stage.
 	LPCWSTR pszErrorReportFolder;       //!< Directory where crash report files are located.
     CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
+	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.
 }
 CR_CRASH_CALLBACK_INFOW;
 
@@ -227,6 +266,7 @@ typedef struct tagCR_CRASH_CALLBACK_INFOA
 	int nStage;                         //!< Stage.
 	LPCSTR pszErrorReportFolder;        //!< Directory where crash report files are located.
     CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
+	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.
 }
 CR_CRASH_CALLBACK_INFOA;
 
@@ -240,13 +280,9 @@ typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
 #endif // UNICODE
 
 // Constants that may be returned by the crash callback function.
-#define CR_CB_CANCEL             0 //!< Cancel crash report generation.
-#define CR_CB_DODEFAULT          1 //!< Proceed with crash report generation.
-#define CR_CB_CONTINUE_EXECUTION 2 //!< Continue program execution (do not terminate program).
-
-// Stages of crash report generation (used by the crash callback function).
-#define CR_CB_STAGE_PREPARE      10  //!< After exception pointers've been retrieved.
-#define CR_CB_STAGE_AFTER_LAUNCH 20  //!< After the launch of CrashSender.exe process.
+#define CR_CB_CANCEL             0 //!< Cancel crash report generation on the current stage.
+#define CR_CB_DODEFAULT          1 //!< Proceed to the next stages of crash report generation without calling crash callback function.
+#define CR_CB_NOTIFY_NEXT_STAGE  2 //!< Proceed and call the crash callback for the next stage.
 
 /*! \ingroup CrashRptAPI
 *  \brief Client crash callback function prototype.
@@ -257,8 +293,8 @@ typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
 *  The crash callback function is called when a crash occurs. This way client application is
 *  notified about the crash.
 *
-*  Crash information is passed to the callback function through the \b pInfo parameter as
-*  a pointer to \ref CR_CRASH_CALLBACK_INFO structure. See below for an example. 
+*  Crash information is passed by CrashRpt to the callback function through the \b pInfo parameter as
+*  a pointer to \ref CR_CRASH_CALLBACK_INFO structure. See below for a code example. 
 *
 *  It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) inside of this callback.
 *  The application state may be unstable.
@@ -270,24 +306,68 @@ typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
 *  It is also possible (but not recommended) to add files (see crAddFile2()), 
 *  properties (see crAddProperty()), desktop screenshots (see crAddScreenshot2())
 *  and registry keys (see crAddRegKey()) inside of the crash callback function.
-*  
-*  The crash callback function should typically return \ref CR_CB_DODEFAULT to proceed 
-*  with error report generation. Returning \ref CR_CB_CANCEL constant will prevent crash 
-*  report generation.
 *
 *  By default, CrashRpt terminanates the client application after crash report generation and
-*  launching the CrashSender.exe process.
+*  launching the <i>CrashSender.exe</i> process. However, it is possible to continue program
+*  execution after crash report generation by seting \ref CR_CRASH_CALLBACK_INFO::bContinueExecution
+*  structure field to \a TRUE.
 *
-*  The following example shows how to use the crash callback function.
+*  The crash report generation consists of several stages. First, exception pointers are retrieved
+*  and the callback function is called for the first time. The callback function may check the
+*  retrieved exception information and decide wheter to proceed with crash report generation or to
+*  continue client program execution. On the next stage, the \a CrashSender.exe
+*  process is launched and the crash callback function is (optionally) called for the second time.
+*  Further crash report data collection and delivery work is performed in \a CrashSender.exe process. 
+*  The crash callback may use the provided handle to \a CrashSender.exe process to wait until it exits.
+*
+*  The crash callback function should typically return \ref CR_CB_DODEFAULT constant to proceed 
+*  with error report generation without being called back on the next stage(s). Returning the
+*  \ref CR_CB_NOTIFY_NEXT_STAGE constant causes CrashRpt to call the crash callback function on the next
+*  stage, too. Returning \ref CR_CB_CANCEL constant will prevent further stage(s) of crash report generation.
+*
+*  \ref PFNCRASHCALLBACKW() and \ref PFNCRASHCALLBACKA() are 
+*  wide-character and multi-byte character versions of \ref PFNCRASHCALLBACK()
+*  function. 
+*
+*  The following code example shows the simplest way of using the crash callback function:
 *
 *  \code
-*  // define the crash callback
-*  BOOL CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
+*  // Define the crash callback
+*  int CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
 *  {    
 *     
 *     // Do something...
 *
+*     // Proceed with crash report generation. 
+*     // This return code also makes CrashRpt to not call this callback function for 
+*     // the next crash report generation stage.
 *     return CR_CB_DODEFAULT;
+*  }
+*  \endcode
+*
+*  The following code example shows how to use the crash callback function to be notified
+*  on every stage of crash report generation:
+*
+*  \code
+*  // Define the crash callback
+*  int CALLBACK CrashCallback(CR_CRASH_CALLBACK_INFO* pInfo)
+*  {    
+*     
+*     // We want to continue program execution after crash report generation
+*     pInfo->bContinueExecution = TRUE;
+*
+*     switch(pInfo->nStage)
+*     {
+*         case CR_CB_STAGE_PREPARE:
+*               // do something
+*               break;
+*         case CR_CB_STAGE_FINISH:
+*               // do something
+*               break;
+*     }
+*
+*     // Proceed to the next stage. 
+*     return CR_CB_NOTIFY_NEXT_STAGE;
 *  }
 *  \endcode
 *
@@ -295,9 +375,13 @@ typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
 */
 typedef int (CALLBACK *PFNCRASHCALLBACKW) (CR_CRASH_CALLBACK_INFOW* pInfo);
 
+/*! \ingroup CrashRptAPI
+*  \brief Client crash callback function prototype (multi-byte version).
+*  \copydoc PFNCRASHCALLBACKW()
+*/
 typedef int (CALLBACK *PFNCRASHCALLBACKA) (CR_CRASH_CALLBACK_INFOA* pInfo);
 
-/*! \brief Character set-independent mapping of PFNCRASHCALLBACKW and PFNCRASHCALLBACKA function prototrypes.
+/*! \brief Character set-independent mapping of \ref PFNCRASHCALLBACKW() and \ref PFNCRASHCALLBACKA() function prototrypes.
 *  \ingroup CrashRptStructs
 */
 #ifdef UNICODE
@@ -659,9 +743,10 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
 *  \return
 *    This function returns zero if succeeded.
 *
-*  \param[in] pInfo General information.
+*  \param[in] pInfo General congiration information.
 *
 *  \remarks
+*
 *    This function installs unhandled exception filter for the caller process.
 *    It also installs various CRT exception/error handlers that function for all threads of the caller process.
 *    For more information, see \ref exception_handling

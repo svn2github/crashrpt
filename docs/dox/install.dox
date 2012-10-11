@@ -2,8 +2,8 @@
 
 \page getting_started Getting Started
 
-<b>CrashRpt</b> is a light-weight open-source error handling, reporting 
-and post-processing library for C++ applications created in Microsoft Visual 
+<b>CrashRpt</b> is a light-weight open-source error reporting 
+library for C++ applications created in Microsoft Visual 
 Studio IDE and running in Windows. 
 
 \section why Why CrashRpt?
