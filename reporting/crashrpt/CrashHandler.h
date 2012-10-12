@@ -210,6 +210,9 @@ public:
     // Acqure exclusive access to this crash handler.
     void CrashLock(BOOL bLock);
 
+	// Calls the crash callback function (if specified by user).
+	int CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo);
+
     /* Private member variables. */
 
 	// Singleton of the CCrashHandler class.
@@ -246,7 +249,6 @@ public:
     CString m_sImageName;          // Process image name.
     DWORD m_dwFlags;               // Flags.
     MINIDUMP_TYPE m_MinidumpType;  // Minidump type.
-    //BOOL m_bAppRestart;          // This is packed into dwFlags
     CString m_sRestartCmdLine;     // App restart command line.
     CString m_sUrl;                // Url to use when sending error report over HTTP.  
     CString m_sEmailTo;            // E-mail recipient.
@@ -264,9 +266,7 @@ public:
     CString m_sPathToDebugHelpDll; // Path to dbghelp.dll.
     CString m_sUnsentCrashReportsFolder; // Path to the folder where to save error reports.
     LPGETLOGFILE m_lpfnCallback;   // Client crash callback (deprecated).
-	PFNCRASHCALLBACKW m_pfnCallback2W; // Client crash callback.
-	PFNCRASHCALLBACKA m_pfnCallback2A; // Client crash callback.
-    BOOL m_bAddScreenshot;         // Should we add screenshot?
+	BOOL m_bAddScreenshot;         // Should we add screenshot?
     DWORD m_dwScreenshotFlags;     // Screenshot flags.
     int m_nJpegQuality;            // Quality of JPEG screenshot images.
 	BOOL  m_bAddVideo;             // Wether to add video recording.
@@ -287,6 +287,10 @@ public:
     CSharedMem* m_pTmpSharedMem;   // Used temporarily
     CRASH_DESCRIPTION* m_pTmpCrashDesc; // Used temporarily
 	HANDLE m_hSenderProcess;       // Handle to CrashSender.exe process.
+	PFNCRASHCALLBACKW m_pfnCallback2W; // Client crash callback.
+	PFNCRASHCALLBACKA m_pfnCallback2A; // Client crash callback.
+	int m_nCallbackRetCode;        // Return code of the callback function.
+	BOOL m_bContinueExecution;     // Whether to terminate process (the default) or to continue execution after crash.
 };
 
 

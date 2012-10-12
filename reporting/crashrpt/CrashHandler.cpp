@@ -62,6 +62,8 @@ CCrashHandler::CCrashHandler()
 	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
 	m_hSenderProcess = NULL;
+	m_nCallbackRetCode = CR_CB_DODEFAULT;
+	m_bContinueExecution = FALSE;
 
     // Init exception handler pointers
     InitPrevExceptionHandlerPointers();
@@ -1235,6 +1237,13 @@ int CCrashHandler::GenerateErrorReport(
         return 2;
     }
 
+	// New-style callback
+	if(CR_CB_CANCEL==CallBack(CR_CB_STAGE_PREPARE, pExceptionInfo))
+	{
+        crSetErrorMsg(_T("The operation was cancelled by client."));
+        return 2;
+    }	
+
     // Start the CrashSender.exe process which will take the dekstop screenshot, 
     // copy user-specified files to the error report folder, create minidump, 
     // notify user about crash, compress the report into ZIP archive and send 
@@ -1264,6 +1273,9 @@ int CCrashHandler::GenerateErrorReport(
 		m_hEvent2 = NULL;
 	}
     
+	// New-style callback
+	CallBack(CR_CB_STAGE_FINISH, pExceptionInfo);
+	
 	// Generate new GUID for new crash report 
 	// (if, for example, user will generate new error report manually).
     if(0!=Utility::GenerateGUID(m_sCrashGUID))
@@ -1513,6 +1525,58 @@ void CCrashHandler::CrashLock(BOOL bLock)
         m_csCrashLock.Unlock();
 }
 
+int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
+{	
+	// This method calls the crash callback function.
+
+	strconv_t strconv;
+
+	if(m_nCallbackRetCode!=CR_CB_NOTIFY_NEXT_STAGE)
+		return CR_CB_DODEFAULT;
+
+	// Format error report dir name.
+	CString sErrorReportDirName;
+	sErrorReportDirName.Format(_T("%s\\%s_%s\\%s"), 
+		m_sUnsentCrashReportsFolder.GetBuffer(0),
+		m_sAppName.GetBuffer(0),
+		m_sAppVersion.GetBuffer(0),
+		m_sCrashGUID.GetBuffer(0)
+		);
+
+	if(m_pfnCallback2W!=NULL)
+	{
+		// Call the wide-char version of the callback function.
+		CR_CRASH_CALLBACK_INFOW cci;
+		memset(&cci, 0, sizeof(CR_CRASH_CALLBACK_INFOW));
+		cci.cb = sizeof(CR_CRASH_CALLBACK_INFOW);
+		cci.nStage = nStage;
+		cci.pExceptionInfo = pExInfo;
+		cci.pszErrorReportFolder = strconv.t2w(sErrorReportDirName);
+
+		m_nCallbackRetCode = m_pfnCallback2W(&cci);
+
+		// Save continue execution flag
+		m_bContinueExecution = cci.bContinueExecution;
+	}
+	else if(m_pfnCallback2A!=NULL)
+	{
+		// Call the multi-byte version of the callback function.
+		CR_CRASH_CALLBACK_INFOA cci;
+		memset(&cci, 0, sizeof(CR_CRASH_CALLBACK_INFOA));
+		cci.cb = sizeof(CR_CRASH_CALLBACK_INFOA);
+		cci.nStage = nStage;
+		cci.pExceptionInfo = pExInfo;
+		cci.pszErrorReportFolder = strconv.t2a(sErrorReportDirName);
+
+		m_nCallbackRetCode = m_pfnCallback2A(&cci);
+
+		// Save continue execution flag
+		m_bContinueExecution = cci.bContinueExecution;
+	}
+
+	return m_nCallbackRetCode;
+}
+
 // Structured exception handler
 LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 { 
@@ -1542,16 +1606,22 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 		// inside. 
 		pCrashHandler->CrashLock(TRUE);
 
+		// Generate error report.
 		CR_EXCEPTION_INFO ei;
 		memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
 		ei.cb = sizeof(CR_EXCEPTION_INFO);
 		ei.exctype = CR_SEH_EXCEPTION;
 		ei.pexcptrs = pExceptionPtrs;
-
 		pCrashHandler->GenerateErrorReport(&ei);
 
-		// Terminate process
-		TerminateProcess(GetCurrentProcess(), 1);    
+		if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);
 	}   
 
     // Unreacheable code  
@@ -1574,14 +1644,23 @@ DWORD WINAPI CCrashHandler::StackOverflowThreadFunction(LPVOID lpParameter)
 	{
 		// Acquire lock to avoid other threads (if exist) to crash while we	are inside.
 		pCrashHandler->CrashLock(TRUE);
+		
+		// Generate error report.
 		CR_EXCEPTION_INFO ei;
 		memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
 		ei.cb = sizeof(CR_EXCEPTION_INFO);
 		ei.exctype = CR_SEH_EXCEPTION;
 		ei.pexcptrs = pExceptionPtrs;
 		pCrashHandler->GenerateErrorReport(&ei);
-		// Terminate process
-		TerminateProcess(GetCurrentProcess(), 1);
+		
+		if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);
 	}
 
 	return 0;
@@ -1607,10 +1686,17 @@ void __cdecl CCrashHandler::TerminateHandler()
         ei.cb = sizeof(CR_EXCEPTION_INFO);
         ei.exctype = CR_CPP_TERMINATE_CALL;
 
+		// Generate crash report
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);   
     }    
 }
 
@@ -1634,10 +1720,17 @@ void __cdecl CCrashHandler::UnexpectedHandler()
         ei.cb = sizeof(CR_EXCEPTION_INFO);
         ei.exctype = CR_CPP_UNEXPECTED_CALL;
 
+		// Generate crash report
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);   
     }    
 }
 
@@ -1662,10 +1755,17 @@ void __cdecl CCrashHandler::PureCallHandler()
         ei.cb = sizeof(CR_EXCEPTION_INFO);
         ei.exctype = CR_CPP_PURE_CALL;
 
+		// Generate error report.
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);   
     }  
 }
 #endif
@@ -1696,8 +1796,14 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
 
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);
     }
 }
 #endif 
@@ -1734,12 +1840,17 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
         ei.file = file;
         ei.line = line;    
 
+		// Generate error report.
         pCrashHandler->GenerateErrorReport(&ei);
 
-        pCrashHandler->CrashLock(FALSE);
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);   
     }   
 }
 #endif
@@ -1766,12 +1877,17 @@ int __cdecl CCrashHandler::NewHandler(size_t)
         ei.exctype = CR_CPP_NEW_OPERATOR_ERROR;
         ei.pexcptrs = NULL;    
 
+		// Generate error report.
         pCrashHandler->GenerateErrorReport(&ei);
 
-        pCrashHandler->CrashLock(FALSE);
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);
     }
 
     // Unreacheable code
@@ -1801,8 +1917,14 @@ void CCrashHandler::SigabrtHandler(int)
 
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);   
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE); 
     }
 }
 
@@ -1828,10 +1950,17 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
         ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
         ei.fpe_subcode = subcode;
 
+		//Generate crash report.
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);
     }
 }
 
@@ -1855,10 +1984,17 @@ void CCrashHandler::SigillHandler(int)
         ei.cb = sizeof(CR_EXCEPTION_INFO);
         ei.exctype = CR_CPP_SIGILL;
 
+		// Generate crash report
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);    
     }
 }
 
@@ -1882,10 +2018,17 @@ void CCrashHandler::SigintHandler(int)
         ei.cb = sizeof(CR_EXCEPTION_INFO);
         ei.exctype = CR_CPP_SIGINT;
 
+		// Generate crash report.
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);   
     }
 }
 
@@ -1909,10 +2052,17 @@ void CCrashHandler::SigsegvHandler(int)
         ei.exctype = CR_CPP_SIGSEGV;
         ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
 
+		// Generate crash report
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);   
     }
 }
 
@@ -1936,11 +2086,20 @@ void CCrashHandler::SigtermHandler(int)
         ei.cb = sizeof(CR_EXCEPTION_INFO);
         ei.exctype = CR_CPP_SIGTERM;
 
+		// Generate crash report
         pCrashHandler->GenerateErrorReport(&ei);
 
-        // Terminate process
-        TerminateProcess(GetCurrentProcess(), 1);    
+        if(!pCrashHandler->m_bContinueExecution)
+		{
+			// Terminate process
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		// Free lock
+		pCrashHandler->CrashLock(FALSE);  
     }
 }
+
+
 
 
