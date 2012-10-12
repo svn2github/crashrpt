@@ -1,12 +1,12 @@
 CrashRpt Project Authors: 
 
 Mike Carruth - CrashRpt project originator
-Oleg "zeXspectrum" Krivtsov - current CrashRpt project maintainer
+Oleg Krivtsov (zexspectrum) - current CrashRpt project maintainer
 
 Thanks to:
 
-"crcode.s" -
-Thomas Fischer -  
-Andy Schoenle -
-Zaccanti -
-"hadop" - 
+David Kelvin (crcode.s) for his money donation
+Thomas Fischer (tdev) for his Python statistics collection script  
+Andy Schoenle for his German language file
+Davide Zaccanti for his Italian language file
+hadop for his French translation 

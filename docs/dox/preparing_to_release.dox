@@ -36,9 +36,9 @@ not only take up more
 space on your CD/download/client's machine, but they will also make reverse engineering 
 your code a trivial exercise. 
 
-\section rlsfiles Distributing CrashRpt Files with Your Software Release Package
+\section rlsfiles Distributing CrashRpt Files with Your Software Release Distribution
 
-You must always distribute the following files with your software release. It is recommended 
+You must always distribute the following files with your software release distribution. It is recommended 
 that you place these files to the directory where your application executable file is located.
                                                                               
 - \b CrashRpt.dll 
@@ -54,11 +54,11 @@ where \b CrashSender.exe is located.
 You can distribute several INI files with your software. On install, rename an appropriate 
 file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
 
-\note It is recommended that you distribute dbghelp.dll with your software, because 
-some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may 
-be different on different user machines. dbghelp.dll is shipped with Windows XP and later, 
+\note It is recommended that you distribute \b dbghelp.dll with your software, because 
+some end-user machines may not have \b dbghelp.dll installed or \b dbghelp.dll library's version may 
+be different on different user machines. \b dbghelp.dll is shipped with Windows XP and later, 
 so most user machines have this library installed. If your target OS is Windows XP and later, 
-you may ignore distribution of dbghelp.dll at your own risk.                  
+you may ignore distribution of \b dbghelp.dll at your own risk.                  
 
 <i>Further reading:</i> \ref using_error_reports.
 
