@@ -97,15 +97,17 @@ public:
         __in_opt LPCTSTR lpcszSmtpProxy = NULL,
         __in_opt LPCTSTR lpcszCustomSenderIcon = NULL,
 		__in_opt LPCTSTR lpcszSmtpLogin = NULL,
-		__in_opt LPCTSTR lpcszSmtpPassword = NULL,
-		__in_opt PFNCRASHCALLBACKW pfnCallback2W = NULL,
-		__in_opt PFNCRASHCALLBACKA pfnCallback2A = NULL);
+		__in_opt LPCTSTR lpcszSmtpPassword = NULL);
 
 	// Returns TRUE if object was initialized.
     BOOL IsInitialized();
 
 	// Frees all used resources.
     int Destroy();
+
+	// Set crash callback function.
+	int SetCrashCallbackW(PFNCRASHCALLBACKW pfnCallback, LPVOID pUserParam);
+	int SetCrashCallbackA(PFNCRASHCALLBACKA pfnCallback, LPVOID pUserParam);
 	
     // Adds a file to the crash report
     int AddFile(__in_z LPCTSTR lpFile, __in_opt LPCTSTR lpDestFile, 
@@ -289,6 +291,7 @@ public:
 	HANDLE m_hSenderProcess;       // Handle to CrashSender.exe process.
 	PFNCRASHCALLBACKW m_pfnCallback2W; // Client crash callback.
 	PFNCRASHCALLBACKA m_pfnCallback2A; // Client crash callback.
+	LPVOID m_pCallbackParam;       // User-specified argument for callback function.
 	int m_nCallbackRetCode;        // Return code of the callback function.
 	BOOL m_bContinueExecution;     // Whether to terminate process (the default) or to continue execution after crash.
 };

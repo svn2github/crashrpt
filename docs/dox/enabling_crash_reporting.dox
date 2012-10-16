@@ -43,7 +43,7 @@ int CYourApp::Run()
 
 \section thread_crash_handlers Per-thread Installation
 
-Some of exception handlers work for entire process and others work for caller thread
+Some of exception handlers work for entire process and others work for the caller thread
 only. Because of this reason, if your application is multi-threaded, you have to additionally install
 exception handlers in each worker thread.
 
@@ -67,9 +67,8 @@ install exception handlers in each worker thread.
 \section crash_callback Notifying the Application on Crash
 
 Sometimes the client application should be notified on crash to be able to perform some actions.
-You can define a crash callback function (see PFNCRASHCALLBACK() prototype) and pass its pointer to crInstall()
-using \ref CR_INSTALL_INFO::pfnCrashCallback2 structure member. The specified crash callback function 
-will be called on crash.
+You can define a crash callback function (see PFNCRASHCALLBACK() prototype) and pass its pointer to crSetCrashCallback()
+function. The specified crash callback function will be called on crash.
 
 For example, the application may use this callback for closing handles to open 
 log files that the application plans to include into the error report. Log files 

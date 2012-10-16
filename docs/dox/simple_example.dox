@@ -176,7 +176,6 @@ int _tmain(int argc, _TCHAR* argv[])
   info.pszEmailSubject = _T("MyApp 1.0.0 Error Report");  
   info.pszEmailTo = _T("myapp_support@hotmail.com");    
   info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");  
-  info.pfnCrashCallback2 = CrashCallback;   
   info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
   info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
@@ -202,6 +201,13 @@ int _tmain(int argc, _TCHAR* argv[])
     return 1;
   } 
 
+\endcode
+
+We want to set the crash callback function by calling crSetCrashCallback().
+
+\code
+  // Set crash callback function
+  crSetCrashCallback(CrashCallback, NULL);
 \endcode
 
 Next, we want to add our error log file to the crash report. We do this
@@ -316,7 +322,6 @@ int _tmain(int argc, _TCHAR* argv[])
   info.pszEmailSubject = _T("MyApp 1.0.0 Error Report");  
   info.pszEmailTo = _T("myapp_support@hotmail.com");    
   info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");  
-  info.pfnCrashCallback2 = CrashCallback;   
   info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
   info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
@@ -341,6 +346,9 @@ int _tmain(int argc, _TCHAR* argv[])
     _tprintf_s(_T("%s\n"), szErrorMsg);    
     return 1;
   } 
+
+  // Set crash callback function
+  crSetCrashCallback(CrashCallback, NULL);
 
   // Add our log file to the error report
   crAddFile2(_T("log.txt"), NULL, _T("Log File"), CR_AF_MAKE_FILE_COPY);    

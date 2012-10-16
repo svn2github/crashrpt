@@ -232,11 +232,17 @@ typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
 *
 *    This field contains a pointer to \ref CR_EXCEPTION_INFO structure.
 *
+*  \b pUserParam [in, optional]
+*
+*    This is a pointer to user-specified data passed to the crSetCrashCallback() function
+*    as \b pUserParam argument.
+*
 *  \b bContinueExecution [in, out]
 *
 *    This field is set to FALSE by default. The crash callback function may set it
 *    to true if it wants to continue its execution after crash report generation 
 *    (otherwise the program will be terminated).
+*
 *
 *  \ref CR_CRASH_CALLBACK_INFOW and \ref CR_CRASH_CALLBACK_INFOA are 
 *  wide-character and multi-byte character versions of \ref CR_CRASH_CALLBACK_INFO
@@ -251,13 +257,13 @@ typedef struct tagCR_CRASH_CALLBACK_INFOW
 	int nStage;                         //!< Stage.
 	LPCWSTR pszErrorReportFolder;       //!< Directory where crash report files are located.
     CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
-	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.
+	LPVOID pUserParam;                  //!< Pointer to user-defined data.
+	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.	
 }
 CR_CRASH_CALLBACK_INFOW;
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_CRASH_CALLBACK_INFOA
-*  \brief This structure contains information passed to crash callback function.
 *  \copydoc CR_CRASH_CALLBACK_INFOW
 */
 typedef struct tagCR_CRASH_CALLBACK_INFOA
@@ -266,7 +272,8 @@ typedef struct tagCR_CRASH_CALLBACK_INFOA
 	int nStage;                         //!< Stage.
 	LPCSTR pszErrorReportFolder;        //!< Directory where crash report files are located.
     CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
-	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.
+	LPVOID pUserParam;                  //!< Pointer to user-defined data.
+	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.	
 }
 CR_CRASH_CALLBACK_INFOA;
 
@@ -307,7 +314,7 @@ typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
 *  properties (see crAddProperty()), desktop screenshots (see crAddScreenshot2())
 *  and registry keys (see crAddRegKey()) inside of the crash callback function.
 *
-*  By default, CrashRpt terminanates the client application after crash report generation and
+*  By default, CrashRpt terminates the client application after crash report generation and
 *  launching the <i>CrashSender.exe</i> process. However, it is possible to continue program
 *  execution after crash report generation by seting \ref CR_CRASH_CALLBACK_INFO::bContinueExecution
 *  structure field to \a TRUE.
@@ -371,7 +378,7 @@ typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
 *  }
 *  \endcode
 *
-*  \sa CR_CRASH_CALLBACK_INFO, crAddFile2(), crAddProperty(), crAddScreenshot2(), crAddRegKey()
+*  \sa CR_CRASH_CALLBACK_INFO, crSetCrashCallback(), crAddFile2(), crAddProperty(), crAddScreenshot2(), crAddRegKey()
 */
 typedef int (CALLBACK *PFNCRASHCALLBACKW) (CR_CRASH_CALLBACK_INFOW* pInfo);
 
@@ -389,6 +396,53 @@ typedef PFNCRASHCALLBACKW PFNCRASHCALLBACK;
 #else
 typedef PFNCRASHCALLBACKA PFNCRASHCALLBACK;
 #endif // UNICODE
+
+/*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
+*  \ingroup CrashRptAPI
+*/
+#ifdef UNICODE
+#define crAddProperty crAddPropertyW
+#else
+#define crAddProperty crAddPropertyA
+#endif //UNICODE
+
+/*! \ingroup CrashRptAPI  
+*  \brief Sets the crash callback function.
+* 
+*  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
+*
+*  \param[in] pfnCallbackFunc  Pointer to the crash callback function.
+*  \param[in] lpParam          User defined parameter. Optional. 
+*  
+*  \remarks 
+*
+*  Use this to set the crash callback function that will be called on crash. This function
+*  is available since v.1.4.0.
+*
+*  For the crash callback function prototype, see documentation for PFNCRASHCALLBACK().
+*
+*  Optional \b lpParam parameter can be a pointer to user-defined data. It will be passed to the 
+*  crash callback function as \ref CR_CRASH_CALLBACK_INFO::pUserParam structure member.
+*
+*  \sa
+*   PFNCRASHCALLBACK()
+*/
+
+CRASHRPTAPI(int)
+crSetCrashCallbackW(   
+             PFNCRASHCALLBACKW pfnCallbackFunc,
+			 LPVOID lpParam
+             );
+
+
+/*! \ingroup CrashRptAPI
+*  \copydoc crSetCrashCallbackW()
+*/
+CRASHRPTAPI(int)
+crSetCrashCallbackA(   
+             PFNCRASHCALLBACKA pfnCallbackFunc,
+			 LPVOID lpParam
+             );
 
 // Array indices for CR_INSTALL_INFO::uPriorities.
 #define CR_HTTP 0  //!< Send error report via HTTP (or HTTPS) connection.
@@ -489,11 +543,6 @@ typedef PFNCRASHCALLBACKA PFNCRASHCALLBACK;
 *       sending the error report. If this is NULL, it is assumed that CrashSender.exe is located in
 *       the same directory as CrashRpt.dll.
 *
-*    \b pfnCrashCallback2 [in, optional] 
-*
-*       This can be a pointer to the \ref PFNCRASHCALLBACK() crash callback function. The crash callback function is
-*       called by CrashRpt when crash occurs and allows the client application to be notified about the crash.
-*       If this is NULL, crash callback function is not called.
 *
 *    \b uPriorities [in, optional]
 *
@@ -671,7 +720,7 @@ typedef struct tagCR_INSTALL_INFOW
     LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
     LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
     LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-    LPGETLOGFILE pfnCrashCallback;  //!< Deprecated, use \b pfnCrashCallback2 instead.
+    LPGETLOGFILE pfnCrashCallback;  //!< Deprecated, do not use.
     UINT uPriorities[5];            //!< Array of error sending transport priorities.
     DWORD dwFlags;                  //!< Flags.
     LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
@@ -684,8 +733,7 @@ typedef struct tagCR_INSTALL_INFOW
     LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
     LPCWSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 	LPCWSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
-	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
-	PFNCRASHCALLBACKW pfnCrashCallback2; //!< Crash callback function.
+	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
 }
 CR_INSTALL_INFOW;
 
@@ -706,7 +754,7 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
     LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
     LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-    LPGETLOGFILE pfnCrashCallback; //!< Deprecated, use \b pfnCrashCallback2 instead.
+    LPGETLOGFILE pfnCrashCallback; //!< Deprecated, do not use.
     UINT uPriorities[5];           //!< Array of error sending transport priorities.
     DWORD dwFlags;                 //!< Flags.
     LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
@@ -1146,14 +1194,16 @@ crAddScreenshot2(
 *  
 *  \remarks 
 *
+*  This function is available as of v.1.4.0.
+*
 *  \b dwFlags can be a combination of the following constants:
 *
-*    use one of the following constants to specify what part of virtual screen to capture:
+*   - use one of the following constants to specify what part of virtual screen to capture:
 *    - \ref CR_AV_VIRTUAL_SCREEN  Use this to capture the whole desktop (virtual screen). This is the default.
-*    - \ref CR_AV_MAIN_WINDOW     Use this to capture the main application main window.
+*    - \ref CR_AV_MAIN_WINDOW     Use this to capture the application's main window.
 *    - \ref CR_AV_PROCESS_WINDOWS Use this to capture all visible windows that belong to the process.
 * 
-*    use one of the following constants to define the desired video encoding quality:
+*   - use one of the following constants to define the desired video encoding quality:
 *    - \ref CR_AV_QUALITY_LOW     Low-quality video encoding. This is the default.
 *    - \ref CR_AV_QUALITY_GOOD    Good encoding quality, larger file.
 *    - \ref CR_AV_QUALITY_BEST    The best encoding quality, the largest file.

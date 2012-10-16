@@ -82,7 +82,7 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 	{
 		// The following enters the video recording loop
 		// and returns when the parent process signals the event.
-		BOOL bRec = RecordVideo();
+		BOOL bRec = RecordVideo();		
 		if(!bRec)
 		{
 			// Clean up temp files
@@ -101,8 +101,13 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 		// Check if the client app has crashed or exited successfully.
 		if(!m_CrashInfo.m_bClientAppCrashed)
 		{
+			// Let the parent process to continue its work
+			UnblockParentProcess();
+
 			// Clean up temp files
 			m_VideoRec.Destroy();
+
+			return FALSE;
 		}
 	}
 	

@@ -47,9 +47,7 @@ CCrashHandler::CCrashHandler()
     m_nSmtpProxyPort = 2525;
     memset(&m_uPriorities, 0, 3*sizeof(UINT));    
     m_lpfnCallback = NULL;
-	m_pfnCallback2W = NULL;
-	m_pfnCallback2A = NULL;
-    m_bAddScreenshot = FALSE;	
+	m_bAddScreenshot = FALSE;	
     m_dwScreenshotFlags = 0;    
     m_nJpegQuality = 95;
 	m_bAddVideo = FALSE;
@@ -62,7 +60,10 @@ CCrashHandler::CCrashHandler()
 	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
 	m_hSenderProcess = NULL;
-	m_nCallbackRetCode = CR_CB_DODEFAULT;
+	m_pfnCallback2W = NULL;
+	m_pfnCallback2A = NULL;    
+	m_pCallbackParam = NULL;
+	m_nCallbackRetCode = CR_CB_NOTIFY_NEXT_STAGE;
 	m_bContinueExecution = FALSE;
 
     // Init exception handler pointers
@@ -95,9 +96,7 @@ int CCrashHandler::Init(
         LPCTSTR lpcszSmtpProxy,
         LPCTSTR lpcszCustomSenderIcon,
 		LPCTSTR lpcszSmtpLogin,
-		LPCTSTR lpcszSmtpPassword,
-		PFNCRASHCALLBACKW pfnCallback2W,
-		PFNCRASHCALLBACKA pfnCallback2A)
+		LPCTSTR lpcszSmtpPassword)
 { 
     crSetErrorMsg(_T("Unspecified error."));
 
@@ -107,11 +106,9 @@ int CCrashHandler::Init(
     // Save minidump type  
     m_MinidumpType = MiniDumpType;
 
-    // Save user supplied callback
+    // Save user supplied callback (obsolete)
     m_lpfnCallback = lpfnCallback;
-	m_pfnCallback2W = pfnCallback2W;
-	m_pfnCallback2A = pfnCallback2A;
-
+	
     // Save application name
     m_sAppName = lpcszAppName;
 
@@ -490,6 +487,22 @@ int CCrashHandler::Init(
     return 0;
 }
 
+int CCrashHandler::SetCrashCallbackW(PFNCRASHCALLBACKW pfnCallback, LPVOID pUserParam)
+{
+	m_pfnCallback2W = pfnCallback;
+	m_pCallbackParam = pUserParam;
+	
+	return 0;
+}
+
+int CCrashHandler::SetCrashCallbackA(PFNCRASHCALLBACKA pfnCallback, LPVOID pUserParam)
+{
+	m_pfnCallback2A = pfnCallback;
+	m_pCallbackParam = pUserParam;
+	
+	return 0;
+}
+
 // Packs config info to shared mem.
 CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pSharedMem, BOOL bTempMem)
 {
@@ -661,7 +674,22 @@ int CCrashHandler::Destroy()
         return 1;
     }  
 
-	// Free event
+	// If we are recording video, we need to notify the CrashSender.exe about
+	// our exit.
+	if(m_bAddVideo)
+	{
+		// Set event 2, so CrashSender.exe will exit from video recording loop
+		SetEvent(m_hEvent2);
+
+		// Wait until CrashSender.exe completes its task
+		WaitForSingleObject(m_hEvent, INFINITE);		
+	}
+
+	// Free handle to CrashSender.exe process.
+	if(m_hSenderProcess!=NULL)
+		CloseHandle(m_hSenderProcess);
+
+	// Free events
 	if(m_hEvent)
 	{
 		CloseHandle(m_hEvent);
@@ -1168,7 +1196,7 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 		crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
         return 6;
     }
-	
+
 	// OK
 	crSetErrorMsg(_T("Success."));
 	return 0;
@@ -1271,11 +1299,17 @@ int CCrashHandler::GenerateErrorReport(
 		// Free event (it is not needed since now).
 		CloseHandle(m_hEvent2);
 		m_hEvent2 = NULL;
+
+		// Return handle to CrashSender.exe process to the caller.		
+		pExceptionInfo->hSenderProcess = m_hSenderProcess;
 	}
     
 	// New-style callback
 	CallBack(CR_CB_STAGE_FINISH, pExceptionInfo);
 	
+	// Reset video flag to let user add new videos
+	m_bAddVideo = FALSE;
+
 	// Generate new GUID for new crash report 
 	// (if, for example, user will generate new error report manually).
     if(0!=Utility::GenerateGUID(m_sCrashGUID))
@@ -1551,6 +1585,7 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 		cci.cb = sizeof(CR_CRASH_CALLBACK_INFOW);
 		cci.nStage = nStage;
 		cci.pExceptionInfo = pExInfo;
+		cci.pUserParam = m_pCallbackParam;
 		cci.pszErrorReportFolder = strconv.t2w(sErrorReportDirName);
 
 		m_nCallbackRetCode = m_pfnCallback2W(&cci);
@@ -1566,6 +1601,7 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 		cci.cb = sizeof(CR_CRASH_CALLBACK_INFOA);
 		cci.nStage = nStage;
 		cci.pExceptionInfo = pExInfo;
+		cci.pUserParam = m_pCallbackParam;
 		cci.pszErrorReportFolder = strconv.t2a(sErrorReportDirName);
 
 		m_nCallbackRetCode = m_pfnCallback2A(&cci);

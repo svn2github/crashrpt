@@ -102,8 +102,7 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
         ptszSmtpProxy,
         ptszCustomSenderIcon,
 		ptszSmtpLogin,
-		ptszSmtpPassword,
-		pInfo->pfnCrashCallback2
+		ptszSmtpPassword
         );
 
     if(nInitResult!=0)
@@ -206,9 +205,7 @@ CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
         ptszSmtpProxy,
         ptszCustomSenderIcon,
 		ptszSmtpLogin,
-		ptszSmtpPassword,
-		NULL,
-		pInfo->pfnCrashCallback2
+		ptszSmtpPassword
         );
 
     if(nInitResult!=0)
@@ -327,6 +324,55 @@ CRASHRPTAPI(int)
 crInstallToCurrentThread()
 {
     return crInstallToCurrentThread2(0);
+}
+
+CRASHRPTAPI(int)
+crSetCrashCallbackW(   
+             PFNCRASHCALLBACKW pfnCallbackFunc,
+			 LPVOID lpParam
+             )
+{
+	crSetErrorMsg(_T("Unspecified error."));
+
+	CCrashHandler *pCrashHandler = 
+        CCrashHandler::GetCurrentProcessCrashHandler();
+
+    if(pCrashHandler==NULL)
+    {    
+        crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
+        return 1; // No handler installed for current process?
+    }
+
+	pCrashHandler->SetCrashCallbackW(pfnCallbackFunc, lpParam);
+
+	// OK
+	crSetErrorMsg(_T("Success."));
+	return 0;
+}
+
+
+CRASHRPTAPI(int)
+crSetCrashCallbackA(   
+             PFNCRASHCALLBACKA pfnCallbackFunc,
+			 LPVOID lpParam
+             )
+{
+	crSetErrorMsg(_T("Unspecified error."));
+
+	CCrashHandler *pCrashHandler = 
+        CCrashHandler::GetCurrentProcessCrashHandler();
+
+    if(pCrashHandler==NULL)
+    {    
+        crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
+        return 1; // No handler installed for current process?
+    }
+
+	pCrashHandler->SetCrashCallbackA(pfnCallbackFunc, lpParam);
+
+	// OK
+	crSetErrorMsg(_T("Success."));
+	return 0;
 }
 
 CRASHRPTAPI(int) 

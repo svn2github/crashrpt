@@ -18,5 +18,7 @@ EXPORTS
    crAddRegKeyA                   @26
    crAddScreenshot2               @27
    crAddVideo                     @28
+   crSetCrashCallbackW            @29
+   crSetCrashCallbackA            @30
    
 
