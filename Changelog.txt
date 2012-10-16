@@ -13,6 +13,10 @@
 
 - New: Added code of Theora video codec and OGG container (libtheora and libogg).
 
+- New: New-style crash callback replacing the obsolete LPGETLOGFILE() callback.
+       Added PFNCRASHCALLBACK() callback function prototype, CR_CRASH_CALLBACK_INFO
+       structure and crAddCrashCallback() function.
+
 - Fixed: Memory Leak (or rather memory not deallocated before program exit) (issue 169)
 - Fixed: Can not restart application. Use CR_INST_APP_RESTART flag (issue 165)
 
