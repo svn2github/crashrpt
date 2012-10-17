@@ -667,9 +667,16 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
 		// Format balloon tip caption
         CString sTip; 
 		sTip.Format(pSender->GetLangStr(_T("ResendDlg"), _T("DlgCaption")), pSender->GetCrashInfo()->m_sAppName);
+
+#if (NTDDI_VERSION >= NTDDI_WIN2K)
+		// Truncate the string if it is too long.
+		sTip = Utility::AddEllipsis(sTip, 127);
+        _TCSCPY_S(nf.szTip, 127, sTip);
+#else
 		// Truncate the string if it is too long.
 		sTip = Utility::AddEllipsis(sTip, 63);
-        _TCSCPY_S(nf.szTip, 64, sTip);
+        _TCSCPY_S(nf.szTip, 63, sTip);
+#endif
 		// Set balloon icon
 		HICON hIcon = pSender->GetCrashInfo()->GetCustomIcon();
         if(!hIcon)
@@ -680,15 +687,15 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
 		sInfo.Format(pSender->GetLangStr(_T("ResendDlg"), _T("BalloonText")), 
 			pSender->GetCrashInfo()->m_sAppName, pSender->GetCrashInfo()->m_sAppName);
 		// Truncate the string if it is too long.
-		sInfo = Utility::AddEllipsis(sInfo, 63);
-        _TCSCPY_S(nf.szInfo, 200, sInfo.GetBuffer(0));
+		sInfo = Utility::AddEllipsis(sInfo, 255);
+        _TCSCPY_S(nf.szInfo, 255, sInfo.GetBuffer(0));
 
         CString sInfoTitle;
 		sInfoTitle.Format(pSender->GetLangStr(_T("ResendDlg"), _T("BalloonCaption")), 
 			pSender->GetCrashInfo()->m_sAppName);
 		// Truncate the string if it is too long.
 		sInfoTitle = Utility::AddEllipsis(sInfoTitle, 63);
-        _TCSCPY_S(nf.szInfoTitle, 64, sInfoTitle.GetBuffer(0));
+        _TCSCPY_S(nf.szInfoTitle, 63, sInfoTitle.GetBuffer(0));
 
         Shell_NotifyIcon(NIM_ADD,&nf);
     }

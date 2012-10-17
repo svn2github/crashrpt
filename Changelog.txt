@@ -15,7 +15,7 @@
 
 - New: New-style crash callback replacing the obsolete LPGETLOGFILE() callback.
        Added PFNCRASHCALLBACK() callback function prototype, CR_CRASH_CALLBACK_INFO
-       structure and crAddCrashCallback() function.
+       structure and crSetCrashCallback() function.
 
 - New: Added an ability to continue program execution after crash. This can be performed
        through crash callback (see CR_CRASH_CALLBACK_INFO::bContinueExecution structure
