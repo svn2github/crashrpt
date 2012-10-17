@@ -103,6 +103,20 @@ rmdir /S /Q thirdparty\tinyxml\x64
 erase /A H thirdparty\tinyxml\*.user
 erase thirdparty\tinyxml\*.aps
 
+rmdir /S /Q thirdparty\libogg\win32\VS2010\Debug
+rmdir /S /Q thirdparty\libogg\win32\VS2010\Release
+rmdir /S /Q "thirdparty\libogg\win32\VS2010\Release LIB"
+rmdir /S /Q thirdparty\libogg\win32\VS2010\x64
+erase /A H thirdparty\libogg\win32\VS2010\*.user
+erase thirdparty\libogg\win32\VS2010\*.aps
+
+rmdir /S /Q thirdparty\libtheora\win32\VS2010\libtheora\Debug
+rmdir /S /Q thirdparty\libtheora\win32\VS2010\libtheora\Release
+rmdir /S /Q "thirdparty\libtheora\win32\VS2010\libtheora\Release LIB"
+rmdir /S /Q thirdparty\libtheora\win32\VS2010\libtheora\x64
+erase /A H thirdparty\libtheora\win32\VS2010\libtheora\*.user
+erase thirdparty\libtheora\win32\VS2010\libtheora\*.aps
+
 rmdir /S /Q processing\CrashRptProbe\Debug
 rmdir /S /Q processing\CrashRptProbe\Release
 rmdir /S /Q "processing\CrashRptProbe\Release LIB"
