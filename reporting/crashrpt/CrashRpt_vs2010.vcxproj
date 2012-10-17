@@ -179,6 +179,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ImportLibrary>$(SolutionDir)lib\$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>

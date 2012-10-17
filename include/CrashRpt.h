@@ -397,15 +397,6 @@ typedef PFNCRASHCALLBACKW PFNCRASHCALLBACK;
 typedef PFNCRASHCALLBACKA PFNCRASHCALLBACK;
 #endif // UNICODE
 
-/*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
-*  \ingroup CrashRptAPI
-*/
-#ifdef UNICODE
-#define crAddProperty crAddPropertyW
-#else
-#define crAddProperty crAddPropertyA
-#endif //UNICODE
-
 /*! \ingroup CrashRptAPI  
 *  \brief Sets the crash callback function.
 * 
@@ -443,6 +434,16 @@ crSetCrashCallbackA(
              PFNCRASHCALLBACKA pfnCallbackFunc,
 			 LPVOID lpParam
              );
+
+
+/*! \brief Character set-independent mapping of crSetCrashCallbackW() and crSetCrashCallbackA() functions. 
+*  \ingroup CrashRptAPI
+*/
+#ifdef UNICODE
+#define crSetCrashCallback crSetCrashCallbackW
+#else
+#define crSetCrashCallback crSetCrashCallbackA
+#endif //UNICODE
 
 // Array indices for CR_INSTALL_INFO::uPriorities.
 #define CR_HTTP 0  //!< Send error report via HTTP (or HTTPS) connection.

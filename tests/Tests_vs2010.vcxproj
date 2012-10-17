@@ -158,7 +158,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libpngd.lib;zlibd.lib;minizipd.lib;dnsapi.lib;wininet.lib;WS2_32.lib;CrashRptProbe1301d.lib;CrashRpt1301d.lib;Rpcrt4.lib;version.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libpngd.lib;zlibd.lib;minizipd.lib;dnsapi.lib;wininet.lib;WS2_32.lib;CrashRptProbe1400d.lib;CrashRpt1400d.lib;Rpcrt4.lib;version.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Platform);..\thirdparty\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>

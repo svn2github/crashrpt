@@ -226,8 +226,11 @@
       <DebugInformationFormat>
       </DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
-      <DisableSpecificWarnings>4132;4245;4018;4554;4244;4700;4405;4101;4214;4127;4100;4389;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4132;4245;4018;4554;4244;4700;4701;4405;4101;4214;4127;4100;4389;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
+    <Lib>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">
     <ClCompile>
@@ -265,7 +268,7 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeader>
       </PrecompiledHeader>

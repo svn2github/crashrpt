@@ -209,6 +209,9 @@ public:
     // Sets internal pointers to exception handlers to NULL.
     void InitPrevExceptionHandlerPointers();
 
+	// Initializes several internal fields before each crash
+	int PerCrashInit();
+
     // Acqure exclusive access to this crash handler.
     void CrashLock(BOOL bLock);
 
@@ -292,6 +295,8 @@ public:
 	PFNCRASHCALLBACKW m_pfnCallback2W; // Client crash callback.
 	PFNCRASHCALLBACKA m_pfnCallback2A; // Client crash callback.
 	LPVOID m_pCallbackParam;       // User-specified argument for callback function.
+	std::string m_sErrorReportDirA;  //
+	std::wstring m_sErrorReportDirW; // 
 	int m_nCallbackRetCode;        // Return code of the callback function.
 	BOOL m_bContinueExecution;     // Whether to terminate process (the default) or to continue execution after crash.
 };
