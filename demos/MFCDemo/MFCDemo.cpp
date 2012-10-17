@@ -142,7 +142,7 @@ int CMFCDemoApp::Run()
   // Take screenshot of the app window at the moment of crash
   crAddScreenshot2(CR_AS_MAIN_WINDOW|CR_AS_USE_JPEG_FORMAT, 95);
 
-  BOOL bRun;
+  BOOL bRun = TRUE;
   BOOL bExit=FALSE;
   while(!bExit)
   {
