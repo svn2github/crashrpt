@@ -17,6 +17,10 @@
        Added PFNCRASHCALLBACK() callback function prototype, CR_CRASH_CALLBACK_INFO
        structure and crAddCrashCallback() function.
 
+- New: Added an ability to continue program execution after crash. This can be performed
+       through crash callback (see CR_CRASH_CALLBACK_INFO::bContinueExecution structure
+       member). This partially implements feature request in issue 125.
+
 - Fixed: Memory Leak (or rather memory not deallocated before program exit) (issue 169)
 - Fixed: Can not restart application. Use CR_INST_APP_RESTART flag (issue 165)
 
