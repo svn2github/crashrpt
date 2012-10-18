@@ -240,8 +240,7 @@ public:
     int         m_nSmtpProxyPort;       // SMTP proxy port.
 	CString     m_sSmtpLogin;           // SMTP login.
 	CString     m_sSmtpPassword;        // SMTP password.
-    CString     m_sUrl;                 // URL (used for HTTP connection).
-    BOOL        m_bHttpBinaryEncoding;  // Should we use binary transfer encoding (HTTP).
+    CString     m_sUrl;                 // URL (used for HTTP connection).    
     BOOL        m_bSilentMode;          // Should we show GUI?
     BOOL        m_bSendErrorReport;     // Should we send error report now?
 	BOOL		m_bSendMandatory;       // Disable "Close" and "Other actions.." buttons on Error Report dialog.

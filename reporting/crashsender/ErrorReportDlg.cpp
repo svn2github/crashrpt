@@ -364,6 +364,8 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
         ShowWindow(SW_SHOW);
 		SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW); 
 		
+		// Make it flash
+		FlashWindow(TRUE);
     } 
     else // If we shouldn't send error report now.
     {

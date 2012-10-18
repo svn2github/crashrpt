@@ -355,8 +355,7 @@ CCrashInfoReader::CCrashInfoReader()
 	// Init internal variables.
 	m_nCrashRptVersion = 0;
 	m_nSmtpPort = 25;
-	m_nSmtpProxyPort = 25;
-	m_bHttpBinaryEncoding = FALSE;
+	m_nSmtpProxyPort = 25;	
 	m_bSilentMode = FALSE;
 	m_bSendErrorReport = TRUE;
 	m_bSendMandatory = FALSE;
@@ -521,8 +520,7 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
     UnpackString(m_pCrashDesc->m_dwCrashGUIDOffs, eri.m_sCrashGUID);  
     UnpackString(m_pCrashDesc->m_dwImageNameOffs, eri.m_sImageName);  
     // Unpack install flags
-    DWORD dwInstallFlags = m_pCrashDesc->m_dwInstallFlags;   
-    m_bHttpBinaryEncoding = (dwInstallFlags&CR_INST_HTTP_BINARY_ENCODING)!=0;
+    DWORD dwInstallFlags = m_pCrashDesc->m_dwInstallFlags;       
     m_bSilentMode = (dwInstallFlags&CR_INST_NO_GUI)!=0;    
     m_bSendErrorReport = (dwInstallFlags&CR_INST_DONT_SEND_REPORT)==0;
 	m_bSendMandatory = (dwInstallFlags&CR_INST_SEND_MANDATORY)!=0;

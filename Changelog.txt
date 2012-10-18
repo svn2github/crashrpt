@@ -21,6 +21,13 @@
        through crash callback (see CR_CRASH_CALLBACK_INFO::bContinueExecution structure
        member). This partially implements feature request in issue 125.
 
+- New: Removed deprecated constant CR_INST_ALL_EXCEPTION_HANDLERS, use CR_INST_ALL_POSSIBLE_HANDLERS
+       constant instead.
+
+- New: Removed legacy method of error report delivery as Base-64-encoded data.
+       Now binary-encoded HTTP uploads are always used instead. This makes the
+       constant CR_INST_HTTP_BINARY_ENCODING useless.
+
 - Fixed: Memory Leak (or rather memory not deallocated before program exit) (issue 169)
 - Fixed: Can not restart application. Use CR_INST_APP_RESTART flag (issue 165)
 

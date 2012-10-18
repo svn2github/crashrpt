@@ -181,8 +181,6 @@ int _tmain(int argc, _TCHAR* argv[])
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
   // Install all available exception handlers
   info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS;
-  // Use HTTP binary transfer encoding (recommended).
-  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;
   // Restart the app on crash 
   info.dwFlags |= CR_INST_APP_RESTART; 
   info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS; 
@@ -327,8 +325,6 @@ int _tmain(int argc, _TCHAR* argv[])
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
   // Install all available exception handlers
   info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS;
-  // Use HTTP binary transfer encoding (recommended).
-  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;
   // Restart the app on crash 
   info.dwFlags |= CR_INST_APP_RESTART; 
   info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS; 

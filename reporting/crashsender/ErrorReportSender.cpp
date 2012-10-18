@@ -1936,26 +1936,11 @@ BOOL CErrorReportSender::SendOverHTTP()
     CalcFileMD5Hash(m_sZipName, sMD5Hash);
     request.m_aTextFields[_T("md5")] = strconv.t2utf8(sMD5Hash);
 
-	// Set content type depending on content transfer encoding
-    if(m_CrashInfo.m_bHttpBinaryEncoding)
-    {
-        CHttpRequestFile f;
-        f.m_sSrcFileName = m_sZipName;
-        f.m_sContentType = _T("application/zip");  
-        request.m_aIncludedFiles[_T("crashrpt")] = f;  
-    }
-    else
-    {
-        m_Assync.SetProgress(_T("Base-64 encoding file attachment, please wait..."), 1);
-
-        std::string sEncodedData;
-        int nRet = Base64EncodeAttachment(m_sZipName, sEncodedData);
-        if(nRet!=0)
-        {
-            return FALSE;
-        }
-        request.m_aTextFields[_T("crashrpt")] = sEncodedData;
-    }
+	// Set content type 
+    CHttpRequestFile f;
+    f.m_sSrcFileName = m_sZipName;
+    f.m_sContentType = _T("application/zip");  
+    request.m_aIncludedFiles[_T("crashrpt")] = f;  
 
 	// Send HTTP request assynchronously
     BOOL bSend = m_HttpSender.SendAssync(request, &m_Assync);  

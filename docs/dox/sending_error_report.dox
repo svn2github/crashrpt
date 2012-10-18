@@ -95,9 +95,7 @@ URL address, use the \ref CR_INSTALL_INFO::pszUrl structure member.
 CrashRpt supports HTTP file uploads as described in 
 <a href="http://www.ietf.org/rfc/rfc1867.txt">RFC-1867.</a> 
 This mechanism allows to upload large files by using binary content transfer encoding. 
-The "multipart/form-data" encoding type is utilized for this purpose. When using HTTP uploads, 
-always specify \ref CR_INST_HTTP_BINARY_ENCODING flag in CR_INSTALL_INFO::dwFlags 
-structure member.                
+The "multipart/form-data" encoding type is utilized for this purpose. 
 
 The equivalent HTML form for file uploads is presented below (some form fields may be ommitted, see the next
 section for the complete list of fields):
@@ -120,9 +118,7 @@ section for the complete list of fields):
 
 \subsection script_params Script Parameters
 
-Below is the summary of parameters the server-side script may receive. The parameters actually received
-may depend on what version of CrashRpt sent the report.
-
+Below is the summary of parameters the server-side script may receive. 
 The server-side script may receive the following POST parameters. In PHP, these parameters are part of 
 <b>$_POST</b> global array.
 
@@ -136,19 +132,6 @@ The server-side script may receive the following POST parameters. In PHP, these 
 <td> md5
 <td> "af89e902b42cd301092bb34530984e59"
 <td> This parameter contains the MD5 hash of error report data. This can be used to check error report integrity.
-
-<tr>
-<td> crashrpt
-<td> This will be a Base-64 encoded character sequence.
-<td> This parameter contains error report data encoded with Base-64 encoding. This legacy parameter is have to be used 
-     if you need to receive reports being sent by an older (pre-v.1.2.2) version of CrashRpt. 
-
-     The crash report ZIP file data are converted to base64 encoding to replace all restricted characters with a set
-     of 64 predefined characters. The server-side script should base64-decode the ZIP file data.
-
-     Since v.1.2.2, error reports are recommended to send using binary encoding (see CR_INSTALL_INFO::dwFlags member
-     for more information). 
-
 <tr>
 <td> appname
 <td> "MyApp"

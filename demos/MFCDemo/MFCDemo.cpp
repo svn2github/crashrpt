@@ -125,8 +125,6 @@ int CMFCDemoApp::Run()
   info.pszUrl = _T("http://someserver.com/crashrpt.php");                    
   // Install all available exception handlers.
   info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS; 
-  // Use binary encoding for HTTP uploads (recommended).
-  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;     
   // Provide privacy policy URL
   info.pszPrivacyPolicyURL = _T("http://someserver.com/privacy.html");
 

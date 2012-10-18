@@ -470,11 +470,10 @@ crSetCrashCallbackA(
 #define CR_INST_SIGTERM_HANDLER                0x1000 //!< Install SIGTERM signal handler.  
 
 #define CR_INST_ALL_POSSIBLE_HANDLERS          0x1FFF //!< Install all possible exception handlers.
-#define CR_INST_ALL_EXCEPTION_HANDLERS         0      //!< Deprecated, not recommended to use. Use \ref CR_INST_ALL_POSSIBLE_HANDLERS instead.
 #define CR_INST_CRT_EXCEPTION_HANDLERS         0x1FFE //!< Install exception handlers for the linked CRT module.
 
 #define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
-#define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
+#define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Deprecated, do not use.
 #define CR_INST_DONT_SEND_REPORT               0x8000 //!< Don't send error report immediately, just save it locally.
 #define CR_INST_APP_RESTART                   0x10000 //!< Restart the application on crash.
 #define CR_INST_NO_MINIDUMP                   0x20000 //!< Do not include minidump file to crash report.
@@ -583,14 +582,6 @@ crSetCrashCallbackA(
 * 
 *             It is not recommended to use this flag for regular GUI-based applications. 
 *             Use this only for services that have no GUI.
-*    <tr><td> \ref CR_INST_HTTP_BINARY_ENCODING     
-*        <td> <b>Available since v.1.2.2</b> This affects the way of sending reports over HTTP. 
-*             By specifying this flag, you enable usage of multi-part HTTP uploads with binary encoding instead 
-*             of the legacy way (Base64-encoded form data). 
-*
-*             It is recommended to always specify this flag, because it is more suitable for large error reports. The legacy way
-*             is supported for backwards compatibility and not recommended to use.
-*             For additional information, see \ref sending_error_reports.
 *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
 *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report immediately on crash, just save it locally'. 
 *             Use this if you have direct access to the machine where crash happens and do not need 
@@ -649,8 +640,7 @@ crSetCrashCallbackA(
 *
 *     It is recommended to set this 
 *     parameter with zero (equivalent of MiniDumpNormal constant). Other values may increase the minidump 
-*     size significantly. If you plan to use values other than zero, also specify the 
-*     \ref CR_INST_HTTP_BINARY_ENCODING flag for \a dwFlags parameter.
+*     size significantly. 
 *
 *   \b pszErrorReportSaveDir [in, optional] 
 *

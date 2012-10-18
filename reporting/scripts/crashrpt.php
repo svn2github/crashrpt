@@ -44,15 +44,17 @@ if(strlen($md5_hash)!=32)
 }
 
 // Get CrashGUID
-if(array_key_exists("crashguid", $_POST))
+if(!array_key_exists("crashguid", $_POST))
 {
-  $crash_guid = $_POST["crashguid"];
-  checkOK($crash_guid);
-  if(strlen($crash_guid)!=36)
-  {
-    done(450, "Crash GUID has wrong length.");
-  }  
+  done(450, "Crash GUID missing.");  
 }
+
+$crash_guid = $_POST["crashguid"];
+checkOK($crash_guid);
+if(strlen($crash_guid)!=36)
+{
+  done(450, "Crash GUID has wrong length.");
+}  
 
 // Get file attachment
 if(array_key_exists("crashrpt", $_FILES))
@@ -76,17 +78,8 @@ if(array_key_exists("crashrpt", $_FILES))
     done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
   }
 
-  if(!empty($crash_guid))
-  { 
-    // If crash GUID presents, use it as file name
-    $file_name = $file_root.$crash_guid.".zip";
-  }
-  else
-  {
-    // Generate random file name 
-    $date_time = date(DATE_RFC822);
-    $file_name = $file_root.md5(md5_file($tmp_file_name).$date_time).".zip";
-  }
+  // Use crash GUID as file name
+  $file_name = $file_root.$crash_guid.".zip";
 
   // Move uploaded file to an appropriate directory
   if(!move_uploaded_file($tmp_file_name, $file_name))
@@ -96,47 +89,7 @@ if(array_key_exists("crashrpt", $_FILES))
 }
 else
 {
-  // Assume legacy way is used
-  if(!isset($_POST["crashrpt"]))  
-  {
-    done(450, "Error report data is missing.");
-  }
-
-  // Get BASE64-encoded file data
-  $encoded_data = $_POST["crashrpt"];
-
-  // Decode file data
-  $file_data = base64_decode($encoded_data);
-
-  // Check that decoded data have correct MD5 hash
-  $my_md5_hash = strtolower(md5($file_data));
-  $their_md5_hash = strtolower($md5_hash);
-  if($my_md5_hash!=$their_md5_hash)
-  {
-    done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
-  }
-
-  if(!empty($crash_guid))
-  { 
-    // If crash GUID presents, use it as file name
-    $file_name = $file_root.$crash_guid.".zip";
-  }
-  else
-  {
-    // Generate random file name 
-    $date_time = date(DATE_RFC822);
-    $file_name = $file_root.md5($file_data.$date_time).".zip";
-  }
-  
-  // Write decoded data to file
-  $f = fopen($file_name, "w");
-  if($f==FALSE)
-  {
-    done(452, "Couldn't save data to local storage"); 
-  }
-         
-  fwrite($f, $file_data);
-  fclose($f);
+  done(452, "File attachment missing"); 
 }
 
 // OK.
