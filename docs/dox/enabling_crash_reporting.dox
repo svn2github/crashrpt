@@ -68,15 +68,23 @@ install exception handlers in each worker thread.
 
 Sometimes the client application should be notified on crash to be able to perform some actions.
 You can define a crash callback function (see PFNCRASHCALLBACK() prototype) and pass its pointer to crSetCrashCallback()
-function. The specified crash callback function will be called on crash.
+function. The specified crash callback function will be called on crash and information about
+the crash will be passed to the callback function through the \ref CR_CRASH_CALLBACK_INFO
+structure.
+
+It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) 
+inside of this callback, because the application state may be unstable.
 
 For example, the application may use this callback for closing handles to open 
 log files that the application plans to include into the error report. Log files 
 should be accessible for reading, otherwise CrashRpt won't be able to include them 
 into error report.           
 
-It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) 
-inside of this callback, because the application state may be unstable.
+Crash callback function can also be used to allow the client application to continue its
+execution after crash report generation. 
+By default, CrashRpt terminates the client application after crash report generation, because the app
+may be in unstable state. But, if for some reason you need to continue client app's execution,
+you may do this by setting CR_CRASH_CALLBACK_INFO::bContinueExecution structure field to \a TRUE.
 
 \section testing_if_intercepted Testing If Exceptions are Intercepted
 

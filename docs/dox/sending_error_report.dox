@@ -119,6 +119,7 @@ section for the complete list of fields):
 \subsection script_params Script Parameters
 
 Below is the summary of parameters the server-side script may receive. 
+
 The server-side script may receive the following POST parameters. In PHP, these parameters are part of 
 <b>$_POST</b> global array.
 
