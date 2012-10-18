@@ -2,7 +2,7 @@
 
 \page error_report About an Error Report
 
-When an error occurs in a client application, CrashRpt notifies the user and allows him 
+When an error occurs in a client application, CrashRpt notifies the end user and allows him/her
 to review the report contents. CrashRpt can be configured to use multiple languages with its user
 interface, as described in \ref internationalization_support.
 
@@ -19,6 +19,12 @@ description. He can do this by clicking the
 
 The user-entered E-mail address may be used later by software support staff to
 contact the user and ask for additional information about the problem.
+
+Once the user is satisfied, he/she may close the details dialog and click the 'Send report' 
+button on the Error Report dialog. For additional information about sending error reports,
+please refer to \ref sending_error_reports page.
+
+If the user doesn't want to send the report, the user clicks the 'Close the program' button.
 
 \section detaildlg Error Report Details Dialog
 
@@ -56,15 +62,9 @@ CrashRpt generates an XML crash description file. The file contains various
 information, such as application name and version, sender's E-mail address and geographic 
 location, user-provided problem description, exception type and address and so on.
 
-Custom files, for example, application log files and desktop screen shots, can be included 
+Custom files, for example, application log files, desktop screen shots and screen capture videos, can be included 
 into crash report via the API functions provided by CrashRpt. For additional information,
 see the \ref using_crashrpt_api page.
-
-Once the user is satisfied, he/she may close the details dialog and click the 'Send report' 
-button on the Error Report dialog. For additional information about sending error reports,
-please refer to \ref sending_error_reports page.
-
-If the user doesn't want to send the report, the user clicks the 'Close the program' button.
 
 <i>Further reading:</i> \ref demos.
 

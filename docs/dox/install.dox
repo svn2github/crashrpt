@@ -100,7 +100,7 @@ information collection work automatically. When information is collected, CrashR
 sends error report over the Internet to software vendor. 
 
 CrashRpt generates error report including crash minidump, extensible crash description XML, 
-application-defined files and desktop screenshots. For additional information on
+application-defined files, desktop screenshots and screen video capture. For additional information on
 error reports, please refer to \ref error_report page.
 
 <b>Friendly User Interface.</b>
@@ -160,7 +160,7 @@ please refer to \ref compiling_crashrpt page.
 
 <b>Light-Weight.</b>
 
-CrashRpt library is light-weight, which means you should distribute only about 1.5 Mb 
+CrashRpt library is light-weight, which means you should distribute only about 1.9 Mb 
 of additional files with your software (<i>dbghelp.dll</i>, <i>CrashRpt.dll</i>, 
 <i>CrashSender.exe</i>).
 
