@@ -6,7 +6,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE )
 project (CrashRpt)
 
 # CrashRpt version number
-set (CRASHRPT_VER 1301)
+set (CRASHRPT_VER 1400)
 
 
 # Check supported generators
