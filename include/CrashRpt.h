@@ -1307,11 +1307,12 @@ crAddVideo(
 *  User-added properties are listed under \<CustomProps\> tag of the XML file.
 *  In the XML file properties are ordered by names in alphabetic order.
 *
-*  The following example shows how to add information about the amount of free disk space to the crash
-*  description XML file:
+*  The following example shows how to add information about the amount of free disk space 
+*  to the crash description XML file:
+*
 *  \code
-*  // It is assumed that you already calculated the amount of free disk space, converted it to text
-*  // and store it as szFreeSpace string.
+*  // It is assumed that you already calculated the amount of free disk space, 
+*  // converted it to text and stored it as szFreeSpace string.
 *  LPCTSTR szFreeSpace = _T("0 Kb");
 *  crAddProperty(_T("FreeDiskSpace"), szFreeSpace);
 *
@@ -1369,7 +1370,7 @@ crAddPropertyA(
 *
 *  The \a dwFlags parameter is reserved for future use and should be set to zero.
 *
-*  The following example shows how to dump two registry keys to \b regkey.xml file:
+*  The following example shows how to dump two registry keys to a single \a regkey.xml file:
 *
 *  \code
 *  

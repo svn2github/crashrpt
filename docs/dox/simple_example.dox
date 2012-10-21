@@ -201,7 +201,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 \endcode
 
-We want to set the crash callback function by calling crSetCrashCallback().
+Next, we want to set the crash callback function by calling crSetCrashCallback().
 
 \code
   // Set crash callback function
@@ -221,7 +221,7 @@ We do this with the crAddScreenshot2() function.
 
 \code
   // We want the screenshot of the entire desktop is to be added on crash
-  crAddScreenshot2(CR_AS_VIRTUAL_SCREEN);   
+  crAddScreenshot2(CR_AS_VIRTUAL_SCREEN, 0);   
 \endcode
 
 The following code adds a named property to the crash description XML file
@@ -350,7 +350,7 @@ int _tmain(int argc, _TCHAR* argv[])
   crAddFile2(_T("log.txt"), NULL, _T("Log File"), CR_AF_MAKE_FILE_COPY);    
 
   // We want the screenshot of the entire desktop is to be added on crash
-  crAddScreenshot(CR_AS_VIRTUAL_SCREEN);   
+  crAddScreenshot2(CR_AS_VIRTUAL_SCREEN, 0);   
 
   // Add a named property that means what graphics adapter is
   // installed on user's machine
