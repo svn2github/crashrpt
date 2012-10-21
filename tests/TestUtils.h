@@ -16,5 +16,11 @@ namespace TestUtils
 // A helper function that creates a error report for testing
 BOOL CreateErrorReport(CString sTmpFolder, CString& sErrorReportName, CString& sMD5Hash);
 
+// Returns the list of sections in an INI file.
+int EnumINIFileSections(CString sFileName, std::vector<CString>& aSections);
+
+// Returns the list of strings in the specified section in an INI file.
+int EnumINIFileStrings(CString sFileName, CString sSectionName, std::vector<CString>& aStrings);
+
 };
 

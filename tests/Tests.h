@@ -66,7 +66,8 @@ public:
 
     void ClearErrors();
 
-    void AddErrorMsg(const char* szFunction, const char* szAssertion);
+    // Adds an error message to the list.
+    void AddErrorMsg(const char* szFunction, const char* szAssertion, const char* szMsg, ...);
 
 protected: 
 
@@ -145,7 +146,11 @@ private:
 extern CTestSuite* g_pCurTestSuite;
 
 #define TEST_ASSERT(expr)\
-    if(!(expr)) { g_pCurTestSuite->AddErrorMsg(__FUNCTION__, #expr); \
+    if(!(expr)) { g_pCurTestSuite->AddErrorMsg(__FUNCTION__, #expr, NULL); \
+    goto test_cleanup; }
+
+#define TEST_ASSERT_MSG(expr, ...)\
+	if(!(expr)) { g_pCurTestSuite->AddErrorMsg((__FUNCTION__), (#expr), __VA_ARGS__); \
     goto test_cleanup; }
 
 #define __TEST_CLEANUP__ test_cleanup:

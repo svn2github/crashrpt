@@ -130,3 +130,59 @@ cleanup:
 
     return bStatus;
 }
+
+// Returns the list of sections in an INI file.
+int TestUtils::EnumINIFileSections(CString sFileName, std::vector<CString>& aSections)
+{
+	TCHAR buf[4096]=_T("");
+
+	aSections.clear();
+
+	int nLen = GetPrivateProfileString(NULL, NULL, NULL, buf, 4096, sFileName);
+
+	CString sToken;
+	int i;
+	for(i=0;i<nLen;i++)
+	{
+		if(buf[i]==0)
+		{
+			if(sToken.GetLength()!=0)
+				aSections.push_back(sToken);			
+			sToken.Empty();
+		}
+		else
+		{
+			sToken += buf[i];
+		}
+	}
+
+	return aSections.size();
+}
+
+// Returns the list of strings in the specified section in an INI file.
+int TestUtils::EnumINIFileStrings(CString sFileName, CString sSectionName, std::vector<CString>& aStrings)
+{
+	TCHAR buf[4096]=_T("");
+
+	aStrings.clear();
+
+	int nLen = GetPrivateProfileString(sSectionName, NULL, NULL, buf, 4096, sFileName);
+
+	CString sToken;
+	int i;
+	for(i=0;i<nLen;i++)
+	{
+		if(buf[i]==0)
+		{
+			if(sToken.GetLength()!=0)
+				aStrings.push_back(sToken);			
+			sToken.Empty();
+		}
+		else
+		{
+			sToken += buf[i];
+		}
+	}
+
+	return aStrings.size();
+}
