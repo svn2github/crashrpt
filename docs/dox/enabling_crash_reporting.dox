@@ -169,7 +169,7 @@ software vendor to better understand what actions the end user performed before 
 crashed and reproduce the error.
 
 To record the desktop state to a video file and add the file to crash report,
-use the \ref crAddVideo() function.
+use the \ref crAddVideo() function. 
 
 When the function is called, the notification dialog is displayed (see below). 
 If the end user agrees to capture the screen and record the video, he/she
@@ -182,6 +182,14 @@ The <a href="http://en.wikipedia.org/wiki/Ogg">OGG</a> together with
 provided by the open-source OGG Project.
 OGG files can be opened and played in a browser like Google Chrome or Mozilla Firefox or in 
 another video player understanding this format, like ffmpeg.
+
+Although it is up to you (software vendor) to decide when to capture end user's screen, 
+it is not recommended to do that always on your application's start up,
+because screen capture continuously consumes CPU resources and disk space. Instead, it is recommended to implement some
+GUI option (for example, a checkbox in your Application Settings dialog) allowing end user
+to enable this feature when necessary. An alternative way is to let your application automatically decide when
+to enable screen capture feature. For example, you app could enable screen capture if several crashes
+happen with it on end user's machine.
 
 \section adding_a_reg_key Adding a Registry Key
 

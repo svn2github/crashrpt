@@ -26,7 +26,8 @@ WTLDemo application (see the figure below) is designed to test the most probable
 crash situations. The <i>Exception type</i> combo box allows to select an 
 exception type. For more information, see \ref exception_handling.
 The <i>Thread</i> combo box allows to select the thread exception should be 
-raised in. 
+raised in. The <i>Capture Screen</i> button allows to capture end user's 
+desktop and generate a video file that will be included to crash report.
 
 \image html crashrpttest.png "WTLDemo Application Window"
 
