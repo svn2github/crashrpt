@@ -10,7 +10,8 @@ EXPORTS
    crAddScreenshot                @17
    crAddPropertyW                 @18
    crAddPropertyA                 @19
-   crGenerateErrorReport          @20   
+   crGenerateErrorReport          @20 
+   crExceptionFilter              @21  
    crEmulateCrash                 @22
    crGetLastErrorMsgW             @23
    crGetLastErrorMsgA             @24

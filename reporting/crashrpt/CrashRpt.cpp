@@ -665,6 +665,38 @@ int crClearErrorMsg()
     return 0;
 }
 
+CRASHRPTAPI(int) 
+crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
+{
+    crSetErrorMsg(_T("Unspecified error."));
+
+    CCrashHandler *pCrashHandler = 
+        CCrashHandler::GetCurrentProcessCrashHandler();
+
+    if(pCrashHandler==NULL)
+    {    
+        crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
+        return EXCEPTION_CONTINUE_SEARCH; 
+    }
+
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);  
+    ei.exctype = CR_SEH_EXCEPTION;
+    ei.pexcptrs = ep;
+    ei.code = code;
+
+    int res = pCrashHandler->GenerateErrorReport(&ei);
+    if(res!=0)
+    {
+        // If goes here than GenerateErrorReport() failed  
+        return EXCEPTION_CONTINUE_SEARCH;  
+    }  
+
+    crSetErrorMsg(_T("Success."));
+    return EXCEPTION_EXECUTE_HANDLER;  
+}
+
 //-----------------------------------------------------------------------------------------------
 // Below crEmulateCrash() related stuff goes 
 

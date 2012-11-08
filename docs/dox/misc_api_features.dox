@@ -18,6 +18,14 @@ The crGenerateErrorReport() function allows to generate an error report manually
 When you generate an error report manually, the caller process is not terminated and continues its execution.
 To send the error report, CrashRpt creates another process named <i>CrashSender.exe</i>.
 
+\section catching_seh_exceptions Catching Structured Exceptions in a Block of Code
+
+Sometimes it may be required to catch a SEH exception inside of a block of code 
+(using \c __try/__except construction) and generate error report when an exception happens.
+CrashRpt provides a conveniense function \ref crExceptionFilter() for this purpose.
+
+For additional information on SEH exceptions, please refer to \ref exception_handling page.
+
 \section silent_mode Silent (non-GUI) Mode
 
 CrashRpt can function in silent (non-GUI) mode. 

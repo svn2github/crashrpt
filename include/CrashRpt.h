@@ -1457,6 +1457,49 @@ crGenerateErrorReport(
                       __in_opt CR_EXCEPTION_INFO* pExceptionInfo
                       );
 
+/*! \ingroup CrashRptAPI
+*  \brief Can be used as a SEH exception filter.
+*
+*  \return This function returns \c EXCEPTION_EXECUTE_HANDLER if succeeds; otherwise \c EXCEPTION_CONTINUE_SEARCH.
+*
+*  \param[in] code Exception code.
+*  \param[in] ep   Exception pointers.
+*
+*  \remarks
+*
+*     This function can be called instead of a SEH exception filter
+*     inside of __try{}__except(Expression){} construction. The function generates an error report
+*     and returns control to the exception handler block.
+*
+*     The exception code is usually retrieved with \b GetExceptionCode() intrinsic function
+*     and the exception pointers are retrieved with \b GetExceptionInformation() intrinsic 
+*     function.
+*
+*     If an error occurs, this function returns \c EXCEPTION_CONTINUE_SEARCH.
+*     Use crGetLastErrorMsg() to retrieve the error message on fail.
+*
+*     The following example shows how to use crExceptionFilter().
+*    
+*     \code
+*     int* p = NULL;   // pointer to NULL
+*     __try
+*     {
+*        *p = 13; // causes an access violation exception;
+*     }
+*     __except(crExceptionFilter(GetExceptionCode(), GetExceptionInformation()))
+*     {   
+*       // Terminate program
+*       ExitProcess(1);
+*     }
+*
+*     \endcode 
+*/
+
+CRASHRPTAPI(int)
+crExceptionFilter(
+                  unsigned int code, 
+                  __in_opt struct _EXCEPTION_POINTERS* ep);
+
 
 // Flags used by crEmulateCrash() function
 #define CR_NONCONTINUABLE_EXCEPTION  32  //!< Non continuable sofware exception. 
