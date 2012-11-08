@@ -1,5 +1,12 @@
 ======= Change History ========
 
+--- Ver. 1.4.1 ---
+
+- Fixed: Update italian language file (issue 174)
+- Fixed again: HTTPS certificate problem (issue 151)
+
+
+
 --- Ver. 1.4.0 ---
 
 - New: CrashRpt is now able to capture end user's desktop and record what happened 

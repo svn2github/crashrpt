@@ -159,8 +159,11 @@ BOOL CHttpRequestSender::InternalSend()
 	DWORD dwBuffLen = sizeof(extraSSLDwFlags);
 	InternetQueryOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
 	(LPVOID)&extraSSLDwFlags, &dwBuffLen);
-	// We have to specifically ignore these 2 errors for MVS
-	extraSSLDwFlags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_CERT_CN_INVALID;
+	// We have to specifically ignore these 2 errors for MVS	
+	extraSSLDwFlags |= SECURITY_FLAG_IGNORE_REVOCATION |  // Ignores certificate revocation problems.
+		               SECURITY_FLAG_IGNORE_WRONG_USAGE | // Ignores incorrect usage problems.
+		               SECURITY_FLAG_IGNORE_CERT_CN_INVALID | // Ignores the ERROR_INTERNET_SEC_CERT_CN_INVALID error message.
+					   SECURITY_FLAG_IGNORE_CERT_DATE_INVALID; // Ignores the ERROR_INTERNET_SEC_CERT_DATE_INVALID error message.
 	InternetSetOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
                         &extraSSLDwFlags, sizeof (extraSSLDwFlags) );
 
