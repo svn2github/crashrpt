@@ -256,7 +256,7 @@ BOOL CErrorReportInfo::GetPropByIndex(int nItem, CString& sName, CString& sVal)
 	sName.Empty();
 	sVal.Empty();
 
-	if(nItem<0 || nItem>=(int)m_FileItems.size())
+	if(nItem<0 || nItem>=(int)m_Props.size())
 		return FALSE; // No such item
 
 	// Look for n-th item

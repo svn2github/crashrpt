@@ -8,7 +8,7 @@
 
 - Fixed: Update italian language file (issue 174)
 - Fixed again: HTTPS certificate problem (issue 151)
-
+- Fixed: Custom property cleared by adding other property (issue 176)
 
 
 --- Ver. 1.4.0 ---
