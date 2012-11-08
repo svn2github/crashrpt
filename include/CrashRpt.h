@@ -383,7 +383,6 @@ typedef CR_CRASH_CALLBACK_INFOA CR_CRASH_CALLBACK_INFO;
 typedef int (CALLBACK *PFNCRASHCALLBACKW) (CR_CRASH_CALLBACK_INFOW* pInfo);
 
 /*! \ingroup CrashRptAPI
-*  \brief Client crash callback function prototype (multi-byte version).
 *  \copydoc PFNCRASHCALLBACKW()
 */
 typedef int (CALLBACK *PFNCRASHCALLBACKA) (CR_CRASH_CALLBACK_INFOA* pInfo);
@@ -732,7 +731,6 @@ typedef CR_INSTALL_INFOW* PCR_INSTALL_INFOW;
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOA
-*  \brief This structure defines the general information used by crInstallA() function.
 *  \copydoc CR_INSTALL_INFOW
 */
 
