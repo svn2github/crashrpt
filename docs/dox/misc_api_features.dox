@@ -4,6 +4,12 @@
 
 This page covers miscellaneous API features not mentioned in previous two pages. 
 
+\section handling_errors Handling Errors in CrashRpt Functions
+
+Typically, CrashRpt API functions return zero value if succeeded and non-zero if failed 
+(refer to certain function's documentation for the meaning of function's return value). To get
+text error message of the last called function, use the crGetLastErrorMsg() function.
+
 \section manual_report_generation Generating Error Report Manually
 
 Typically CrashRpt generates error reports automatically, when a critical error

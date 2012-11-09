@@ -20,7 +20,7 @@ description. He can do this by clicking the
 The user-entered E-mail address may be used later by software support staff to
 contact the user and ask for additional information about the problem.
 
-Once the user is satisfied, he/she may close the details dialog and click the 'Send report' 
+Once the user is satisfied, he/she may click the 'Send report' 
 button on the Error Report dialog. For additional information about sending error reports,
 please refer to \ref sending_error_reports page.
 

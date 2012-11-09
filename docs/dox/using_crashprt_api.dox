@@ -11,7 +11,7 @@ with older versions of CrashRpt, but may be removed in the future.
 It is recommended that you use the newer functions instead. 
 Here is the complete list of \ref DeprecatedAPI.
 
-\section common_conventions Common Conventions
+\section common_conventions Common Naming Conventions
 
 All CrashRpt functions have \c cr prefix, CrashRpt structures have \c CR prefix 
 and CrashRpt classes have \c Cr prefix.
@@ -22,9 +22,6 @@ function has two versions of function name: crInstallA() and crInstallW(). Typic
 character set independent mapping of function name, for example use crInstall() that 
 expands into crInstallW() if you use wide character set or into crInstallA() if you use multibyte 
 character set.
-
-Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
-text error message of the last called function, use the crGetLastErrorMsg() function.
 
 \section api_by_topic CrashRpt API by Topic
 

@@ -4,8 +4,13 @@
 
 This section covers the following topics:
 
-  - \subpage exception_handling
-  - \subpage writing_robust_code
-  - \subpage automated_tests    
+  - \subpage exception_handling page describes what is an exception and how exceptions are handled 
+    in applications built in Visual C++ IDE.
+
+  - \subpage writing_robust_code page contains some tips on how to write the C++ code
+    more tolerant to critical errors.
+
+  - \subpage automated_tests page conatains information on unit tests used by
+    CrashRpt developers for ensuring library's functionality works correctly.   
 
 */
