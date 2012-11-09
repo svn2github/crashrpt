@@ -11,6 +11,8 @@ with older versions of CrashRpt, but may be removed in the future.
 It is recommended that you use the newer functions instead. 
 Here is the complete list of \ref DeprecatedAPI.
 
+\section common_conventions Common Conventions
+
 All CrashRpt functions have \c cr prefix, CrashRpt structures have \c CR prefix 
 and CrashRpt classes have \c Cr prefix.
 
