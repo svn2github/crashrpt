@@ -60,7 +60,9 @@ you automatically.
 \section wrappers Convenience Wrappers
 
 You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
-handlers in your program. Use CrAutoInstallHelper wrapper class to install exception handlers in your
+handlers in your program. 
+
+Use CrAutoInstallHelper wrapper class to install exception handlers in your
 \b main() function. In a multi-threaded program, use CrThreadAutoInstallHelper wrapper class to 
 install exception handlers in each worker thread.
 	
@@ -195,6 +197,12 @@ happen with it on end user's machine.
 
 Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
 analysis. You can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
+
+\section handling_errors Handling Errors in CrashRpt Functions
+
+Typically, CrashRpt API functions return zero value if succeeded and non-zero if failed 
+(refer to certain function's documentation for the meaning of function's return value). To get
+text error message of the last called function, use the crGetLastErrorMsg() function.
 
 \section specifying_privacy_policy Specifying the Privacy Policy File
 
