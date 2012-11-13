@@ -217,6 +217,7 @@
 #define ID_VIEW_TOOLBAR                 0xE800
 #define ID_VIEW_STATUS_BAR              0xE801
 #define ID_VIEW_REFRESH                 0xE803
+#define ID_VIEW_RIBBON                  0xE804 // Ribbon
 
 ///////////////////////////////////////////////////////////////////////////////
 // Standard control IDs

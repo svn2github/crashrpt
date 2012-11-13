@@ -14,10 +14,6 @@
 
 #pragma once
 
-#ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
-#endif
-
 #ifdef _WIN32_WCE
 	#error atltheme.h is not supported on Windows CE
 #endif

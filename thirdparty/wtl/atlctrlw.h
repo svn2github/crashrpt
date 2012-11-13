@@ -14,10 +14,6 @@
 
 #pragma once
 
-#ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
-#endif
-
 #ifdef _WIN32_WCE
 	#error atlctrlw.h is not supported on Windows CE
 #endif
@@ -539,7 +535,7 @@ public:
 
 			T* pT = static_cast<T*>(this);
 			pT;   // avoid level 4 warning
-			TCHAR szString[pT->_nMaxMenuItemTextLength];
+			TCHAR szString[pT->_nMaxMenuItemTextLength] = { 0 };
 			for(int i = 0; i < nItems; i++)
 			{
 				CMenuItemInfo mii;
@@ -1291,7 +1287,7 @@ public:
 
 			T* pT = static_cast<T*>(this);
 			pT;   // avoid level 4 warning
-			TCHAR szString[pT->_nMaxMenuItemTextLength];
+			TCHAR szString[pT->_nMaxMenuItemTextLength] = { 0 };
 			BOOL bRet = FALSE;
 			for(int i = 0; i < menuPopup.GetMenuItemCount(); i++)
 			{
@@ -1473,7 +1469,7 @@ public:
 			int nCount = ::GetMenuItemCount(menu);
 			int nRetCode = MNC_EXECUTE;
 			BOOL bRet = FALSE;
-			TCHAR szString[pT->_nMaxMenuItemTextLength];
+			TCHAR szString[pT->_nMaxMenuItemTextLength] = { 0 };
 			WORD wMnem = 0;
 			bool bFound = false;
 			for(int i = 0; i < nCount; i++)
@@ -3147,16 +3143,16 @@ public:
 	void _AddVistaBitmapsFromImageList(int nStartIndex, int nCount)
 	{
 		// Create display compatible memory DC
-		HDC hDC = ::GetDC(NULL);
+		CClientDC dc(NULL);
 		CDC dcMem;
-		dcMem.CreateCompatibleDC(hDC);
+		dcMem.CreateCompatibleDC(dc);
 		HBITMAP hBitmapSave = dcMem.GetCurrentBitmap();
 
 		T* pT = static_cast<T*>(this);
 		// Create bitmaps for all menu items
 		for(int i = 0; i < nCount; i++)
 		{
-			HBITMAP hBitmap = pT->_CreateVistaBitmapHelper(nStartIndex + i, hDC, dcMem);
+			HBITMAP hBitmap = pT->_CreateVistaBitmapHelper(nStartIndex + i, dc, dcMem);
 			dcMem.SelectBitmap(hBitmapSave);
 			m_arrVistaBitmap.Add(hBitmap);
 		}
@@ -3165,14 +3161,14 @@ public:
 	void _AddVistaBitmapFromImageList(int nIndex)
 	{
 		// Create display compatible memory DC
-		HDC hDC = ::GetDC(NULL);
+		CClientDC dc(NULL);
 		CDC dcMem;
-		dcMem.CreateCompatibleDC(hDC);
+		dcMem.CreateCompatibleDC(dc);
 		HBITMAP hBitmapSave = dcMem.GetCurrentBitmap();
 
 		// Create bitmap for menu item
 		T* pT = static_cast<T*>(this);
-		HBITMAP hBitmap = pT->_CreateVistaBitmapHelper(nIndex, hDC, dcMem);
+		HBITMAP hBitmap = pT->_CreateVistaBitmapHelper(nIndex, dc, dcMem);
 
 		// Select saved bitmap back and add bitmap to the array
 		dcMem.SelectBitmap(hBitmapSave);
@@ -3186,14 +3182,14 @@ public:
 			::DeleteObject(m_arrVistaBitmap[nIndex]);
 
 		// Create display compatible memory DC
-		HDC hDC = ::GetDC(NULL);
+		CClientDC dc(NULL);
 		CDC dcMem;
-		dcMem.CreateCompatibleDC(hDC);
+		dcMem.CreateCompatibleDC(dc);
 		HBITMAP hBitmapSave = dcMem.GetCurrentBitmap();
 
 		// Create bitmap for menu item
 		T* pT = static_cast<T*>(this);
-		HBITMAP hBitmap = pT->_CreateVistaBitmapHelper(nIndex, hDC, dcMem);
+		HBITMAP hBitmap = pT->_CreateVistaBitmapHelper(nIndex, dc, dcMem);
 
 		// Select saved bitmap back and replace bitmap in the array
 		dcMem.SelectBitmap(hBitmapSave);

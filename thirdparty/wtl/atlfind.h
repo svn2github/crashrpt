@@ -14,10 +14,6 @@
 
 #pragma once
 
-#ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
-#endif
-
 #ifdef _WIN32_WCE
 	#error atlfind.h is not supported on Windows CE
 #endif
@@ -830,8 +826,7 @@ public:
 		{
 			T* pThisNoConst = const_cast<T*>(pT);
 
-			OSVERSIONINFO ovi = { 0 };
-			ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+			OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
 			::GetVersionEx(&ovi);
 
 			bool bWin9x = (ovi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
@@ -875,8 +870,7 @@ public:
 						LPFN_DllGetVersion fnDllGetVersion = (LPFN_DllGetVersion)::GetProcAddress(hModule, "DllGetVersion");
 						if(fnDllGetVersion != NULL)
 						{
-							DLLVERSIONINFO_private version = { 0 };
-							version.cbSize = sizeof(DLLVERSIONINFO_private);
+							DLLVERSIONINFO_private version = { sizeof(DLLVERSIONINFO_private) };
 							if(SUCCEEDED(fnDllGetVersion(&version)))
 							{
 								if(version.dwMajorVersion >= 6)
@@ -897,7 +891,7 @@ public:
 			}
 		}
 
-		return (pT->m_bShadowBufferNeeded == TRUE);
+		return (pT->m_bShadowBufferNeeded != FALSE);
 	}
 };
 

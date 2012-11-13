@@ -14,10 +14,6 @@
 
 #pragma once
 
-#ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
-#endif
-
 #ifndef __ATLAPP_H__
 	#error atlscrl.h requires atlapp.h to be included first
 #endif
@@ -32,10 +28,6 @@
 
 #ifndef GET_WHEEL_DELTA_WPARAM
   #define GET_WHEEL_DELTA_WPARAM(wParam)  ((short)HIWORD(wParam))
-#endif
-
-#ifndef WM_MOUSEHWHEEL
-  #define WM_MOUSEHWHEEL                  0x020E
 #endif
 
 
