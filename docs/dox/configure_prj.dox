@@ -14,7 +14,7 @@ If you use Visual Studio 2005 or 2008, open menu <i>Tools->
 Options</i>. Then in appeared dialog, select <i>Projects and Solutions->VC++ Directories</i>.
 
 If you use Visual Studio 2010 or 2012, open the Property Manager window, multi-select 
-all projects in CrashRpt solution and right click the selection. In the appeared 
+all projects in your solution and right click the selection. In the appeared 
 dialog, open <i>Configuration Properties->VC++ Directories</i>. 
 
 Finally,
