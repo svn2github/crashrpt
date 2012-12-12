@@ -175,6 +175,7 @@
       <Optimization>MinSpace</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>CrashRptProbe1400.lib;CrashRpt1400.lib;psapi.lib;libpng.lib;zlib.lib;minizip.lib;wininet.lib;dnsapi.lib;WS2_32.lib;Rpcrt4.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -255,6 +256,7 @@
     <ClCompile Include="CrashRptProbeAPITests.cpp" />
     <ClCompile Include="CrproberTests.cpp" />
     <ClCompile Include="DeliveryTests.cpp" />
+    <ClCompile Include="ExceptionHandlerTests.cpp" />
     <ClCompile Include="LangFileTests.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

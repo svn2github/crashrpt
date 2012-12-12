@@ -762,8 +762,8 @@ void sigfpe_test()
 
     // Divide by zero
 
-    float a = 1;
-    float b = 0;
+    float a = 1.0f;
+    float b = 0.0f;
     float c = a/b;
     c; 
 }

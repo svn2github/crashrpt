@@ -6,6 +6,8 @@
 - New: Added back the crExceptionFilter() function removed previously as deprecated. 
        It seems that some users require that function. (issue 175).
 
+- New: Extended unit tests (added ExceptionHandlerTests) (issue 114)
+
 - Fixed: Update italian language file (issue 174)
 - Fixed again: HTTPS certificate problem (issue 151)
 - Fixed: Custom property cleared by adding other property (issue 176)

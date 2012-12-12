@@ -156,7 +156,7 @@ int TestUtils::EnumINIFileSections(CString sFileName, std::vector<CString>& aSec
 		}
 	}
 
-	return aSections.size();
+	return (int)aSections.size();
 }
 
 // Returns the list of strings in the specified section in an INI file.
@@ -184,5 +184,5 @@ int TestUtils::EnumINIFileStrings(CString sFileName, CString sSectionName, std::
 		}
 	}
 
-	return aStrings.size();
+	return (int)aStrings.size();
 }

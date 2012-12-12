@@ -23,6 +23,12 @@ F7 to start building process.
 
 When build finishes, CrashRpt executable files can be found in \b bin directory,
 and library files can be found inside of \b lib directory.
+The following files are the most important:
+  - \b bin\CrashRptXXXX.dll - this is the CrashRpt crash handler module;
+  - \b bin\CrashSenderXXXX.exe - this is the crash report sender module;
+  - \b lib\CrashRptXXXX.lib - this the CrashRpt import library.
+
+Above, \a XXXX placeholder should be the version number of CrashRpt.
 
 \section releaselib Debug, Release and Release LIB Configurations
 
@@ -31,7 +37,8 @@ the build produces optimized binary files that can be used in production environ
 
 The <i>Debug</i> configuration is used for CrashRpt debugging and should not be used for production
 mode. In this configuration, the build generates d-postfixed files, for example, <i>CrashRptd.dll</i>,
-<i>CrashSenderd.exe</i> and so on.
+<i>CrashSenderd.exe</i> and so on (here and in some other places of the documentation, 
+we ommit the XXXX version suffix in the file names, but it is assumed this suffix presents, too).
 
 The <i>Release LIB</i> configuration is an addition to the standard <i>Debug</i> and <i>Release</i> build 
 configurations. Typically, you should compile CrashRpt in <i>Release</i> configuration, but  
