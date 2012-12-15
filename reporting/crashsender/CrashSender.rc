@@ -37,6 +37,7 @@ BEGIN
         MENUITEM "Hex",                         ID_PREVIEW_HEX
         MENUITEM "Text",                        ID_PREVIEW_TEXT
         MENUITEM "Image",                       ID_PREVIEW_IMAGE
+        MENUITEM "Video",                       ID_PREVIEW_VIDEO
         MENUITEM SEPARATOR
         POPUP "Encoding"
         BEGIN

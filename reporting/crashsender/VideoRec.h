@@ -95,6 +95,5 @@ private:
 	LPVOID m_pFrameBits;  // Frame buffer.
 	LPBITMAPINFO m_pDIB;  // Bitmap info.
 	HDC m_hDC;            // Device context.
-	HBITMAP m_hOldBitmap; //
-	//vpx_image_t *m_pImage;
+	HBITMAP m_hOldBitmap; //	
 };

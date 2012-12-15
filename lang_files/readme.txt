@@ -6,6 +6,11 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.4.1 ---
+
+ * In [DetailDlg]
+  - PreviewVideo - new
+
 --- v.1.4.0 ---
 
  * In [DetailDlg]
