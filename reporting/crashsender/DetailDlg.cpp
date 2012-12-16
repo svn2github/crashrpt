@@ -305,9 +305,9 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
     }
     else
     {
-        CMenuHandle TextEncMenu = submenu.GetSubMenu(5);
+        CMenuHandle TextEncMenu = submenu.GetSubMenu(6);
         mii.dwTypeData = sEncoding.GetBuffer(0);
-        submenu.SetMenuItemInfo(5, TRUE, &mii);
+        submenu.SetMenuItemInfo(6, TRUE, &mii);
 
 
         UINT uItem2 = ID_ENCODING_AUTO;
