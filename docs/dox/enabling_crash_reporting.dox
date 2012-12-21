@@ -2,7 +2,7 @@
 
 \page enabling_crash_reporting Enabling Crash Reporting and Adding Files to Crash Report
 
-This pages describes how to initialize CrashRpt and how to add various files to crash report.
+This page describes how to initialize CrashRpt and how to add various files to crash report.
 
 \section enabling Enabling Crash Reporting
 
