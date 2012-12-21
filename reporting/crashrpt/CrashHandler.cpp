@@ -1210,6 +1210,15 @@ int CCrashHandler::GenerateErrorReport(
 		pExceptionInfo->pexcptrs = &ExceptionPointers;
     }
 
+	// If error report is being generated manually, disable app restart.
+    if(pExceptionInfo->bManual)
+	{
+		// Prepare for the next crash
+		PerCrashInit();
+
+        m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
+	}
+
 	// Set "client app crashed" flag
 	m_pCrashDesc->m_bClientAppCrashed = TRUE;
 	m_pCrashDesc->m_bAddVideo = FALSE;
@@ -1234,16 +1243,7 @@ int CCrashHandler::GenerateErrorReport(
         m_pCrashDesc->m_dwInvParamFileOffs = PackString(pExceptionInfo->file);
         m_pCrashDesc->m_uInvParamLine = pExceptionInfo->line;
     }
-
-    // If error report is being generated manually, disable app restart.
-    if(pExceptionInfo->bManual)
-	{
-		// Prepare for the next crash
-		PerCrashInit();
-
-        m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
-	}
-
+	    
     // Let client know about the crash via the crash callback function. 
     if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
     {
@@ -1419,7 +1419,7 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
 #ifdef _X86_
 
     __asm {
-        mov dword ptr [ContextRecord.Eax], eax
+            mov dword ptr [ContextRecord.Eax], eax
             mov dword ptr [ContextRecord.Ecx], ecx
             mov dword ptr [ContextRecord.Edx], edx
             mov dword ptr [ContextRecord.Ebx], ebx

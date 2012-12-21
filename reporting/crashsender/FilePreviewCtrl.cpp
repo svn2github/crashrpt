@@ -1522,8 +1522,7 @@ void CFilePreviewCtrl::LoadVideo()
 {
 	int nFrame = 0;
 	CSize FrameSize;
-	int nFrameInterval;
-	HBITMAP hFrameBitmap;
+	int nFrameInterval;	
     if(m_video.Load(m_sFileName))
 	{		
 		while(m_video.DecodeFrame(nFrame==0?TRUE:FALSE, FrameSize, nFrameInterval))

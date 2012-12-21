@@ -399,7 +399,7 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
 	// This method unpacks crash information from a shared memory (file-mapping)
 	// and inits the internal variables.
 
-    strconv_t strconv;
+	strconv_t strconv;
     CErrorReportInfo eri;
 
 	// Init shared memory
