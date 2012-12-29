@@ -2,63 +2,87 @@
 
 \page preparing_to_software_release Preparing to Software Release
 
+This page describes the steps you should perform to properly read error reports sent 
+by end users of your application and to recover call stacks from minidump files correctly.
 
-\section savefiles Saving the Debugging Information Locally Before Software Release
+Before the release, it is recommended to check if exceptions are properly 
+intercepted in the main thread and in all worker threads of your application
+(use the crEmulateCrash() function).
 
-When you are ready for a software release, the following steps must be
-performed to be able to properly read error reports sent by end users of your application.
+When you are ready to release your software, you should save its binary files, debugging
+information (symbols) and source code. When a crash report comes in, you use the release build, 
+source code and symbols you saved, along with the minidump included in the 
+crash report, to debug the crash.                
+
+\section savefiles Saving Binaries, Debugging Information and Source Code
   
-- Create a directory, for example name it 'CrashRptSaved'.
-- In that directory create a subdirectory for your software release,
-  for example 'MyApp v.1.3.5'.
-- Copy all binary files (*.EXE, *.DLL) from your project output. 
-- Copy all debugging symbol files (*.PDB) from your project output. 
-- Save the source code that you used for compiling the application. If you use a
-  version control system (e.g., SVN), mark the current revision of the code with tag 
-  to be able to restore its state later.
+First, you need to save your binary files (EXE, DLL) and corresponding 
+debugging symbols (PDB files). To do this, create a directory by the name 
+of your project. For example, if you develop the project 'MyApp', name
+your directory 'MyApp'. In that directory create a subdirectory for your 
+new software release, for example '1.0.0'. 
+
+Then copy all binary files (*.EXE, *.DLL) from your project output and 
+all debugging symbol files (*.PDB) from your project output to the directory
+you have just created. 
+
+\note It is also recommended that you copy the CrashRpt
+binaries and debugging symbols, too. This helps to ensure you will
+be able to correctly recover the call stacks from your minidump files.
+
+Finally, you should have the following directory structure (in the example below,
+XXXX is the placeholder for the CrashRpt version):
+<pre>
+  MyApp\
+      1.0.0\
+          MyApp.exe
+          MyApp.pdb
+          ...
+          CrashRptXXXX.dll
+          CrashRptXXXX.pdb
+</pre>
+
+It is also recommended that you save the source code that you used for 
+compiling the application. If you use a version control system (e.g., SVN), 
+mark the current revision of the code with tag to be able to restore its 
+state later.
 
 These steps should be performed for exactly the same software build that you plan 
-to release. If you rebuild the project 
-after files are copied, you must copy the files again.
+to release. If you rebuild (or at least partially rebuild) the project after the 
+files have been copied, you must copy the files (and mark the source code with a 
+tag) again.
 
-When a crash report comes in, you use the release build, source code and symbols you copied, 
-along with the minidump included in the crash report, to debug the crash.
+\note Files that you have copied should be stored during the software 
+life time. PDB files should NOT be included in the software distribution and 
+should NOT be sent to end users. You should never ship PDB files as they will 
+not only take up more space, but they will also make reverse engineering 
+your code a trivial exercise.                                                                     
 
-Before release is made, it is recommended that you check if exceptions are properly 
-intercepted (use the crEmulateCrash() function),
-that error reports are properly received by your support team and that you can properly read
-received error reports.
+\section rlsfiles Including CrashRpt Files in Your Software Distribution
 
-\note Files copied to CrashRptSaved directory should be stored locally during the software 
-life time. These saved files should NOT be included in the software release package and should NOT be sent to 
-end users. You should never ship debug builds or debug symbols (PDB files) as they will 
-not only take up more 
-space on your CD/download/client's machine, but they will also make reverse engineering 
-your code a trivial exercise. 
-
-\section rlsfiles Distributing CrashRpt Files with Your Software Release Distribution
-
-You must always distribute the following files with your software release distribution. It is recommended 
-that you place these files to the directory where your application executable file is located.
+You must always distribute the following files with your software: 
                                                                               
-- \b CrashRpt.dll 
-- \b CrashSender.exe
+- \b CrashRptXXXX.dll 
+- \b CrashSenderXXXX.exe
 - \b dbghelp.dll
 
-The \b CrashRpt.dll and \b CrashSender.exe are core CrashRpt modules. \b dbghelp.dll (Microsoft Debug Help Library) 
-is a dependent module.
+The \b CrashRptXXXX.dll and \b CrashSenderXXXX.exe are core CrashRpt modules. \b dbghelp.dll 
+(Microsoft Debug Help Library) is a dependent module.
+
+It is recommended that you place these files to the directory where your application 
+executable file is located.
 
 It is also required that you copy a language INI file \b crashrpt_lang.ini to the folder 
-where \b CrashSender.exe is located. 
-
-You can distribute several INI files with your software. On install, rename an appropriate 
-file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
+where \b CrashSenderXXXX.exe is located. You can distribute several language INI files with 
+your software. On install, rename an appropriate file to \b crashrpt_lang.ini and copy it to 
+the folder where your \b CrashSenderXXXX.exe is located. For additional information about language
+files, please refer to \ref internationalization_support page.
 
 \note It is recommended that you distribute \b dbghelp.dll with your software, because 
 some end-user machines may not have \b dbghelp.dll installed or \b dbghelp.dll library's version may 
 be different on different user machines. \b dbghelp.dll is shipped with Windows XP and later, 
-so most user machines have this library installed. If your target OS is Windows XP and later, 
-you may ignore distribution of \b dbghelp.dll at your own risk.                  
+so most user machines have this library installed. So, you may ignore distribution of 
+\b dbghelp.dll at your own risk.                  
 
 <i>Further reading:</i> \ref using_error_reports.
 

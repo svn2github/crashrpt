@@ -60,7 +60,7 @@ void ExceptionHandlerTests::Test_CatchException()
 		LPCTSTR szExceptionTypeInWorkerThread; // Expected exception type read from crash report (for worker thread)
 	};
 
-	const int PARAM_COUNT = 11;
+	const int PARAM_COUNT = 12;
 	_exception_param aParams[PARAM_COUNT] = 
 	{		
 		{_T("/exception /seh"), _T("11 SIGSEGV signal"), _T("0 SEH exception")},
@@ -71,7 +71,7 @@ void ExceptionHandlerTests::Test_CatchException()
 		//{_T("/exception /security"), _T("5 security error"), _T("5 security error")},
 		{_T("/exception /invparam"), _T("6 invalid parameter"), _T("6 invalid parameter")},
 		{_T("/exception /sigabrt"), _T("7 SIGABRT signal"), _T("7 SIGABRT signal")},		
-		//{_T("/exception /sigfpe"), _T("8 SIGFPE signal"), _T("8 SIGFPE signal")},
+		{_T("/exception /sigfpe"), _T("8 SIGFPE signal"), _T("8 SIGFPE signal")},
 		{_T("/exception /sigill"), _T("9 SIGILL signal"), _T("9 SIGILL signal")},
 		{_T("/exception /sigint"), _T("10 SIGINT signal"), _T("10 SIGINT signal")},
 		{_T("/exception /sigsegv"), _T("11 SIGSEGV signal"), _T("11 SIGSEGV signal")},
