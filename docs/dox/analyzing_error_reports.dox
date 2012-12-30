@@ -14,14 +14,14 @@ the MD5 hash is attached to the email.
 Count of received crash reports may depend on robustness of your software to various 
 exceptional situations and on popularity of your software. So it's nothing unusual
 if you receive hundreds of error reports a day. If there are many incoming error reports,
-you can monitor and analyse them for the first few days after release, and prepare a hot fix 
+you can monitor and analyse them for some period of time after release, and prepare a hot fix 
 release. 
 
 The purpose of the error report is to help you determine the reason of the problem and 
-try to fix it. The keyword is 'try', because in most cases you can't fix crash reports as 
+try to fix it. The keyword is 'try', because in most cases you can't fix crashes as 
 you usually do with normal bugs. You usually can't reproduce the error on your machine,
-so you can't guarantee it is fixed. So the only way to check is to make fixes in parts of code 
-that could cause the crash most probably and to release a new version of software. 
+so you can't guarantee it is fixed. Typically, you make fixes in parts of code that 
+could cause the crash most probably and release a new version of your software. 
 For some tips on doing such code modifications, see \ref writing_robust_code.
 
 The normal scenario is that your software becomes more and more stable with each evolutional release and
@@ -32,7 +32,9 @@ less and less error reports are received.
 A crash report is a ZIP file containing several files, such as 
  - crash minidump (<i>crashdump.dmp</i>);
  - crash description XML (<i>crashrpt.xml</i>);
- - and optional application-specific files, for example, log files.
+ - optional desktop screenshot file(s);
+ - optional screen capture video file;
+ - and other optional application-specific files, for example, log files.
 
 For more information about using crash description XML and crash minidump, 
 see \ref using_crash_descriptor and \ref using_minidump.

@@ -81,8 +81,8 @@ main thread and in all worker threads of your
 user-mode program: SEH exceptions, C run-time (CRT) errors and signals.
 Among error types CrashRpt can handle, there are: NULL pointer assignment, 
 access violation, infinite recursion, stack overflow, memory depletion and so on.
-For advanced information on available exception handling techniques provided by 
-Visual C++, you may refer to \ref exception_handling page.
+For advanced information on available exception handling techniques used by CrashRpt, 
+you may refer to \ref exception_handling page.
 
 <b>Automatically Collects Information about a Crash. </b>
 
@@ -95,22 +95,27 @@ your program after several crashes.
 Users who decide to report the problem might not have technical knowledge, 
 so it is difficult to determine the reason of the problem based on their 
 incomplete instructions. This makes debugging remote crashes 
-almost impossible, except in the simplest situations. CrashRpt does all technical
-information collection work automatically. When information is collected, CrashRpt 
-sends error report over the Internet to software vendor. 
+almost impossible, except in the simplest situations. 
 
-CrashRpt generates error report including crash minidump, extensible crash description XML, 
+CrashRpt does all technical information collection work automatically. CrashRpt uses Microsoft 
+Debug Help library for minidump creation and postprocessing, supporting all variety of processor architectures.
+CrashRpt generates error reports including crash minidump, extensible crash description XML, 
 application-defined files, desktop screenshots and screen video capture. For additional information on
 error reports, please refer to \ref error_report page.
 
+When information has been collected, CrashRpt 
+sends error report over the Internet to software vendor. 
+ 
 <b>Friendly User Interface.</b>
 
 CrashRpt provides UI allowing user to review the crash report and it can display its 
 UI using different languages, which makes it even more suitable for multi-lingual 
-applications. For software vendors who care about user's privacy, CrashRpt supports 
-privacy policy definition. CrashRpt user interface can be customized to fit software 
+applications. CrashRpt user interface can be customized to fit software 
 vendor's needs. For examples of CrashRpt user interface, please refer to 
 <a href="http://code.google.com/p/crashrpt/wiki/MoreScreenshots">More Screenshots</a> page.
+
+For software vendors who care about user's privacy, CrashRpt supports 
+privacy policy definition.
 
 For services (also called NT services, long-living noninteractive programs), 
 CrashRpt provides the silent (non-GUI) mode, in which crash reports are generated 
@@ -118,7 +123,7 @@ and sent without any user interaction.
 
 <b>Provides Several Methods of Error Report Delivery.</b>
 
-After user provides his consent, CrashRpt sends the report in background over the Internet.
+After user has provided his consent, CrashRpt sends the report in background over the Internet.
 CrashRpt can send error reports using HTTP/HTTPS or as an E-mail message. 
 
 HTTP/HTTPS delivery method is suitable for users having a web-server. Secure HTTPS connection
@@ -143,9 +148,6 @@ related to the same problem, so opening them doesn't tell anything new.
 
 That's why it is important to use a special tool helping to automate processing 
 of arriving error reports. CrashRpt provides such a tool. 
-
-CrashRpt uses Microsoft Debug Help library for minidump creation and postprocessing, 
-supporting all variety of processor architectures.
 
 For additional information on automating crash report processing, please 
 refer to \ref automating_crash_report_processing page.

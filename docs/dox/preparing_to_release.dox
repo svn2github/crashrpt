@@ -49,18 +49,18 @@ state later.
 
 These steps should be performed for exactly the same software build that you plan 
 to release. If you rebuild (or at least partially rebuild) the project after the 
-files have been copied, you must copy the files (and mark the source code with a 
-tag) again.
+files have been copied, you must copy the files again.
 
 \note Files that you have copied should be stored during the software 
 life time. PDB files should NOT be included in the software distribution and 
 should NOT be sent to end users. You should never ship PDB files as they will 
 not only take up more space, but they will also make reverse engineering 
-your code a trivial exercise.                                                                     
+your code much easier.          
 
 \section rlsfiles Including CrashRpt Files in Your Software Distribution
 
-You must always distribute the following files with your software: 
+You must distribute the following files with your software (XXXX is the 
+placeholder for the CrashRpt version): 
                                                                               
 - \b CrashRptXXXX.dll 
 - \b CrashSenderXXXX.exe
@@ -78,11 +78,10 @@ your software. On install, rename an appropriate file to \b crashrpt_lang.ini an
 the folder where your \b CrashSenderXXXX.exe is located. For additional information about language
 files, please refer to \ref internationalization_support page.
 
-\note It is recommended that you distribute \b dbghelp.dll with your software, because 
-some end-user machines may not have \b dbghelp.dll installed or \b dbghelp.dll library's version may 
-be different on different user machines. \b dbghelp.dll is shipped with Windows XP and later, 
-so most user machines have this library installed. So, you may ignore distribution of 
-\b dbghelp.dll at your own risk.                  
+\note \b dbghelp.dll library is required to generate minidump files. \b dbghelp.dll is included in
+Windows Windows XP installation and in later versions of Windows, and most user machines have this 
+library installed. This means it is possible (but not recommended) to ignore distribution of \b dbghelp.dll, 
+if you strongly wish.                  
 
 <i>Further reading:</i> \ref using_error_reports.
 
