@@ -186,3 +186,44 @@ int TestUtils::EnumINIFileStrings(CString sFileName, CString sSectionName, std::
 
 	return (int)aStrings.size();
 }
+
+int TestUtils::RunProgram(CString sExeName, CString sParams)
+{
+	BOOL bExecute = false;
+	SHELLEXECUTEINFO sei;
+    memset(&sei, 0, sizeof(SHELLEXECUTEINFO));
+    DWORD dwExitCode = 1;
+
+	sei.cbSize = sizeof(SHELLEXECUTEINFO);
+    sei.fMask = SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_NO_UI;
+    sei.lpVerb = _T("open");
+    sei.lpFile = sExeName;
+    sei.lpParameters = sParams;
+    
+    bExecute = ShellExecuteEx(&sei);
+    if(!bExecute)
+		return 255;
+
+	// Wait until process exits
+    WaitForSingleObject(sei.hProcess, 10000);
+
+    // Check crprober.exe process exit code - it should equal to 0
+    GetExitCodeProcess(sei.hProcess, &dwExitCode);
+
+	return (int)dwExitCode;
+}
+
+std::wstring TestUtils::exec(LPCTSTR szCmd) 
+{
+    FILE* pipe = _tpopen(szCmd, _T("r"));
+    if (!pipe) return L"ERROR";
+    wchar_t buffer[4096];
+    std::wstring result = L"";
+    while(!feof(pipe)) 
+	{
+    	if(fgetws(buffer, 4096, pipe) != NULL)
+    		result += buffer;
+    }
+    _pclose(pipe);
+    return result;
+}

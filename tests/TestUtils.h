@@ -22,5 +22,10 @@ int EnumINIFileSections(CString sFileName, std::vector<CString>& aSections);
 // Returns the list of strings in the specified section in an INI file.
 int EnumINIFileStrings(CString sFileName, CString sSectionName, std::vector<CString>& aStrings);
 
+// Launches the EXE program and returns its return code. 
+int RunProgram(CString sExeName, CString sParams);
+
+// Launches the EXE program and grabs its stdout output.
+std::wstring exec(LPCTSTR szCmd); 
 };
 
