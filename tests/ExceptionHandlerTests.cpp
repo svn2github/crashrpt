@@ -119,13 +119,32 @@ void ExceptionHandlerTests::Test_CatchException()
 			strconv_t strconv;
 			BOOL bCreateProcess = CreateProcess(
 				sExePath, (LPWSTR)strconv.t2w(szCmdLine), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
-			TEST_ASSERT(bCreateProcess);
+			TEST_ASSERT_MSG(bCreateProcess, "Error creating process %s", strconv.t2a(szCmdLine));
 
 			// Wait until process terminates
 			WaitForSingleObject(pi.hProcess, INFINITE);
 		
-			// Wait some more time to let CrashRpt create error report file
-			Sleep(500);
+			int i;
+			for(i=0; i<50; i++)
+			{
+				// Wait some more time to let CrashRpt create error report file
+				Sleep(100);
+
+				// Look for crash report file		
+				CFindFile ff;
+				BOOL bFind = ff.FindFile(sTmpFolder+_T("\\*.zip"));	
+
+				if(!bFind)
+					continue;
+
+				// Try to open file
+				FILE* f = _tfopen(ff.GetFileName(), _T("rb"));
+				if(f!=NULL)
+				{
+					fclose(f);
+					break;
+				}
+			}
 
 			{
 				// Look for crash report file		
@@ -138,13 +157,13 @@ void ExceptionHandlerTests::Test_CatchException()
 				sReportName += ff.m_fd.cFileName;
 				CrpHandle hReport;
 				int nOpenResult = crpOpenErrorReport(sReportName, NULL, NULL, 0, &hReport);
-				TEST_ASSERT(nOpenResult==0 && hReport!=0);
+				TEST_ASSERT_MSG(nOpenResult==0 && hReport!=0, "Error opening error report file %s", strconv.t2a(sReportName.GetBuffer(0)));
 
 				// Get exception type from report
 				const int BUFF_SIZE = 256;
 				TCHAR szBuffer[BUFF_SIZE];		
 				int nResult = crpGetPropertyW(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_EXCEPTION_TYPE, 0, szBuffer, BUFF_SIZE, NULL);
-				TEST_ASSERT(nResult==0);
+				TEST_ASSERT_MSG(nResult==0, "Error getting property from error report");
 
 				// Close report
 				crpCloseErrorReport(hReport);
