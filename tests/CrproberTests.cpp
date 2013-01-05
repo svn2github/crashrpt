@@ -76,7 +76,7 @@ void CrproberTests::Test_help()
 	CString sExeName;
 	CString sParams;
 
-	#ifdef _DEBUG
+#ifdef _DEBUG
     sExeName = Utility::GetModulePath(NULL)+_T("\\crproberd.exe");
 #else
     sExeName = Utility::GetModulePath(NULL)+_T("\\crprober.exe");
