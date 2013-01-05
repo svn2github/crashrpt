@@ -79,7 +79,7 @@ void LangFileTests::Test_lang_file_versions()
             sExePath.GetBuffer(0), m_asLangAbbr[i].GetBuffer(0));
 #else
         sFileName.Format(_T("%s\\..\\..\\lang_files\\crashrpt_lang_%s.ini"), 
-            sExePath.GetBuffer(0), asLangAbbr[i].GetBuffer(0));
+            sExePath.GetBuffer(0), m_asLangAbbr[i].GetBuffer(0));
 #endif //!WIN64
 
         GetPrivateProfileString(_T("Settings"), _T("CrashRptVersion"), _T(""), szBuffer, BUFF_SIZE, sFileName);
@@ -128,7 +128,7 @@ void LangFileTests::Test_lang_file_strings()
             sExePath.GetBuffer(0), m_asLangAbbr[i].GetBuffer(0));
 #else
         sFileName.Format(_T("%s\\..\\..\\lang_files\\crashrpt_lang_%s.ini"), 
-            sExePath.GetBuffer(0), asLangAbbr[i].GetBuffer(0));
+            sExePath.GetBuffer(0), m_asLangAbbr[i].GetBuffer(0));
 #endif //!WIN64
 
 		// Get count of sections in EN file
