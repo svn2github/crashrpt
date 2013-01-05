@@ -27,5 +27,8 @@ int RunProgram(CString sExeName, CString sParams);
 
 // Launches the EXE program and grabs its stdout output.
 std::wstring exec(LPCTSTR szCmd); 
+
+// Trims the string
+void wtrim(std::wstring& str, const wchar_t* szTrim=L" \t\r\n");
 };
 

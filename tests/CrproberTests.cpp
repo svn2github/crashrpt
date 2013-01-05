@@ -212,7 +212,7 @@ void CrproberTests::Test_get()
 	CString sExeName;
 	std::wstring sOut;
 
-	#ifdef _DEBUG
+#ifdef _DEBUG
     sExeName = Utility::GetModulePath(NULL)+_T("\\crproberd.exe");
 #else
     sExeName = Utility::GetModulePath(NULL)+_T("\\crprober.exe");
@@ -223,7 +223,7 @@ void CrproberTests::Test_get()
 	sExeName += _T("\" /o \"\" /get XmlDescMisc AppName 0");
 
 	sOut = TestUtils::exec(sExeName);
-	TEST_ASSERT(wcscmp(sOut.c_str(), L"My& app Name & '")==0);
+	TEST_ASSERT(sOut==L"My& app Name &");
 
 	__TEST_CLEANUP__;
 }

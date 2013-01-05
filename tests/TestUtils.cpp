@@ -43,7 +43,7 @@ BOOL TestUtils::CreateErrorReport(CString sTmpFolder, CString& sErrorReportName,
     CR_INSTALL_INFOW infoW;
     memset(&infoW, 0, sizeof(CR_INSTALL_INFOW));
     infoW.cb = sizeof(CR_INSTALL_INFOW);  
-    infoW.pszAppName = L"My& app Name & ' 应用程序名称"; // Use Chineese characters for app name
+    infoW.pszAppName = L"My& app Name &"; 
     // Use appname with restricted XML characters
     infoW.pszAppVersion = L"1.0.0 &<'a应> \"<"; 
     infoW.pszErrorReportSaveDir = sTmpFolder;
@@ -213,17 +213,29 @@ int TestUtils::RunProgram(CString sExeName, CString sParams)
 	return (int)dwExitCode;
 }
 
+void TestUtils::wtrim(std::wstring& str, const wchar_t* szTrim)
+{
+    std::string::size_type pos = str.find_last_not_of(szTrim);
+    if(pos != std::string::npos) {
+        str.erase(pos + 1);
+        pos = str.find_first_not_of(szTrim);
+        if(pos != std::string::npos) str.erase(0, pos);
+    }
+    else str.erase(str.begin(), str.end());
+}
+
 std::wstring TestUtils::exec(LPCTSTR szCmd) 
 {
-    FILE* pipe = _tpopen(szCmd, _T("r"));
+    FILE* pipe = _tpopen(szCmd, _T("rt"));
     if (!pipe) return L"ERROR";
     wchar_t buffer[4096];
-    std::wstring result = L"";
+    std::wstring result;
     while(!feof(pipe)) 
 	{
     	if(fgetws(buffer, 4096, pipe) != NULL)
     		result += buffer;
     }
+	wtrim(result);
     _pclose(pipe);
     return result;
 }
