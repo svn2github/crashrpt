@@ -82,6 +82,7 @@ macro(fix_default_compiler_settings_)
 			# We prefer more strict warning checking.
 			# Replaces /W3 with /W4 in defaults.
 			string(REPLACE "/W3" "-W4" ${flag_var} "${${flag_var}}")
+						
 		endforeach()
 		
 		#SET (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "MSVC C Debug MT flags " FORCE)    

@@ -29,6 +29,7 @@ target_link_libraries(WTLDemo CrashRpt)
 
 # Add "d" postfix to output file name in Debug
 set_target_properties(WTLDemo PROPERTIES DEBUG_POSTFIX d )
+set_target_properties(WTLDemo PROPERTIES COMPILE_FLAGS "/Od /Zi /fp:except" LINK_FLAGS "/DEBUG")
 
 # Add post-build event
 if(CMAKE_CL_64)

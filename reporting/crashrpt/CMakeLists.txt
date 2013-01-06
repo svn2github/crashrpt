@@ -30,8 +30,8 @@ endif(CRASHRPT_BUILD_SHARED_LIBS)
 # Specify what libraries to link
 target_link_libraries(CrashRpt rpcrt4.dll version.lib)
 
-# Add compiler flags (/MP for multi-processor compilation, /Os to favor small code)
-set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/Os")
+# Add compiler flags (/MP for multi-processor compilation, /fp:except to handle floating-point exceptions; /Zi, /DEBUG to generate debugging symbols)
+set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/Od /Zi /fp:except" LINK_FLAGS "/DEBUG")
 if(${MSVC_VERSION} GREATER 1310)
 	set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/MP")
 endif(${MSVC_VERSION} GREATER 1310)

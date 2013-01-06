@@ -226,6 +226,7 @@ void CMiniDumpReader::Close()
     if(m_hFileMiniDump!=INVALID_HANDLE_VALUE)
     {
         CloseHandle(m_hFileMiniDump);
+		m_hFileMiniDump = INVALID_HANDLE_VALUE;
     }
 
     m_pMiniDumpStartPtr = NULL;

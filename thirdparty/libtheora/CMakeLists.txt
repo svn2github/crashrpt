@@ -13,6 +13,10 @@ include_directories(        ${CMAKE_SOURCE_DIR}/thirdparty/libogg/include
 
 fix_default_compiler_settings_()
 
+foreach (flag_var	CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG )
+	string(REPLACE "/RTC1" "-RTCs" ${flag_var} "${${flag_var}}")			  
+endforeach()
+
 # Add library build target
 add_library(libtheora STATIC ${source_files} ${x86_source_files})
 

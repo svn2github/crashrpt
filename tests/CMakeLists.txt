@@ -32,3 +32,4 @@ add_executable(Tests ${source_files} ${header_files})
 target_link_libraries(Tests CrashRpt CrashRptProbe)
 
 set_target_properties(Tests PROPERTIES DEBUG_POSTFIX d )
+set_target_properties(Tests PROPERTIES COMPILE_FLAGS "/Zi" LINK_FLAGS "/DEBUG")
