@@ -183,6 +183,7 @@ void ExceptionHandlerTests::Test_CatchException()
 				TEST_ASSERT(nResult==0);
 				CString sStackTraceTableId = szBuffer;
 
+#ifndef _WIN64
 				if(j==0)
 				{
 					if(i==0) // SEH
@@ -194,7 +195,7 @@ void ExceptionHandlerTests::Test_CatchException()
 
 						nResult = crpGetPropertyW(hReport, sStackTraceTableId, CRP_COL_STACK_SYMBOL_NAME, 1, szBuffer, BUFF_SIZE, NULL);
 						TEST_ASSERT(nResult==0);
-						TEST_ASSERT(_tcscmp(szBuffer, _T("wmain"))==0);					
+						TEST_ASSERT(_tcscmp(szBuffer, _T("wmain"))==0);
 					}
 					else if(i==1) // terminate
 					{
@@ -228,7 +229,11 @@ void ExceptionHandlerTests::Test_CatchException()
 
 						nResult = crpGetPropertyW(hReport, sStackTraceTableId, CRP_COL_STACK_SYMBOL_NAME, 3, szBuffer, BUFF_SIZE, NULL);
 						TEST_ASSERT(nResult==0);
-						TEST_ASSERT(_tcscmp(szBuffer, _T("wmain"))==0);					
+#ifndef CRASHRPT_LIB
+						TEST_ASSERT(_tcscmp(szBuffer, _T("wmain"))==0);		
+#else
+						TEST_ASSERT(_tcscmp(szBuffer, _T("crEmulateCrash"))==0);					
+#endif
 					}
 					else if(i==3) // pure call
 					{
@@ -243,7 +248,11 @@ void ExceptionHandlerTests::Test_CatchException()
 
 						nResult = crpGetPropertyW(hReport, sStackTraceTableId, CRP_COL_STACK_SYMBOL_NAME, 3, szBuffer, BUFF_SIZE, NULL);
 						TEST_ASSERT(nResult==0);
-						TEST_ASSERT(_tcscmp(szBuffer, _T("CDerived::~CDerived"))==0);					
+#ifndef CRASHRPT_LIB
+						TEST_ASSERT(_tcscmp(szBuffer, _T("CDerived::~CDerived"))==0);		
+#else
+						TEST_ASSERT(_tcscmp(szBuffer, _T("CBase::~CBase"))==0);					
+#endif
 					}
 					else if(i==13) // manual
 					{
@@ -255,9 +264,10 @@ void ExceptionHandlerTests::Test_CatchException()
 						nResult = crpGetPropertyW(hReport, sStackTraceTableId, CRP_COL_STACK_SYMBOL_NAME, 1, szBuffer, BUFF_SIZE, NULL);
 						TEST_ASSERT(nResult==0);
 						TEST_ASSERT(_tcscmp(szBuffer, _T("crGenerateErrorReport"))==0);
-
+												
 						nResult = crpGetPropertyW(hReport, sStackTraceTableId, CRP_COL_STACK_SYMBOL_NAME, 2, szBuffer, BUFF_SIZE, NULL);
 						TEST_ASSERT(nResult==0);
+
 						TEST_ASSERT(_tcscmp(szBuffer, _T("wmain"))==0);					
 					}
 				}
@@ -309,6 +319,7 @@ void ExceptionHandlerTests::Test_CatchException()
 						TEST_ASSERT(_tcscmp(szBuffer, _T("CrashThread"))==0);					
 					}
 				}
+#endif //!_WIN64
 
 				// Close report
 				crpCloseErrorReport(hReport);

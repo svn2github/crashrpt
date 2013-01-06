@@ -848,7 +848,7 @@ cleanup:
 BOOL CVideo::ReadOGGPage()
 {
 	BOOL bStatus = FALSE;
-	int nBytes = 0;
+	size_t nBytes = 0;
 
 	// Read an entire page from OGG file
 
@@ -864,7 +864,7 @@ BOOL CVideo::ReadOGGPage()
 		if(nBytes==0)
 			goto cleanup; // End of file
 				
-		if(0!=ogg_sync_wrote(&m_state, nBytes))
+		if(0!=ogg_sync_wrote(&m_state, (long)nBytes))
 			goto cleanup; // Failed
 	}
 

@@ -208,6 +208,9 @@ void CrproberTests::Test_extract_file()
 
 void CrproberTests::Test_get()
 {
+	if(g_bRunningFromUNICODEFolder)
+		return; // Skip this test for UNICODE case
+
 	int nRetCode=-1;
 	CString sExeName;
 	std::wstring sOut;
