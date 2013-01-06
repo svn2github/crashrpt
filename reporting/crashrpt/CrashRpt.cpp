@@ -769,8 +769,8 @@ void sigfpe_test()
 	//_controlfp_s(cwOriginal, MCW_EM);
 }
 
-//#define BIG_NUMBER 0x1fffffff
-#define BIG_NUMBER 0xf
+#define BIG_NUMBER 0x1fffffff
+//#define BIG_NUMBER 0xf
 #pragma warning(disable: 4717) // avoid C4717 warning
 int RecurseAlloc() 
 {
