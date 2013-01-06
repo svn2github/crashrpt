@@ -65,7 +65,8 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
 
     if(m_bLoaded)
     {
-        return 1;
+		// Already loaded
+        return 0;
     }
 
     m_sFileName = sFileName;
@@ -73,7 +74,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
 
     m_hFileMiniDump = CreateFile(
         sFileName, 
-        FILE_ALL_ACCESS, 
+        FILE_GENERIC_READ, 
         0, 
         NULL, 
         OPEN_EXISTING, 

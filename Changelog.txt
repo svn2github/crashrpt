@@ -14,6 +14,7 @@
 - Fixed: Update italian language file (issue 174)
 - Fixed again: HTTPS certificate problem (issue 151)
 - Fixed: Custom property cleared by adding other property (issue 176)
+- Fixed: Running crprober on windows 7 results in no stack trace output (issue 182)
 
 
 --- Ver. 1.4.0 ---

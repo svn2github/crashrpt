@@ -548,8 +548,13 @@ crpGetPropertyW(
         (pDescReader->m_dwGeneratorVersion==1000 && sTableId.Compare(CRP_TBL_XMLDESC_MISC)==0) )
     {     
         // Load the minidump
-        pDmpReader->Open(it->second.m_sMiniDumpTempName, it->second.m_sSymSearchPath);
-
+        int nOpen = pDmpReader->Open(it->second.m_sMiniDumpTempName, it->second.m_sSymSearchPath);
+		if(nOpen!=0)
+        {
+            crpSetErrorMsg(_T("Could not open minidump file."));
+            return -3;    
+        }
+		
         // Walk the stack if this is needed to get the property
         if(nDynTable==0)
         {
