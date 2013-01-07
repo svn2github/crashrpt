@@ -19,16 +19,21 @@ Error reporting functionality consists of two core modules: \b CrashRpt.dll and 
 - \b CrashRpt.dll contains functionality for handling exceptions in the client software.
 - \b CrashSender.exe contains functionality for sending error reports to the software's support team.
 
+\note Actually, CrashRpt files have version suffices, for example \b CrashRpt1400.dll, 
+\b CrashSender1400.exe. In some places of the documentation we will omitt these suffices 
+for simplicity.
+
 Two modules are needed to be able to close the application 
 that crashes and to continue sending error report through \b CrashSender.exe 
 in background.
 
 Typically a process (executable file) loads \b CrashRpt.dll into its address space 
 when process starts. This single instance of CrashRpt is shared between all DLL 
-modules that are loaded into the process' address space. Client application uses 
-\ref CrashRptAPI to set exception handlers in the process once, typically 
-in its \b main() function. In a multi-threaded program, client additionally 
-sets exception handlers in the beginning of thread procedure of each worker thread.
+modules that are loaded into the process' address space. 
+
+Client application uses \ref CrashRptAPI to set exception handlers in the process once, typically 
+in its \b main() (or \b WinMain()) function. In a multi-threaded program, client additionally 
+sets exception handlers in the beginning of the thread procedure of each worker thread.
 For additional info, see \ref using_crashrpt_api.
 
 \section error_report_analyzis_functionality Error Report Analyzis Functionality

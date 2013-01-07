@@ -41,7 +41,8 @@ report to disc for later use.
 
 \image html detaildlg.png "Error Report Details Dialog"
 
-You can use a privacy policy describing what user information your software collects 
+Software vendors who care about user's privacy, may provide a privacy policy file describing 
+what user information your software collects 
 on crash. You provide the URL of your privacy policy file published on your web site 
 or distributed with your software. If you need a template for the privacy policy file, 
 you may use this one: 
@@ -58,7 +59,7 @@ version, processor type, CPU registers state, local variables and call stack for
 execution thread. The minidump in most cases can be used on developer's side to determine 
 the reason of the crash and try to fix the problem.
 
-CrashRpt generates an XML crash description file. The file contains various
+CrashRpt generates an XML crash description file (<i>crashrpt.xml</i>). The file contains various
 information, such as application name and version, sender's E-mail address and geographic 
 location, user-provided problem description, exception type and address and so on.
 

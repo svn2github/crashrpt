@@ -2,7 +2,7 @@
 
 \page demos Demo Applications 
 
-CrashRpt contains several demo programs intended to show how CrashRpt 
+CrashRpt distribution contains several demo programs intended to show how CrashRpt 
 intercepts critical errors and how it delivers error reports to software
 vendor:
  - WTLDemo application demonstrates how CrashRpt works with WTL-based
@@ -23,8 +23,11 @@ To run WTLDemo, open \c bin directory and run \b WTLDemo.exe.
 You can also compile the demo yourself.
 
 WTLDemo application (see the figure below) is designed to test the most probable 
-crash situations. The <i>Exception type</i> combo box allows to select an 
-exception type. For more information, see \ref exception_handling.
+crash situations. 
+
+The <i>Exception type</i> combo box allows to select an 
+exception type. For more information about these exception types, refer to \ref exception_handling.
+
 The <i>Thread</i> combo box allows to select the thread exception should be 
 raised in. The <i>Capture Screen</i> button allows to capture end user's 
 desktop and generate a video file that will be included to crash report.
@@ -49,7 +52,7 @@ and press the Save button. The application will terminate with an error message.
 
 The MFCDemo application was created from scratch using the Visual Studio MFC 
 wizard, and then it has been slightly modified to integrate it with CrashRpt. 
-In <i>MFCDemo.cpp</i> file, <i>CMFCDemoApp::Run()</i> method was overridden, and
+In <i>MFCDemo.cpp</i> file, <i>CMFCDemoApp::Run()</i> method was overloaded, and
 in <i>MFCDemoDoc.cpp</i>, the method <i>CMFCDemoDoc::Serialize()</i> was modified
 to cause crash.
 

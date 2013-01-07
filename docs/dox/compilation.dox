@@ -33,19 +33,18 @@ Above, \a XXXX placeholder should be the version number of CrashRpt.
 \section releaselib Debug, Release and Release LIB Configurations
 
 Typically, you compile CrashRpt in <i>Release</i> configuration. In this configuration,
-the build produces optimized binary files that can be used in production environment. 
+the build produces binary files that can be used in production environment. 
 
 The <i>Debug</i> configuration is used for CrashRpt debugging and should not be used for production
-mode. In this configuration, the build generates d-postfixed files, for example, <i>CrashRptd.dll</i>,
-<i>CrashSenderd.exe</i> and so on (here and in some other places of the documentation, 
-we ommit the XXXX version suffix in the file names, but it is assumed this suffix presents, too).
+mode. In this configuration, the build generates d-postfixed files, for example, <i>CrashRptXXXXd.dll</i>,
+<i>CrashSenderXXXXd.exe</i> and so on.
 
 The <i>Release LIB</i> configuration is an addition to the standard <i>Debug</i> and <i>Release</i> build 
 configurations. Typically, you should compile CrashRpt in <i>Release</i> configuration, but  
 the <i>Release LIB</i> configuration may be useful if you use static CRT linkage.
 
-In the <i>Release LIB</i> configuration, the build generates <i>CrashSender.exe</i> executable file 
-and <i>CrashRptLIB.lib</i> static library. In this configuration, <i>CrashSender.exe</i> and 
+In the <i>Release LIB</i> configuration, the build generates <i>CrashSenderXXXX.exe</i> executable file 
+and <i>CrashRptLIB.lib</i> static library. In this configuration, <i>CrashSenderXXXX.exe</i> and 
 <i>CrashRptLIB.lib</i> use static linkage to CRT. 
 
 \section cmake_build Generating Project Files with CMake
@@ -72,16 +71,16 @@ with CMake, do the following:
   If everything is OK, you should see the message "Configuring done".
 - In the option list, modify build options as you wish. 
 	- <i>CRASHRPT_BUILD_SHARED_LIBS</i> option controls whether to build CrashRpt as DLL or as a static LIB.
-	  It is recommended that you have this checked. Unchecking the option will force CrashRpt to build static libs instead of DLLs.
+	  It is recommended that you have this checked. Unchecking the option will force CrashRpt to build static libs instead of DLLs (this is equivalent to Release LIB build configuration).
 	- <i>CRASHRPT_LINK_CRT_AS_DLL</i> option controls how CrashRpt should be linked to C run-time (CRT) libraries.
-	  Unchecking this option will force CrashRpt to link CRT as a multi-threaded static library.
+	  Unchecking this option will force CrashRpt to link CRT as a multi-threaded static library (this is equivalent to Release LIB build configuration).
 	  It is recommended that you have this checked, which results in linking CRT as multi-threaded DLL.
-- After modifying options, press the <i>Configure</i> button the second time to force changes to make effect. 
+- After modifying the options, press the <i>Configure</i> button the second time to force changes to make effect. 
   If everything is OK, you should see the message "Configuring done".
 - Press the <i>Generate</i> button. This will generate project files to the directory you have specified. 
   If everything is OK, you should see the message "Generating done".
 - And finally, go to the directory you have specified in the <i>Where to build the binaries:</i> field. 
-  You should see <b>CrashRpt.sln</b> file that you can use to compile CrashRpt.
+  You should see the generated <b>CrashRpt.sln</b> file that you can use to compile CrashRpt (open it in Visual Studio).
 
 \image html cmake.png "cmake-gui window" 
   

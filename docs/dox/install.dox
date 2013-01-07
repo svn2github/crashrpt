@@ -18,7 +18,7 @@ quality and stability of your software. To enable crash reporting in your app,
 you integrate it with CrashRpt -- a light-weight crash reporting library.
 
 CrashRpt's purpose is to automatically collect crash data and deliver them to the software vendor over
-the Internet. Crash reports often include data such as stack traces, type of crash, and version 
+the Internet. Crash reports include data such as stack traces, type of crash, and version 
 of software. This information helps software developers to diagnose and fix the 
 underlying problem causing the crash.
 
@@ -127,9 +127,9 @@ After user has provided his consent, CrashRpt sends the report in background ove
 CrashRpt can send error reports using HTTP/HTTPS or as an E-mail message. 
 
 HTTP/HTTPS delivery method is suitable for users having a web-server. Secure HTTPS connection
-allows to send error report data through a SSL-protected channel.
+allows to send error report data through an SSL-protected channel.
 
-Sending crash report as a E-mail is suitable for software vendors not having servers for storing 
+Sending crash report as an E-mail message is suitable for software vendors not having servers for storing 
 error reports. In order to send error reports over E-mail, a end user's machine should have a mail 
 program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 

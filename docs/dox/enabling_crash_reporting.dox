@@ -119,8 +119,8 @@ report. You add application-specific files to the error report using crAddFile2(
 \section allow_delete Allowing User to Attach or Delete Files
 
 Typically, application developer decides what files to add into error report.
-Hovewer, it may be needed to let user to attach new files to error report or 
-remove existing files from error report. 
+Hovewer, it may be needed to let an end user (or a quality assurance engineer) 
+to attach new files to error report or remove existing files from error report. 
 
 To let user remove a file from error report, you have to pass
 the \ref CR_AF_ALLOW_DELETE flag to crAddFile2() function. When this flag is specified,
@@ -146,20 +146,18 @@ at the moment of crash, or about the version of the graphics card driver.
 
 \section adding_a_screenshot Adding a Screen Shot
 
-It may be useful to have a screen shot of user's desktop at the moment of crash. 
-You can make a screen shot of user's virtual screen or a screen shot of your main window using 
+Screen shots may help to see which button user clicked before the crash, to see the desktop state and easier 
+reproduce the crash. You can make a screen shot of user's virtual screen or a screen shot of your main window using 
 the crAddScreenshot2() function. 
 
-Screen shots may help to see which button user clicked before the crash, to see the desktop state and easier 
-reproduce the crash. For example, for multi-monitor desktops it may be useful to see if the application window is 
-positioned on the primary monitor, on the secondary monitor, or at the boundary of two monitors. 
-Sometimes it may be enough to see only the region of the desktop occupied by your application 
+By enabling screenshot capture, you should be careful 
+about user's privacy. Some parts of the desktop screenshot may contain private or user identifying 
+information: folder names, wallpapers, photos, text fragments and so on. 
+CrashRpt allows to fill some areas of the screen shot with black color to respect
+end user's privacy. For example, sometimes it may be enough to see only the region of the desktop occupied by your application 
 and not the rest of desktop. 
 
-But there is one thing to take in account. By enabling screenshot capture, you should be careful 
-about user's privacy. Some parts of the desktop screenshot may contain private or user identifying 
-information: folder names, wallpapers, photos, text fragments and so on. That's why you should 
-always provide a link to your Privacy Policy page describing what information you collect on 
+It is also recommended that you always provide a link to your Privacy Policy page describing what information you collect on 
 crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
 with the contents of the error report and accepts the terms of the Privacy Policy.
 

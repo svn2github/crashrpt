@@ -87,7 +87,7 @@ reports later, he/she clicks the "Never remind" context menu item.
 
 \section httpsend Sending Crash Report Using HTTP Connection
 
-Many software products have web sites on the Internet. Such web servers typically have some 
+Many software products have web sites on the Internet. Those web servers typically have some 
 scripting engine enabled, for example, PHP and so on. CrashRpt can establish HTTP (or HTTPS) connection
 to a server-side script and send the error report as a script parameter. To specify the script
 URL address, use the \ref CR_INSTALL_INFO::pszUrl structure member.
@@ -97,8 +97,8 @@ CrashRpt supports HTTP file uploads as described in
 This mechanism allows to upload large files by using binary content transfer encoding. 
 The "multipart/form-data" encoding type is utilized for this purpose. 
 
-The equivalent HTML form for file uploads is presented below (some form fields may be ommitted, see the next
-section for the complete list of fields):
+The equivalent HTML form for file uploads is presented below (some form fields may be omitted, see the next
+section for the complete list of fields that may appear):
 
 \code 
 <html>
@@ -189,7 +189,7 @@ of <b>$_FILES</b> global array.
 
 \subsection script_return Return Value
 
-The script should return status of request completion as server responce header. In HTTP/1.0 and since, 
+The script should return status of request completion as server response header. In HTTP/1.0 and since, 
 the first line of the HTTP response is called the status line and includes a numeric status code (such as "404") 
 and a textual reason phrase (such as "Not Found").
 
@@ -216,7 +216,7 @@ CrashRpt has a simple built-in SMPT client. It can try to send an error report t
 connection without any user interaction. The error report is sent as an E-mail message with 
 attachments.
 
-Many SMTP servers may block direct access to them to avoid spam (for example Google Mail does so). 
+Many SMTP servers may block direct access to them from dynamic IPs to avoid spam (for example Google Mail does so). 
 This delivery method may also fail if firewall blocks outgoing connections on port 25. Because of this reason,
 this delivery method is recommended to use if you install your application to a single machine with
 installed SMTP server (for example, server applications may fit this requirements). 

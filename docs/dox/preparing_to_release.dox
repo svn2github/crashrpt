@@ -79,7 +79,7 @@ the folder where your \b CrashSenderXXXX.exe is located. For additional informat
 files, please refer to \ref internationalization_support page.
 
 \note \b dbghelp.dll library is required to generate minidump files. \b dbghelp.dll is included in
-Windows Windows XP installation and in later versions of Windows, and most user machines have this 
+Windows XP distribution and in later versions of Windows, and most user machines have this 
 library installed. This means it is possible (but not recommended) to ignore distribution of \b dbghelp.dll, 
 if you strongly wish.                  
 

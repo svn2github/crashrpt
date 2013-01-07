@@ -28,7 +28,7 @@ Here <i>[CRASHRPT_HOME]</i> should be replaced with the actual path of the
 directory you unzipped CrashRpt distribution to.
 
 Before you start using CrashRpt API functions in your program, do not forget to include 
-\c CrashRpt.h header file in the beginning of your code: 
+\ref CrashRpt.h header file in the beginning of your code: 
 
 \code
 // Include CrashRpt header
@@ -45,7 +45,7 @@ version number).
 
 It is important that you configure your project to use C runtime libraries (CRT)
 as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN.
-See the \ref crt_version_and_dll for more information.
+See the \ref crt_version_and_dll section for more information.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
 Then choose Configuration Properties->C/C++->Code Generation. In the <b>Runtime Library</b> field,
@@ -53,9 +53,7 @@ choose <b>Multi-threaded DLL (/MD)</b>. See the figure below for example.
 
 This should be done for all projects in your solution to share single CRT DLL.
 
-\note 
-
-In Debug configuration it is not important what CRT linkage you use. Typically  
+\note In Debug configuration it is not important what CRT linkage you use. Typically  
 your default debugger intercepts exceptions instead of CrashRpt in Debug configuration.
 
 \image html crtdll.png "Multi-threaded DLL (/MD)"    
@@ -73,9 +71,10 @@ are installed for CRT 9.0 only.
 
 \section prgdb Enabling Program Database (/Zi, /DEBUG) in Release Configuration
 
-To get the most out of the crash minidump, the debugger needs your application's debug 
-symbols. 
+To be able to recover the stack traces from the crash minidump, the debugger needs 
+your application's debugging symbols (PDB files). 
 
+To enable the generation of PDB files:
 -# In the Solution Explorer window, right-click your project and open project Properties. 
 Then choose Configuration Properties->C/C++->General. In the <b>Debug Information Format</b> field,
 choose <b>Program Database (/Zi)</b>.
@@ -89,7 +88,7 @@ The steps 1 and 2 are presented on the figures below.
 
 \image html program_database.png "Program Database (/Zi)"
 
-\image html linker_debug_settings.png "Enabling Debugging Information in Linker"
+\image html linker_debug_settings.png "Enabling Debugging Information in Linker (/DEBUG)"
 
 <i>Further reading:</i> \ref using_crashrpt_api.
 
