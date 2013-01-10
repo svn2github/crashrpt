@@ -204,7 +204,7 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "MFCDemo Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2012",IDC_STATIC,40,25,119,8
+    LTEXT           "Copyright (C) 2013",IDC_STATIC,40,25,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
 END
 
@@ -215,8 +215,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0,0
- PRODUCTVERSION 1,4,0,0
+ FILEVERSION 1,4,0,1
+ PRODUCTVERSION 1,4,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -233,12 +233,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "TODO: <Company name>"
             VALUE "FileDescription", "TODO: <File description>"
-            VALUE "FileVersion", "1.4.0.0"
+            VALUE "FileVersion", "1.4.0.1"
             VALUE "InternalName", "MFCDemo.exe"
-            VALUE "LegalCopyright", "Copyright 2003-2012 The CrashRpt project Authors"
+            VALUE "LegalCopyright", "Copyright 2003-2013 The CrashRpt project Authors"
             VALUE "OriginalFilename", "MFCDemo.exe"
             VALUE "ProductName", "CrashRpt"
-            VALUE "ProductVersion", "1.4.0.0"
+            VALUE "ProductVersion", "1.4.0.1"
         END
     END
     BLOCK "VarFileInfo"

@@ -1,6 +1,6 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
-Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
+Copyright (c) 2003-2013 The CrashRpt project authors. All Rights Reserved.
 
 Use of this source code is governed by a BSD-style license
 that can be found in the License.txt file in the root of the source
@@ -10,9 +10,9 @@ be found in the Authors.txt file in the root of the source tree.
 
 /*! \file   CrashRpt.h
 *  \brief  Defines the interface for the CrashRpt.DLL.
-*  \date   2003-2011
+*  \date   2003
 *  \author Michael Carruth 
-*  \author zeXspectrum 
+*  \author Oleg Krivtsov (zeXspectrum) 
 */
 
 #ifndef _CRASHRPT_H_
@@ -44,7 +44,7 @@ be found in the Authors.txt file in the root of the source tree.
 #define CRASHRPTAPI(rettype) CRASHRPT_EXTERNC rettype WINAPI
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1400
+#define CRASHRPT_VER 1401
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */

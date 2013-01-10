@@ -1,6 +1,6 @@
 /************************************************************************************* 
 This file is a part of CrashRpt library.
-Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
+Copyright (c) 2003-2013 The CrashRpt project authors. All Rights Reserved.
 
 Use of this source code is governed by a BSD-style license
 that can be found in the License.txt file in the root of the source
@@ -11,7 +11,7 @@ be found in the Authors.txt file in the root of the source tree.
 // File: VideoRec.h
 // Description: Video recording functionality.
 // Authors: zexspectrum
-// Date: Sep 2012
+// Date: Sep 2013
 
 #pragma once
 #include "stdafx.h"
