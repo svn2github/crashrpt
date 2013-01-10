@@ -13,6 +13,7 @@
   - \ref demos
   - <a class="el" href="http://code.google.com/p/crashrpt/wiki/FAQ">Frequently Asked Questions</a>
   - <a class="el" href="../../Changelog.txt">Change Log</a>
+  - <a class="el" href="../../Authors.txt">Authors</a>
 - \subpage using_crashrpt  
   - \ref compiling_crashrpt
   - \ref configuring_project
