@@ -20,6 +20,15 @@ endif(NOT CRASHRPT_BUILD_SHARED_LIBS)
 
 fix_default_compiler_settings_()
 
+foreach (flag_var
+	CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE )
+	string(REPLACE "/O2" "-Od" ${flag_var} "${${flag_var}}")
+	string(REPLACE "/Ob2" "" ${flag_var} "${${flag_var}}")	
+	set(${flag_var} "${${flag_var}} /Zi /fp:except /MP") 
+endforeach()    
+
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG") 
+
 # Add include dir
 include_directories( ${CMAKE_SOURCE_DIR}/include 
                      ${CMAKE_SOURCE_DIR}/reporting/CrashRpt
@@ -32,4 +41,4 @@ add_executable(Tests ${source_files} ${header_files})
 target_link_libraries(Tests CrashRpt CrashRptProbe)
 
 set_target_properties(Tests PROPERTIES DEBUG_POSTFIX d )
-set_target_properties(Tests PROPERTIES COMPILE_FLAGS "/Zi" LINK_FLAGS "/DEBUG")
+#set_target_properties(Tests PROPERTIES COMPILE_FLAGS "/Zi" LINK_FLAGS "/DEBUG")

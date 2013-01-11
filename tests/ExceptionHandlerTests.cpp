@@ -99,7 +99,8 @@ void ExceptionHandlerTests::Test_CatchException()
 			sTmpFolder = sAppDataFolder+_T("\\CrashRptExceptionTest");
 			Utility::RecycleFile(sTmpFolder, TRUE); // remove folder if exists
 			BOOL bCreateFolder = Utility::CreateFolder(sTmpFolder);
-			TEST_ASSERT(bCreateFolder);
+			strconv_t strconv;
+			TEST_ASSERT_MSG(bCreateFolder, "Error creating temp folder %s", strconv.t2a(sTmpFolder.GetBuffer(0)));
 
 			// Format command line
 			TCHAR szCmdLine[_MAX_PATH]=_T("");
@@ -120,7 +121,6 @@ void ExceptionHandlerTests::Test_CatchException()
 			memset(&pi, 0, sizeof(PROCESS_INFORMATION)); 
 		
 			// Launch this executable with special params causing crash
-			strconv_t strconv;
 			BOOL bCreateProcess = CreateProcess(
 				sExePath, (LPWSTR)strconv.t2w(szCmdLine), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
 			TEST_ASSERT_MSG(bCreateProcess, "Error creating process %s", strconv.t2a(szCmdLine));
@@ -175,12 +175,12 @@ void ExceptionHandlerTests::Test_CatchException()
 
 				// Get exception thread ID
 				nResult = crpGetPropertyW(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCEPTION_THREAD_ROWID, 0, szBuffer, BUFF_SIZE, NULL);
-				TEST_ASSERT(nResult==0);
+				TEST_ASSERT_MSG(nResult==0, "Error getting exception thread ID");
 				int nExceptionThreadRowId = _ttoi(szBuffer);
 
 				// Get exception thread's stack table ID
 				nResult = crpGetPropertyW(hReport, CRP_TBL_MDMP_THREADS, CRP_COL_THREAD_STACK_TABLEID, nExceptionThreadRowId, szBuffer, BUFF_SIZE, NULL);
-				TEST_ASSERT(nResult==0);
+				TEST_ASSERT_MSG(nResult==0, "Error getting thread's stack table ID");
 				CString sStackTraceTableId = szBuffer;
 
 #ifndef _WIN64
@@ -190,11 +190,11 @@ void ExceptionHandlerTests::Test_CatchException()
 					{
 						// Get stack frames
 						int nResult = crpGetPropertyW(hReport, sStackTraceTableId, CRP_COL_STACK_SYMBOL_NAME, 0, szBuffer, BUFF_SIZE, NULL);
-						TEST_ASSERT(nResult==0);
+						TEST_ASSERT_MSG(nResult==0, "Error getting symbol name");
 						TEST_ASSERT(_tcscmp(szBuffer, _T("crEmulateCrash"))==0);
 
 						nResult = crpGetPropertyW(hReport, sStackTraceTableId, CRP_COL_STACK_SYMBOL_NAME, 1, szBuffer, BUFF_SIZE, NULL);
-						TEST_ASSERT(nResult==0);
+						TEST_ASSERT_MSG(nResult==0, "Error getting symbol name");
 						TEST_ASSERT(_tcscmp(szBuffer, _T("wmain"))==0);
 					}
 					else if(i==1) // terminate
