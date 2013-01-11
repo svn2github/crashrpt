@@ -215,7 +215,7 @@ LRESULT CMainDlg::OnScreenCapClicked(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 	
 	// Start capturing user's desktop
 	SIZE DesiredFrameSize = {0, 600};
-	int nResult = crAddVideo(CR_AS_PROCESS_WINDOWS|CR_AV_QUALITY_LOW, 6000, 300, &DesiredFrameSize, m_hWnd);    
+	int nResult = crAddVideo(CR_AS_PROCESS_WINDOWS|CR_AV_QUALITY_LOW|CR_AV_ALLOW_DELETE, 6000, 300, &DesiredFrameSize, m_hWnd);    
     ATLASSERT(nResult==0);
 	nResult;
 

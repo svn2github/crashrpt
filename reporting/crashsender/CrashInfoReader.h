@@ -40,6 +40,17 @@ struct ERIFileItem
 	BOOL GetFileInfo(HICON& hIcon, CString& sTypeName, LONGLONG& lSize);
 };
 
+struct ERIRegKey
+{
+	ERIRegKey()
+	{
+		m_bAllowDelete = false;
+	}
+
+	CString m_sDstFileName; // Destination file name
+	bool m_bAllowDelete;    // Whether to allow user deleting the file from context menu of Error Report Details dialog.
+};
+
 // Error report delivery statuses.
 enum DELIVERY_STATUS
 {  
@@ -88,10 +99,10 @@ public:
 	int GetRegKeyCount();
 
 	// Method that retrieves a registry key by zero-based index.
-	BOOL GetRegKeyByIndex(int nItem, CString& sKeyName, CString& sDestFileName);
+	BOOL GetRegKeyByIndex(int nItem, CString& sKeyName, ERIRegKey& rki);
 	
 	// Adds/replaces a reg key in crash report.
-	void AddRegKey(LPCTSTR szKeyName, LPCTSTR szDestFileName);
+	void AddRegKey(LPCTSTR szKeyName, ERIRegKey& rki);
 
 	// Returns the name of the directory where error report files are located.
 	CString GetErrorReportDirName();
@@ -208,7 +219,7 @@ private:
     DELIVERY_STATUS m_DeliveryStatus;      // Error report delivery status.
 
     std::map<CString, ERIFileItem>  m_FileItems; // The list of files that are included into this error report.
-    std::map<CString, CString> m_RegKeys; // The list of registry keys included into this error report.
+    std::map<CString, ERIRegKey> m_RegKeys; // The list of registry keys included into this error report.
     std::map<CString, CString> m_Props;   // The list of custom properties included into this error report.
 };
 

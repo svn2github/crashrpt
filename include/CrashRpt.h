@@ -1049,6 +1049,7 @@ crAddFile2A(
 #define CR_AS_PROCESS_WINDOWS 2  //!< Take a screenshot of all visible process windows.
 #define CR_AS_GRAYSCALE_IMAGE 4  //!< Make a grayscale image instead of a full-color one.
 #define CR_AS_USE_JPEG_FORMAT 8  //!< Store screenshots as JPG files.
+#define CR_AS_ALLOW_DELETE   16  //!< If this flag is specified, the file will be deletable from context menu of Error Report Details dialog.
 
 /*! \ingroup DeprecatedAPI  
 *  \brief Adds a screenshot to the crash report.
@@ -1071,6 +1072,8 @@ crAddFile2A(
 *  When crash occurs, screenshot is made by the \b CrashSender.exe process and added to the report. 
 * 
 *  \b dwFlags 
+*
+*    - \ref CR_AS_ALLOW_DELETE        If this flag is specified, the user will be able to delete the file from error report using context menu of Error Report Details dialog.
 *
 *    Use one of the following constants to specify what part of virtual screen to capture:
 *    - \ref CR_AS_VIRTUAL_SCREEN  Use this to take a screenshot of the whole desktop (virtual screen).
@@ -1169,6 +1172,7 @@ crAddScreenshot2(
 #define CR_AV_QUALITY_GOOD    4  //!< Good encoding quality, larger file size.
 #define CR_AV_QUALITY_BEST    8  //!< The best encoding quality, the largest file size.
 #define CR_AV_NO_GUI         16  //!< Do not display the notification dialog.
+#define CR_AV_ALLOW_DELETE   32  //!< If this flag is specified, the file will be deletable from context menu of Error Report Details dialog.
 
 /*! \ingroup CrashRptAPI  
 *  \brief Allows to record what happened before crash to a video file and include the file to crash report.
@@ -1196,6 +1200,8 @@ crAddScreenshot2(
 *    - \ref CR_AV_QUALITY_LOW     Low-quality video encoding. This is the default.
 *    - \ref CR_AV_QUALITY_GOOD    Good encoding quality, larger file.
 *    - \ref CR_AV_QUALITY_BEST    The best encoding quality, the largest file.
+*
+*   - use the \ref CR_AV_ALLOW_DELETE to allow the user to delete the recorded video file from error report using context menu of Error Report Details dialog.
 *
 *  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
 *  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such a window, it considers the first found process window as
@@ -1345,6 +1351,9 @@ crAddPropertyA(
 #define crAddProperty crAddPropertyA
 #endif //UNICODE
 
+// Flags that can be passed to crAddRegKey() function
+#define CR_AR_ALLOW_DELETE   0x1  //!< If this flag is specified, the file will be deletable from context menu of Error Report Details dialog.
+
 /*! \ingroup CrashRptAPI  
 *  \brief Adds a registry key dump to the crash report.
 * 
@@ -1366,7 +1375,9 @@ crAddPropertyA(
 *  format and included into the error report as \a pszDstFileName destination file. You can dump multiple registry keys
 *  to the same destination file.
 *
-*  The \a dwFlags parameter is reserved for future use and should be set to zero.
+*  The \a dwFlags parameter can be either set to zero (no flags) or with the following constant:
+* 
+*  - \ref CR_AR_ALLOW_DELETE allows the user to delete the file from error report using context menu of Error Report Details dialog.
 *
 *  The following example shows how to dump two registry keys to a single \a regkey.xml file:
 *

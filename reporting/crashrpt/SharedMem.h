@@ -49,6 +49,7 @@ struct REG_KEY
 {
     BYTE m_uchMagic[3];        // Magic sequence "REG"
     WORD m_wSize;              // Total bytes occupied by this block.
+	BOOL m_bAllowDelete;       // Should allow user to delete the file from crash report?
     DWORD m_dwRegKeyNameOffs;  // Registry key name.
     DWORD m_dwDstFileNameOffs; // Destination file name.
 };

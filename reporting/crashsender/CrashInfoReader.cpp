@@ -279,25 +279,24 @@ int CErrorReportInfo::GetRegKeyCount()
 }
 
 // Method that retrieves a property by zero-based index.
-BOOL CErrorReportInfo::GetRegKeyByIndex(int nItem, CString& sKeyName, CString& sDestFileName)
+BOOL CErrorReportInfo::GetRegKeyByIndex(int nItem, CString& sKeyName, ERIRegKey& rki)
 {
 	sKeyName.Empty();
-	sDestFileName.Empty();
-
-	if(nItem<0 || nItem>=(int)m_FileItems.size())
+	
+	if(nItem<0 || nItem>=(int)m_RegKeys.size())
 		return FALSE; // No such item
 
 	// Look for n-th item
-	std::map<CString, CString>::iterator p = m_RegKeys.begin();
+	std::map<CString, ERIRegKey>::iterator p = m_RegKeys.begin();
 	for (int i = 0; i < nItem; i++, p++);
 	sKeyName = p->first;
-	sDestFileName = p->second;
+	rki = p->second;
 	return TRUE;
 }
 	
-void CErrorReportInfo::AddRegKey(LPCTSTR szKeyName, LPCTSTR szDestFileName)
+void CErrorReportInfo::AddRegKey(LPCTSTR szKeyName, ERIRegKey& rki)
 {
-	m_RegKeys[szKeyName] = szDestFileName;
+	m_RegKeys[szKeyName] = rki;
 }
 
 // This method calculates the total size of files included into error report
@@ -600,11 +599,12 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
             REG_KEY* pKey = (REG_KEY*)m_SharedMem.CreateView(dwOffs, pHeader->m_wSize);
 
             CString sKeyName;
-            CString sDstFile;
+            ERIRegKey rki;
+			rki.m_bAllowDelete = pKey->m_bAllowDelete!=0;
             UnpackString(pKey->m_dwRegKeyNameOffs, sKeyName);
-            UnpackString(pKey->m_dwDstFileNameOffs, sDstFile);      
+			UnpackString(pKey->m_dwDstFileNameOffs, rki.m_sDstFileName);      
 
-            eri.m_RegKeys[sKeyName] = sDstFile;
+            eri.m_RegKeys[sKeyName] = rki;
 
             m_SharedMem.DestroyView((LPBYTE)pKey);
         }
@@ -881,10 +881,11 @@ int CCrashInfoReader::ParseRegKeyList(TiXmlHandle& hRoot, CErrorReportInfo& eri)
 
         if(pszDestFile!=NULL && pszRegKey!=NULL)
         {
-            CString sDestFile = strconv.utf82t(pszDestFile);      
+			ERIRegKey rki;
+			rki.m_sDstFileName = strconv.utf82t(pszDestFile);      
             CString sRegKey = strconv.utf82t(pszRegKey);
 
-            eri.m_RegKeys[sRegKey] = sDestFile;
+            eri.m_RegKeys[sRegKey] = rki;
         }
 
         fi = fi.ToElement()->NextSibling("RegKey");

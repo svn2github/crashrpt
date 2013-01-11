@@ -5,6 +5,12 @@
 - New: Added an ability to preview OGG video files in Error Report Details dialog.
        To preview a file, select it in the list of files.
 
+- New: Added an bility for end user to delete screenshots, registry keys and video file
+       from crash report through context menu of Error Report Details dialog 
+       (added CR_AS_ALLOW_DELETE flag for crAddScreenshot2() function,
+        CR_AR_ALLOW_DELETE flag for crAddRegKey() function and CR_AV_ALLOW_DELETE
+        flag for crAddVideo() function). (issue 183) 
+
 - New: Added back the crExceptionFilter() function removed previously as deprecated. 
        It seems that some users require that function. (issue 175).
 

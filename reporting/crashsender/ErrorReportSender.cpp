@@ -458,6 +458,8 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     // Get screenshot flags passed by the parent process
     DWORD dwFlags = m_CrashInfo.m_dwScreenshotFlags;
 
+	BOOL bAllowDelete = (dwFlags&CR_AS_ALLOW_DELETE)!=0;
+
     // Determine what image format to use (JPG or PNG)
     SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG; // PNG by default
 
@@ -499,7 +501,8 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
         ERIFileItem fi;
         fi.m_sSrcFile = sFileName;
         fi.m_sDestFile = sDestFile;
-        fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
+        fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot")); 
+		fi.m_bAllowDelete = bAllowDelete;
         m_CrashInfo.GetReport(0)->AddFileItem(&fi);
     }
 
@@ -1122,13 +1125,13 @@ BOOL CErrorReportSender::CollectCrashFiles()
     for(i=0; i<eri->GetRegKeyCount(); i++)
     {
 		CString sKeyName;
-		CString sFileName;
-		eri->GetRegKeyByIndex(i, sKeyName, sFileName);
+		ERIRegKey rki;
+		eri->GetRegKeyByIndex(i, sKeyName, rki);
 
         if(m_Assync.IsCancelled())
             goto cleanup;
 
-        CString sFilePath = eri->GetErrorReportDirName() + _T("\\") + sFileName;
+		CString sFilePath = eri->GetErrorReportDirName() + _T("\\") + rki.m_sDstFileName;
 
         str.Format(_T("Dumping registry key '%s' to file '%s' "), sKeyName, sFilePath);
         m_Assync.SetProgress(str, 0, false);    
@@ -1138,9 +1141,10 @@ BOOL CErrorReportSender::CollectCrashFiles()
         DumpRegKey(sKeyName, sFilePath, sErrorMsg);
         ERIFileItem fi;
         fi.m_sSrcFile = sFilePath;
-        fi.m_sDestFile = sFileName;
+		fi.m_sDestFile = rki.m_sDstFileName;
         fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescRegKey"));
         fi.m_bMakeCopy = FALSE;
+		fi.m_bAllowDelete = rki.m_bAllowDelete;
         fi.m_sErrorStatus = sErrorMsg;
         std::vector<ERIFileItem> file_list;
         file_list.push_back(fi);
@@ -2543,11 +2547,14 @@ BOOL CErrorReportSender::EncodeVideo()
 		return FALSE;
 	}
 
+	bool bAllowDelete = (m_CrashInfo.m_dwVideoFlags&CR_AV_ALLOW_DELETE)!=0;
+
 	// Add file to crash report
 	ERIFileItem fi;
 	fi.m_sSrcFile = m_VideoRec.GetOutFile();
 	fi.m_sDestFile = Utility::GetFileName(fi.m_sSrcFile);
-    fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescVideo"));    
+    fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescVideo"));  
+	fi.m_bAllowDelete = bAllowDelete;
     m_CrashInfo.GetReport(0)->AddFileItem(&fi);
 
 	// Add a message to log

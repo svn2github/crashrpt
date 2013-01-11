@@ -64,6 +64,17 @@ struct FileItem
 	BOOL m_bAllowDelete;    // Whether to allow user deleting the file from context menu of Error Report Details dialog.
 };
 
+struct RegKeyInfo
+{
+	RegKeyInfo()
+	{
+		m_bAllowDelete = false;
+	}
+
+	CString m_sDstFileName; // Destination file name
+	bool m_bAllowDelete;    // Whether to allow user deleting the file from context menu of Error Report Details dialog.
+};
+
 // This class is used to set exception handlers, catch exceptions
 // and launch crash report sender process.
 class CCrashHandler  
@@ -195,7 +206,7 @@ public:
     // Packs custom user property
     DWORD PackProperty(CString sName, CString sValue);
     // Packs a registry key
-    DWORD PackRegKey(CString sKeyName, CString sDstFileName);
+    DWORD PackRegKey(CString sKeyName, RegKeyInfo& rki);
 		
     // Launches the CrashSender.exe process.
     int LaunchCrashSender(
@@ -283,7 +294,7 @@ public:
     CString m_sCustomSenderIcon;   // Resource name that can be used as custom Error Report dialog icon.
     std::map<CString, FileItem> m_files; // File items to include.
     std::map<CString, CString> m_props;  // User-defined properties to include.
-    std::map<CString, CString> m_RegKeys; // Registry keys to dump.  
+    std::map<CString, RegKeyInfo> m_RegKeys; // Registry keys to dump.  
     CCritSec m_csCrashLock;        // Critical section used to synchronize thread access to this object. 
     HANDLE m_hEvent;               // Event used to synchronize CrashRpt.dll with CrashSender.exe.
 	HANDLE m_hEvent2;              // Another event used to synchronize CrashRpt.dll with CrashSender.exe.

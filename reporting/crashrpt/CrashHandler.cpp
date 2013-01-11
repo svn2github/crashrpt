@@ -619,7 +619,7 @@ DWORD CCrashHandler::PackProperty(CString sName, CString sValue)
 }
 
 // Packs registry key to shared memory
-DWORD CCrashHandler::PackRegKey(CString sKeyName, CString sDstFileName)
+DWORD CCrashHandler::PackRegKey(CString sKeyName, RegKeyInfo& rki)
 {
     DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
     WORD wLength = sizeof(REG_KEY);
@@ -630,8 +630,9 @@ DWORD CCrashHandler::PackRegKey(CString sKeyName, CString sDstFileName)
     REG_KEY* pKey = (REG_KEY*)pView;
 
     memcpy(pKey->m_uchMagic, "REG", 3); 
+	pKey->m_bAllowDelete = rki.m_bAllowDelete;
     pKey->m_dwRegKeyNameOffs = PackString(sKeyName);
-    pKey->m_dwDstFileNameOffs = PackString(sDstFileName);
+	pKey->m_dwDstFileNameOffs = PackString(rki.m_sDstFileName);
     pKey->m_wSize = (WORD)(m_pTmpCrashDesc->m_dwTotalSize-dwTotalSize);
 
     m_pTmpSharedMem->DestroyView(pView);
@@ -1342,7 +1343,6 @@ BOOL CCrashHandler::IsSenderProcessAlive()
 // Adds a registry key dump to the error report
 int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFlags)
 {
-    UNREFERENCED_PARAMETER(dwFlags);
     crSetErrorMsg(_T("Unspecified error."));
 
     if(szDstFileName==NULL ||
@@ -1398,9 +1398,13 @@ int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFl
     }
     RegCloseKey(hKeyResult);
 
-    m_RegKeys[CString(szRegKey)] = sDstFileName;
+	RegKeyInfo rki;
+	rki.m_sDstFileName = sDstFileName;
+	rki.m_bAllowDelete = (dwFlags&CR_AR_ALLOW_DELETE)!=0;
 
-    PackRegKey(szRegKey, sDstFileName);
+    m_RegKeys[CString(szRegKey)] = rki;
+
+    PackRegKey(szRegKey, rki);
 
     // OK
     crSetErrorMsg(_T("Success."));
