@@ -19,7 +19,7 @@ and uninitialize CrashRpt.
 
 <b>A note for MFC users.</b>
 
-If your application is MFC-based, you should overload your <i>CWinApp::Run()</i> method and install CrashRpt there. 
+If your application is MFC-based, you should override your <i>CWinApp::Run()</i> method and install CrashRpt there. 
 In the CPP file containing your App class, add the following code:
 
 \code
