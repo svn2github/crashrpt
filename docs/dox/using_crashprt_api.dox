@@ -3,7 +3,7 @@
 \page using_crashrpt_api Using CrashRpt API
 
 CrashRpt library provides several API functions, structures and classes that can be used in your 
-project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). These are defined
+project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). These are declared
 in \ref CrashRpt.h header file.
 
 \note Older versions of CrashRpt provided different set of API functions that are now 
