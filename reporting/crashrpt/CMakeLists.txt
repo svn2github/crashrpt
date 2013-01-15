@@ -41,9 +41,9 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG")
 
 # Add compiler flags (/MP for multi-processor compilation, /fp:except to handle floating-point exceptions; /Zi, /DEBUG to generate debugging symbols)
 #set_target_properties(CrashRpt PROPERTIES  LINK_FLAGS "/DEBUG")
-if(${MSVC_VERSION} GREATER 1310)
-	#set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/MP")
-endif(${MSVC_VERSION} GREATER 1310)
+#if(${MSVC_VERSION} GREATER 1310)
+#	set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/MP")
+#endif(${MSVC_VERSION} GREATER 1310)
 
 if(CRASHRPT_BUILD_SHARED_LIBS)
 	set_target_properties(CrashRpt PROPERTIES 

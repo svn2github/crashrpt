@@ -46,9 +46,9 @@ target_link_libraries(CrashSender zlib minizip libjpeg libpng tinyxml libogg lib
 
 # Add compiler flags (/MP for multi-processor compilation, /Os to favor small code)
 set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/Os")
-if(${MSVC_VERSION} GREATER 1310)
-	set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/MP")
-endif(${MSVC_VERSION} GREATER 1310)
+#if(${MSVC_VERSION} GREATER 1310)
+#	set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/MP")
+#endif(${MSVC_VERSION} GREATER 1310)
 
 set_target_properties(CrashSender PROPERTIES 
 				DEBUG_POSTFIX ${CRASHRPT_VER}d
