@@ -101,6 +101,9 @@ namespace Utility
 
 	// Splits string into list of tokens.
 	std::vector<CString> ExplodeStr(LPCTSTR szString, LPCTSTR szSeparators);
+
+	// Returns file size
+	long GetFileSize(const TCHAR *fileName);
 };
 
 #endif	// _UTILITY_H_

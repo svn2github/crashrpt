@@ -203,22 +203,6 @@ int CErrorReportSender::GetCurReport()
     return m_nCurReport;
 }
 
-//BOOL CErrorReportSender::SetCurReport(int nCurReport)
-//{
-//	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
-//
-//    // Validate input params
-//    if(nCurReport<0 || nCurReport>=pSender->GetCrashInfo()->GetReportCount())
-//    {
-//        ATLASSERT(0);
-//        return FALSE;
-//    }
-//		
-//    // Update current report index
-//    m_nCurReport = nCurReport;
-//    return TRUE;
-//}
-
 // This method performs crash files collection and/or
 // error report sending work in a worker thread.
 BOOL CErrorReportSender::DoWorkAssync(int nAction)
@@ -2037,7 +2021,7 @@ CString CErrorReportSender::FormatEmailText()
 // This method sends the report over SMTP 
 BOOL CErrorReportSender::SendOverSMTP()
 {  
-    strconv_t strconv;
+	strconv_t strconv;
 
 	// Check our config - should we send the report over SMTP or not?
     if(m_CrashInfo.m_uPriorities[CR_SMTP]==CR_NEGATIVE_PRIORITY)

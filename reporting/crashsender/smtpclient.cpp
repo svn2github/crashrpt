@@ -187,7 +187,7 @@ DWORD WINAPI CSmtpClient::WorkerThread(VOID* pParam)
 
 int CSmtpClient::SendEmail(CEmailMessage* msg)
 {
-    m_scn->SetProgress(_T("Start sending email"), 0, false);
+	m_scn->SetProgress(_T("Start sending email"), 0, false);
 
     std::map<WORD, CString> host_list;
 
@@ -839,15 +839,14 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
     strconv_t strconv;  
     int uFileSize = 0;
     BYTE* uchFileData = NULL;  
-    struct _stat st;  
-
-	// Check if file exists.
-    int nResult = _tstat(sFileName, &st);
-    if(nResult != 0)
+    
+	// Check if file exists.	
+	long lFileSize = Utility::GetFileSize(sFileName);
+    if(lFileSize<0)
         return 1;  // File not found.
 
     // Allocate buffer of file size
-    uFileSize = (int)st.st_size;
+    uFileSize = (int)lFileSize;
     uchFileData = new BYTE[uFileSize];
 
     // Read file data to buffer.
