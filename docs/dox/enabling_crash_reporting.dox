@@ -225,7 +225,7 @@ Typically, you call the functions described above in the following order:
  - Exit the application.  
 
 In general, you may add files, properties, desktop screenshots, video, registry keys any time
-after you call the \ref crInstall() function and before you call the \ref crUninstall function.
+after you call the \ref crInstall() function and before you call the \ref crUninstall() function.
 It is also possible (but not recommended) to add those files inside of the crash callback function.
 
 For a CrashRpt API usage example, please refer to \ref simple_example page.

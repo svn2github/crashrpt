@@ -90,6 +90,25 @@ The steps 1 and 2 are presented on the figures below.
 
 \image html linker_debug_settings.png "Enabling Debugging Information in Linker (/DEBUG)"
 
+\section disable_fpo Disabling Frame Pointer Omission Optimizations
+
+We recommend turning off Frame Pointer Omission (FPO) optimization in release version 
+configurations, as this optimization does not really give an appreciable gain, but greatly 
+complicates the analysis of the dump: the /Oy compiler option makes using the debugger more 
+difficult because the compiler suppresses frame pointer information. Moreover, in Visual 
+Studio 2010 this optimization is disabled by default.
+
+To disable the FPO optimization:
+
+-# In the Solution Explorer window, right-click your project and open project Properties. 
+-# Choose Configuration Properties->C/C++->Optimization. 
+-# In the <b>Omit Frame Pointers</b> field, choose <b>No (/Oy-)</b>.
+
+\image html disable_fpo.png "Disabling Frame Pointer Omission Optimzation (/Oy-)"
+
+\note If you can't afford yourself to turn the FPO optimization off, you can manage an 
+error log file which is not affected by optimizations.
+
 <i>Further reading:</i> \ref using_crashrpt_api.
 
 */
