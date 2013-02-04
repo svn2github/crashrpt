@@ -12,19 +12,19 @@ Optionally, you can specify custom language file name by using the
 The language file is a text document in UNICODE format and having INI extension. 
 The language file contains localized strings used by CrashRpt dialogs.
 
-If your software supports several languages, you can distribute several language files with your 
-software. On install, rename an appropriate 
+If your software supports several languages, you can ship several language files with your 
+software distribution. On install, rename an appropriate 
 file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
 
-You can download a language file from \a lang_files directory under the top-level directory of
-the CrashRpt distribution.
+You can get a language file from \a lang_files directory under the top-level directory of
+the CrashRpt distribution archive.
 
-Each language file has the CrashRptVersion field that stores the version of CrashRpt you
-can use this language file in. If you try to use a language file with a wrong version, the crInstall()
+Each language file has the \a CrashRptVersion field that stores the version of CrashRpt you
+can use this language file in. If you try to use a language file with a wrong version, the crInstall() function
 will return an error.
 
 For example, assume you want to download the English language file. Browse for
-lang_files->crashrpt_lang_EN.ini (shown below).
+<i>lang_files->crashrpt_lang_EN.ini</i> (shown below).
 
 \code
 - lang_files
