@@ -314,7 +314,10 @@ BOOL CErrorReportSender::DoWork(int Action)
             return FALSE;
         }
 
-        // Add a message to log
+		// Create crash description XML
+		CreateCrashDescriptionXML(*m_CrashInfo.GetReport(0));
+	
+		// Add a message to log
         m_Assync.SetProgress(_T("[confirm_send_report]"), 100, false);
     }
 
@@ -1135,10 +1138,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
         // Add file to the list of file items
         m_CrashInfo.GetReport(0)->AddFileItem(&fi);
     }
-
-    // Create crash description XML
-    CreateCrashDescriptionXML(*m_CrashInfo.GetReport(0));
-	
+	    
     // Success
     bStatus = TRUE;
 
