@@ -56,10 +56,11 @@ and other optional files.
 
 A crash minidump file (<i>crashdump.dmp</i>) contains operating system 
 version, processor type, CPU registers state, local variables and call stack for each 
-execution thread. The minidump in most cases can be used on developer's side to determine 
+execution thread. The minidump file can be used on developer's side to determine 
 the reason of the crash and try to fix the problem.
 
-CrashRpt generates an XML crash description file (<i>crashrpt.xml</i>). The file contains various
+CrashRpt generates an XML crash description file (<i>crashrpt.xml</i>) complementing the minidump. 
+The XML file contains various
 information, such as application name and version, sender's E-mail address and geographic 
 location, user-provided problem description, exception type and address and so on.
 

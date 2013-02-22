@@ -20,11 +20,11 @@ dialog, open <i>Configuration Properties->VC++ Directories</i>.
 Finally,
 
 - In the 'Show directories for' combo box, select 'Include files', then add 
-  the path to <i>[CRASHRPT_HOME]\\include</i> directory to the list.
+  the path to <i><CRASHRPT_HOME>\\include</i> directory to the list.
 - In the 'Show directories for' combo box, select 'Library files', then add 
-  the path to <i>[CRASHRPT_HOME]\\lib</i> directory to the list.
+  the path to <i><CRASHRPT_HOME>\\lib</i> directory to the list.
 
-Here <i>[CRASHRPT_HOME]</i> should be replaced with the actual path of the 
+Here <i><CRASHRPT_HOME></i> should be replaced with the actual path of the 
 directory you unzipped CrashRpt distribution to.
 
 Before you start using CrashRpt API functions in your program, do not forget to include 
@@ -37,7 +37,7 @@ Before you start using CrashRpt API functions in your program, do not forget to 
 
 You also need to add CrashRpt LIB file to the list of input libraries for your project.
 In the Solution Explorer window, right-click your project and choose Properties item from the
-context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
+context menu. Then open <i>Configuration Properties->Linker->Input->Additional Dependencies</i> 
 and then add \b CrashRptXXXX.lib to the list of libraries (here XXXX should be replaced with CrashRpt
 version number). 
 
@@ -48,7 +48,7 @@ as Multi-threaded DLL (/MD) for Release configuration. This is the way recommend
 See the \ref crt_version_and_dll section for more information.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
-Then choose Configuration Properties->C/C++->Code Generation. In the <b>Runtime Library</b> field,
+Then choose <i>Configuration Properties->C/C++->Code Generation</i>. In the <b>Runtime Library</b> field,
 choose <b>Multi-threaded DLL (/MD)</b>. See the figure below for example.
 
 This should be done for all projects in your solution to share single CRT DLL.

@@ -20,7 +20,7 @@ Error reporting functionality consists of two core modules: \b CrashRpt.dll and 
 - \b CrashSender.exe contains functionality for sending error reports to the software's support team.
 
 \note Actually, CrashRpt files have version suffices, for example \b CrashRpt1400.dll, 
-\b CrashSender1400.exe. In some places of the documentation we will omitt these suffices 
+\b CrashSender1400.exe. In some places of the documentation we will omit these suffices 
 for simplicity.
 
 Two modules are needed to be able to close the application 
