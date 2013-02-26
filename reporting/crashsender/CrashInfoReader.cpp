@@ -1295,18 +1295,24 @@ BOOL CCrashInfoReader::RemoveFilesFromCrashReport(int nReport, std::vector<CStri
 		std::map<CString, ERIFileItem>::iterator it = 
 			m_Reports[nReport].m_FileItems.find(FilesToRemove[i]);
 		if(it==m_Reports[nReport].m_FileItems.end())
-            continue; // Such file item name does not exists, skip
-
+            continue; // Such file item name does not exist, skip
+		
 		strconv_t strconv;
-		TiXmlHandle hElem = hFileItems.ToElement()->FirstChild(strconv.t2a(FilesToRemove[i]));
-		if(hElem.ToElement()!=NULL)
-			hFileItems.ToElement()->RemoveChild(hElem.ToElement());              
-		        
-		if(it->second.m_bMakeCopy)
+		TiXmlHandle hElem = hFileItems.ToElement()->FirstChild("FileItem");
+		while(hElem.ToElement()!=NULL)
 		{
-			Utility::RecycleFile(it->second.m_sSrcFile, TRUE);
+			const char* szName = hElem.ToElement()->Attribute("name");
+			if(szName!=NULL && strcmp(strconv.t2a(FilesToRemove[i]), szName)==0)
+			{
+				hFileItems.ToElement()->RemoveChild(hElem.ToElement());              
+				break;
+			}
+			hElem = hElem.ToElement()->NextSibling();
 		}
-
+		
+		// Remove the file from error report directory
+		Utility::RecycleFile(m_Reports[nReport].m_sErrorReportDirName + _T("\\") + it->second.m_sDestFile, TRUE);
+		
 		m_Reports[nReport].m_FileItems.erase(it);
     }
 

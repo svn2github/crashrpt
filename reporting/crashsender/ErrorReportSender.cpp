@@ -487,8 +487,8 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
         sDestFile = sFileName.Mid(nSlashPos+1);
         ERIFileItem fi;
         fi.m_sSrcFile = sFileName;
-        fi.m_sDestFile = sDestFile;
-        fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot")); 
+        fi.m_sDestFile = sDestFile;		
+        fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot")); 		
 		fi.m_bAllowDelete = bAllowDelete;
         m_CrashInfo.GetReport(0)->AddFileItem(&fi);
     }
