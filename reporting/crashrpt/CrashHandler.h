@@ -13,9 +13,7 @@ be found in the Authors.txt file in the root of the source tree.
 // Authors: mikecarruth, zexspectrum
 // Date: 2009
 
-#ifndef _CRASHHANDLER_H_
-#define _CRASHHANDLER_H_
-
+#pragma once
 #include "stdafx.h"
 #include "CrashRpt.h"      
 #include "Utility.h"
@@ -64,6 +62,7 @@ struct FileItem
 	BOOL m_bAllowDelete;    // Whether to allow user deleting the file from context menu of Error Report Details dialog.
 };
 
+// Contains information about a registry key included into a crash report.
 struct RegKeyInfo
 {
 	RegKeyInfo()
@@ -71,7 +70,7 @@ struct RegKeyInfo
 		m_bAllowDelete = false;
 	}
 
-	CString m_sDstFileName; // Destination file name
+	CString m_sDstFileName; // Destination file name (as seen in ZIP archive).
 	bool m_bAllowDelete;    // Whether to allow user deleting the file from context menu of Error Report Details dialog.
 };
 
@@ -116,24 +115,27 @@ public:
 	// Frees all used resources.
     int Destroy();
 
-	// Set crash callback function.
+	// Sets crash callback function (wide-char version).
 	int SetCrashCallbackW(PFNCRASHCALLBACKW pfnCallback, LPVOID pUserParam);
+
+	// Sets crash callback function (multi-byte version).
 	int SetCrashCallbackA(PFNCRASHCALLBACKA pfnCallback, LPVOID pUserParam);
 	
-    // Adds a file to the crash report
+    // Adds a file to the crash report.
     int AddFile(__in_z LPCTSTR lpFile, __in_opt LPCTSTR lpDestFile, 
 				__in_opt LPCTSTR lpDesc, DWORD dwFlags);
 
-    // Adds a named text property to the report
+    // Adds a named text property to the report.
     int AddProperty(CString sPropName, CString sPropValue);
 
-    // Adds desktop screenshot on crash
+    // Adds desktop screenshot of crash into error report.
     int AddScreenshot(DWORD dwFlags, int nJpegQuality);
 
-	// Adds a video recording of desktop state just before crash.
+	// Starts a video recording of desktop state; 
+	// if crash will happen sometime, the video will be included into crash report.
 	int AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, SIZE* pDesiredFrameSize, HWND hWndParent);
 
-    // Adds a registry key on crash
+    // Adds a registry key to crash report.
     int AddRegKey(__in_z LPCTSTR szRegKey, __in_z LPCTSTR szDstFileName, DWORD dwFlags);
 
     // Generates error report	
@@ -147,8 +149,10 @@ public:
     int SetThreadExceptionHandlers(DWORD dwFlags);   
     int UnSetThreadExceptionHandlers();
 
-    // Returns the crash handler object (returns singleton)
+    // Returns the crash handler object (singleton).
     static CCrashHandler* GetCurrentProcessCrashHandler();
+	
+	// Releases the singleton of this crash handler object.
     static void ReleaseCurrentProcessCrashHandler();
 
     /* Exception handler functions. */
@@ -192,20 +196,20 @@ public:
 
     /* Crash report generation methods */
 
-    // Collects current process state.
+    // Collects current state of CPU registers.
     void GetExceptionPointers(
         DWORD dwExceptionCode, 
         EXCEPTION_POINTERS* pExceptionPointers);
 
     // Packs crash description into shared memory.
     CRASH_DESCRIPTION* PackCrashInfoIntoSharedMem(__in CSharedMem* pSharedMem, BOOL bTempMem);
-    // Packs string
+    // Packs a string.
     DWORD PackString(CString str);
-    // Packs file item
+    // Packs a file item.
     DWORD PackFileItem(FileItem& fi);
-    // Packs custom user property
+    // Packs a custom user property.
     DWORD PackProperty(CString sName, CString sValue);
-    // Packs a registry key
+    // Packs a registry key.
     DWORD PackRegKey(CString sKeyName, RegKeyInfo& rki);
 		
     // Launches the CrashSender.exe process.
@@ -220,13 +224,13 @@ public:
     // Sets internal pointers to exception handlers to NULL.
     void InitPrevExceptionHandlerPointers();
 
-	// Initializes several internal fields before each crash
+	// Initializes several internal fields before each crash.
 	int PerCrashInit();
 
     // Acqure exclusive access to this crash handler.
     void CrashLock(BOOL bLock);
 
-	// Calls the crash callback function (if specified by user).
+	// Calls the crash callback function (if the callback function was specified by user).
 	int CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo);
 
     /* Private member variables. */
@@ -306,13 +310,10 @@ public:
 	PFNCRASHCALLBACKW m_pfnCallback2W; // Client crash callback.
 	PFNCRASHCALLBACKA m_pfnCallback2A; // Client crash callback.
 	LPVOID m_pCallbackParam;       // User-specified argument for callback function.
-	std::string m_sErrorReportDirA;  //
-	std::wstring m_sErrorReportDirW; // 
+	std::string m_sErrorReportDirA;  // Error report directory name (multi-byte).
+	std::wstring m_sErrorReportDirW; // Error report directory name (wide-char).
 	int m_nCallbackRetCode;        // Return code of the callback function.
 	BOOL m_bContinueExecution;     // Whether to terminate process (the default) or to continue execution after crash.
 };
 
-
-
-#endif	// !_CRASHHANDLER_H_
 

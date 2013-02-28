@@ -98,6 +98,10 @@ int CCrashHandler::Init(
 		LPCTSTR lpcszSmtpLogin,
 		LPCTSTR lpcszSmtpPassword)
 { 
+	// This method initializes configuration parameters, 
+	// creates shared memory buffer and saves the configuration parameters there,
+	// installs process-wide exception handlers.
+
     crSetErrorMsg(_T("Unspecified error."));
 
 	// Save flags
@@ -318,6 +322,7 @@ int CCrashHandler::Init(
 
     m_sPathToCrashSender += sCrashSenderName;
 
+	// Check if lang file exists on disk
     CString sLangFileVer = Utility::GetINIString(m_sLangFileName, _T("Settings"), _T("CrashRptVersion"));
     int lang_file_ver = _ttoi(sLangFileVer);
     if(lang_file_ver!=CRASHRPT_VER)
@@ -365,6 +370,7 @@ int CCrashHandler::Init(
         hDbgHelpDll = NULL;
     }
 	
+	// Determine the directory where to save error reports
     if(lpcszErrorReportSaveDir==NULL)
     {
         // Create %LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\AppName_AppVer folder.
@@ -387,11 +393,11 @@ int CCrashHandler::Init(
         return 1; 
     }
 
-	// Init some fields that should be reinited before each crash.
+	// Init some fields that should be reinitialized before each new crash.
 	if(0!=PerCrashInit())
 		return 1;
 
-	// Associate this handler with the caller process
+	// Associate this handler object with the caller process.
     m_pProcessCrashHandler =  this;
 
     // Set exception handlers with initial values (NULLs)
@@ -553,6 +559,34 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
 	m_pTmpCrashDesc->m_dwSmtpLoginOffs = PackString(m_sSmtpLogin);    
 	m_pTmpCrashDesc->m_dwSmtpPasswordOffs = PackString(m_sSmtpPassword);    
 
+	// Pack file items
+	std::map<CString, FileItem>::iterator fit;
+	for(fit=m_files.begin(); fit!=m_files.end(); fit++)
+	{
+		FileItem& fi = fit->second;
+
+		// Pack this file item into shared mem.
+		PackFileItem(fi);
+	}
+
+	// Pack custom props
+	std::map<CString, CString>::iterator pit;
+	for(pit=m_props.begin(); pit!=m_props.end(); pit++)
+	{		
+		// Pack this prop into shared mem.
+		PackProperty(pit->first, pit->second);
+	}
+
+	// Pack reg keys
+	std::map<CString, RegKeyInfo>::iterator rit;
+	for(rit=m_RegKeys.begin(); rit!=m_RegKeys.end(); rit++)
+	{		
+		RegKeyInfo& rki = rit->second;
+
+		// Pack this reg key into shared mem.
+		PackRegKey(rit->first, rki);
+	}
+
     return m_pTmpCrashDesc;
 }
 
@@ -684,7 +718,7 @@ int CCrashHandler::Destroy()
 		m_hEvent2 = NULL;
 	}
 
-    // Reset exception callback
+    // Reset SEH exception filter
     if (m_oldSehHandler)
         SetUnhandledExceptionFilter(m_oldSehHandler);
 
@@ -698,6 +732,7 @@ int CCrashHandler::Destroy()
         ATLASSERT(m_ThreadExceptionHandlers.size()==0);          
     }
 
+	// 
     m_pProcessCrashHandler = NULL;
 
     // OK.
@@ -987,7 +1022,6 @@ int CCrashHandler::UnSetThreadExceptionHandlers()
     return 0;
 }
 
-
 // Adds a file item to the error report
 int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc, DWORD dwFlags)
 {
@@ -1111,6 +1145,7 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 		return 2;
 	}
 		
+	// If not specified, set default
 	if(nDuration==0)
 	{
 		// Default duration - 1 min
@@ -1124,6 +1159,7 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
         return 3;
 	}
 
+	// If not specified, set default
 	if(nFrameInterval==0)
 	{
 		// Default frame interval - 500 msec
@@ -1213,12 +1249,10 @@ int CCrashHandler::GenerateErrorReport(
 		pExceptionInfo->pexcptrs = &ExceptionPointers;
     }
 		
-	// If error report is being generated manually, disable app restart feature.
+	// If error report is being generated manually, 
+	// temporarily disable app restart feature.
     if(pExceptionInfo->bManual)
-	{
-		// Prepare for the next crash.
-		//PerCrashInit();
-
+	{		
 		// Force disable app restart.
         m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
 	}
@@ -1226,7 +1260,7 @@ int CCrashHandler::GenerateErrorReport(
 	// Set "client app crashed" flag.
 	m_pCrashDesc->m_bClientAppCrashed = TRUE;
 	
-	// Reset "add video" flag.
+	// Reset "add video" flag (to ensure CrashSender.exe won't start video recording loop the second time).
 	m_pCrashDesc->m_bAddVideo = FALSE;
     
 	// Save current process ID, thread ID and exception pointers address to shared mem.
@@ -1258,6 +1292,8 @@ int CCrashHandler::GenerateErrorReport(
     // Let client know about the crash via the crash callback function. 
     if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
     {
+		// User has canceled error report generation!
+
 		// Prepare for the next crash
 		PerCrashInit();
 
@@ -1268,6 +1304,8 @@ int CCrashHandler::GenerateErrorReport(
 	// New-style callback
 	if(CR_CB_CANCEL==CallBack(CR_CB_STAGE_PREPARE, pExceptionInfo))
 	{
+		// User has canceled error report generation!
+
 		// Prepare for the next crash
 		PerCrashInit();
 
@@ -1280,15 +1318,15 @@ int CCrashHandler::GenerateErrorReport(
     // notify user about crash, compress the report into ZIP archive and send 
     // the error report. 
 
-    int result = 0;
+    int result = 0; // result of launching CrashSender.exe
 	
-	// If we are not recording video or video recording has been cancelled by some reason
+	// If we are not recording video or video recording process has been terminated by some reason...
 	if(!m_bAddVideo || (m_bAddVideo && !IsSenderProcessAlive())) 
 	{
-		// Run the CrashSender.exe
+		// Run new CrashSender.exe process
 		result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
 	}
-	else
+	else // we are recording video
 	{		
 		// The CrashSender.exe process is already launched by the AddVideo method.
 		// We need to signal the event to make CrashSender.exe generate error report.
@@ -1301,12 +1339,13 @@ int CCrashHandler::GenerateErrorReport(
 		// Free sync event (it is not needed since now).
 		CloseHandle(m_hEvent2);
 		m_hEvent2 = NULL;
-
+		
 		// Return handle to CrashSender.exe process to the caller.		
 		pExceptionInfo->hSenderProcess = m_hSenderProcess;
 	}
     
-	// New-style callback
+	// New-style callback. Notify client about the second stage 
+	// (CR_CB_STAGE_FINISH) of crash report generation.
 	CallBack(CR_CB_STAGE_FINISH, pExceptionInfo);
 	
 	// Check if the client program requests to continue its execution
@@ -1315,6 +1354,16 @@ int CCrashHandler::GenerateErrorReport(
 	{
 		// Prepare for the next crash
 		PerCrashInit();
+
+		if(m_bAddVideo)
+		{
+			// Relaunch video recording loop for the next crash.
+			// Avoid displaying video notification dialog (as the user already has 
+			// approved video recording).
+			m_bAddVideo = FALSE;
+			AddVideo(m_dwVideoFlags|CR_AV_NO_GUI, m_nVideoDuration, m_nVideoFrameInterval, 
+				&m_DesiredFrameSize, m_hWndVideoParent);
+		}
 	}
 
 	// Check the result of launching the crash sender process.
@@ -1538,8 +1587,8 @@ int CCrashHandler::LaunchCrashSender(LPCTSTR szCmdLineParams, BOOL bWait, HANDLE
     return 0;
 }
 
-// Acquires the crash lock. Other threads that may crash while we are inside of a crash handler function,
-// will wait until we unlock.
+// Acquires the crash lock. Other threads that may crash while we are 
+// inside of a crash handler function, will wait until we unlock.
 void CCrashHandler::CrashLock(BOOL bLock)
 {
     if(bLock)
@@ -1550,14 +1599,18 @@ void CCrashHandler::CrashLock(BOOL bLock)
 
 int CCrashHandler::PerCrashInit()
 {
-	// Asume the next crash non-critical.
+	// This method performs per-crash initialization actions.
+	// For example, we have to generate a new GUID string and repack 
+	// configuration info into shared memory each time.
+
+	// Consider the next crash as non-critical.
 	m_bContinueExecution = TRUE;
 
 	// Set default ret code for callback func.	
 	m_nCallbackRetCode = CR_CB_NOTIFY_NEXT_STAGE;
 
 	// Reset video flag to let user add new videos.
-	m_bAddVideo = FALSE;
+	//m_bAddVideo = FALSE;
 
 	// Generate new GUID for new crash report 
 	// (if, for example, user will generate new error report manually).
@@ -1601,7 +1654,9 @@ int CCrashHandler::PerCrashInit()
 
 int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 {	
-	// This method calls the crash callback function.
+	// This method calls the new-style crash callback function.
+	// The client (calee) is able to either permit crash report generation (return CR_CB_DODEFAULT)
+	// or prevent it (return CR_CB_CANCEL).
 
 	strconv_t strconv;
 
@@ -1611,6 +1666,8 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 	if(m_pfnCallback2W!=NULL)
 	{
 		// Call the wide-char version of the callback function.
+
+		// Prepare callback info structure
 		CR_CRASH_CALLBACK_INFOW cci;
 		memset(&cci, 0, sizeof(CR_CRASH_CALLBACK_INFOW));
 		cci.cb = sizeof(CR_CRASH_CALLBACK_INFOW);
@@ -1619,7 +1676,7 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 		cci.pUserParam = m_pCallbackParam;
 		cci.pszErrorReportFolder = m_sErrorReportDirW.c_str();
 		cci.bContinueExecution = m_bContinueExecution;
-
+		// Call the function and get the ret code
 		m_nCallbackRetCode = m_pfnCallback2W(&cci);
 
 		// Save continue execution flag
@@ -1628,6 +1685,8 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 	else if(m_pfnCallback2A!=NULL)
 	{
 		// Call the multi-byte version of the callback function.
+
+		// Prepare callback info structure
 		CR_CRASH_CALLBACK_INFOA cci;
 		memset(&cci, 0, sizeof(CR_CRASH_CALLBACK_INFOA));
 		cci.cb = sizeof(CR_CRASH_CALLBACK_INFOA);
@@ -1636,7 +1695,7 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 		cci.pUserParam = m_pCallbackParam;
 		cci.pszErrorReportFolder = m_sErrorReportDirA.c_str();
 		cci.bContinueExecution = m_bContinueExecution;
-
+		// Call the function and get the ret code
 		m_nCallbackRetCode = m_pfnCallback2A(&cci);
 
 		// Save continue execution flag
@@ -1646,7 +1705,7 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 	return m_nCallbackRetCode;
 }
 
-// Structured exception handler
+// Structured exception handler (SEH)
 LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 { 
     CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();

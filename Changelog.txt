@@ -2,6 +2,7 @@
 
 - Fixed: Screenshot file still sent even if deleted (issue 186).
 - Fixed: Video division by zero (issue 189)
+- Fixed: Video missing from report (issue 187)
 
 --- Ver. 1.4.1 ---
 
