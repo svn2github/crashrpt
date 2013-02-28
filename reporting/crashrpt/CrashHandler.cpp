@@ -1127,7 +1127,7 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 	if(nFrameInterval==0)
 	{
 		// Default frame interval - 500 msec
-		nDuration = 500;
+		nFrameInterval = 500;
 	}
 
 	// Check if we already have a video recording enabled.
@@ -1149,6 +1149,7 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 		m_DesiredFrameSize.cx = 0;
 	}
 
+	// Determine parent window for our notification dialog.
 	if(hWndParent!=NULL)
 		m_hWndVideoParent = hWndParent;
 	else
@@ -1162,6 +1163,7 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
     m_pTmpCrashDesc->m_DesiredFrameSize = m_DesiredFrameSize;
 	m_pTmpCrashDesc->m_hWndVideoParent = m_hWndVideoParent;
 	
+	// Create sync event (we will use it for synchronizing with CrashSender.exe).
 	CString sEventName;
     sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), m_sCrashGUID);
     m_hEvent2 = CreateEvent(NULL, FALSE, FALSE, sEventName);
@@ -1204,41 +1206,49 @@ int CCrashHandler::GenerateErrorReport(
         return 1;
     }
 
-    // Get exception pointers if not provided. 
+    // Get exception pointers if they were not provided by the caller. 
     if(pExceptionInfo->pexcptrs==NULL)
     {
         GetExceptionPointers(pExceptionInfo->code, &ExceptionPointers);
 		pExceptionInfo->pexcptrs = &ExceptionPointers;
     }
-
-	// If error report is being generated manually, disable app restart.
+		
+	// If error report is being generated manually, disable app restart feature.
     if(pExceptionInfo->bManual)
 	{
-		// Prepare for the next crash
-		PerCrashInit();
+		// Prepare for the next crash.
+		//PerCrashInit();
 
+		// Force disable app restart.
         m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
 	}
 
-	// Set "client app crashed" flag
+	// Set "client app crashed" flag.
 	m_pCrashDesc->m_bClientAppCrashed = TRUE;
+	
+	// Reset "add video" flag.
 	m_pCrashDesc->m_bAddVideo = FALSE;
-    // Save current process ID, thread ID and exception pointers address to shared mem.
+    
+	// Save current process ID, thread ID and exception pointers address to shared mem.
     m_pCrashDesc->m_dwProcessId = GetCurrentProcessId();
     m_pCrashDesc->m_dwThreadId = GetCurrentThreadId();
     m_pCrashDesc->m_pExceptionPtrs = pExceptionInfo->pexcptrs;  
     m_pCrashDesc->m_bSendRecentReports = FALSE;
     m_pCrashDesc->m_nExceptionType = pExceptionInfo->exctype;
+
     if(pExceptionInfo->exctype==CR_SEH_EXCEPTION)
     {
+		// Set SEH exception code
         m_pCrashDesc->m_dwExceptionCode = pExceptionInfo->code;
     }
     else if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
     {
+		// Set FPE (floating point exception) subcode
         m_pCrashDesc->m_uFPESubcode = pExceptionInfo->fpe_subcode;
     }
     else if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
     {
+		// Set invalid parameter exception info fields
         m_pCrashDesc->m_dwInvParamExprOffs = PackString(pExceptionInfo->expression);
         m_pCrashDesc->m_dwInvParamFunctionOffs = PackString(pExceptionInfo->function);
         m_pCrashDesc->m_dwInvParamFileOffs = PackString(pExceptionInfo->file);
@@ -1284,12 +1294,11 @@ int CCrashHandler::GenerateErrorReport(
 		// We need to signal the event to make CrashSender.exe generate error report.
 		SetEvent(m_hEvent2);
 		
-		/* Wait until CrashSender finishes with making screenshot, 
-        copying files, creating minidump and encoding recorded video. */  
-
+		// Wait until CrashSender finishes with making screenshot, 
+        // copying files, creating minidump and encoding recorded video. 
         WaitForSingleObject(m_hEvent, INFINITE);
 
-		// Free event (it is not needed since now).
+		// Free sync event (it is not needed since now).
 		CloseHandle(m_hEvent2);
 		m_hEvent2 = NULL;
 
@@ -1300,20 +1309,22 @@ int CCrashHandler::GenerateErrorReport(
 	// New-style callback
 	CallBack(CR_CB_STAGE_FINISH, pExceptionInfo);
 	
+	// Check if the client program requests to continue its execution
+	// after crash.
 	if(m_bContinueExecution)
 	{
 		// Prepare for the next crash
 		PerCrashInit();
 	}
 
-	// Check the result of launching the crash sender process
+	// Check the result of launching the crash sender process.
 	if(result!=0)
     {
         ATLASSERT(result==0);
         crSetErrorMsg(_T("Error launching CrashSender.exe"));
 
         // Failed to launch crash sender process.
-        // Try notify user about crash using message box.
+        // Try notifying user about crash using message box.
         CString szCaption;
         szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
         CString szMessage;
@@ -1539,27 +1550,27 @@ void CCrashHandler::CrashLock(BOOL bLock)
 
 int CCrashHandler::PerCrashInit()
 {
-	// Asume the next crash non-critical
+	// Asume the next crash non-critical.
 	m_bContinueExecution = TRUE;
 
-	// Set default ret code for callback func	
+	// Set default ret code for callback func.	
 	m_nCallbackRetCode = CR_CB_NOTIFY_NEXT_STAGE;
 
-	// Reset video flag to let user add new videos
+	// Reset video flag to let user add new videos.
 	m_bAddVideo = FALSE;
 
 	// Generate new GUID for new crash report 
 	// (if, for example, user will generate new error report manually).
     Utility::GenerateGUID(m_sCrashGUID);
     
-	// And recreate the event that will be used to synchronize with CrashSender.exe process
+	// Recreate the event that will be used to synchronize with CrashSender.exe process.
 	if(m_hEvent!=NULL)
 		CloseHandle(m_hEvent); // Free old event
     CString sEventName;
     sEventName.Format(_T("Local\\CrashRptEvent_%s"), m_sCrashGUID);
     m_hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
     
-	// Format error report dir name.
+	// Format error report dir name for the next crash report.
 	CString sErrorReportDirName;
 	sErrorReportDirName.Format(_T("%s\\%s_%s\\%s"), 
 		m_sUnsentCrashReportsFolder.GetBuffer(0),
@@ -1568,6 +1579,7 @@ int CCrashHandler::PerCrashInit()
 		m_sCrashGUID.GetBuffer(0)
 		);
 
+	// Convert it to wide-char and multi-byte charsets.
 	strconv_t strconv;
 	m_sErrorReportDirW = strconv.t2w(sErrorReportDirName);
 	m_sErrorReportDirA = strconv.t2a(sErrorReportDirName);
@@ -1579,10 +1591,11 @@ int CCrashHandler::PerCrashInit()
 		m_pCrashDesc = NULL;
 	}
 
-	// Pack configuration info to shared memory.
+	// Pack configuration info into shared memory.
     // It will be passed to CrashSender.exe later.
     m_pCrashDesc = PackCrashInfoIntoSharedMem(&m_SharedMem, FALSE);
 	
+	// OK
 	return 0;
 }
 

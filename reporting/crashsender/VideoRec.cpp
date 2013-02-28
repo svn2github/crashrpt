@@ -59,9 +59,17 @@ BOOL CVideoRecorder::Init(LPCTSTR szSaveToDir,
 	int nVideoQuality,
 	SIZE* pDesiredFrameSize)
 {
+	// Validate input params
+	if(nVideoDuration<=0 || nVideoFrameInterval<=0)
+	{
+		// Invalid arg
+		return FALSE;
+	}
+	
+	// Save params
 	m_sSaveToDir = szSaveToDir;
 	m_ScreenshotType = type;
-	m_nVideoDuration = nVideoDuration;
+	m_nVideoDuration = nVideoDuration;	
 	m_nVideoFrameInterval = nVideoFrameInterval;
 	m_nVideoQuality = nVideoQuality;
 	m_dwProcessId = dwProcessId;
