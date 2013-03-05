@@ -56,7 +56,7 @@ DWORD WINAPI CHttpRequestSender::WorkerThread(VOID* pParam)
     return 0;
 }
 
-// Sends HTTP request and checks responce
+// Sends HTTP request and checks response
 BOOL CHttpRequestSender::InternalSend()
 { 
     BOOL bStatus = FALSE;      // Resulting status
@@ -225,7 +225,7 @@ BOOL CHttpRequestSender::InternalSend()
     // Add a message to log
     m_Assync->SetProgress(_T("Reading server response..."), 0);
 	
-	// Get HTTP responce code from HTTP headers
+	// Get HTTP response code from HTTP headers
 	DWORD lHttpStatus = 0;
 	DWORD lHttpStatusSize = sizeof(lHttpStatus);
 	BOOL bQueryInfo = HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, 
@@ -233,38 +233,38 @@ BOOL CHttpRequestSender::InternalSend()
 	
 	if(bQueryInfo)
 	{
-		sMsg.Format(_T("Server responce code: %ld"), lHttpStatus);
+		sMsg.Format(_T("Server response code: %ld"), lHttpStatus);
 		m_Assync->SetProgress(sMsg, 0);
 	}
 
-	// Read HTTP responce
+	// Read HTTP response
 	InternetReadFile(hRequest, pBuffer, 4095, &dwBuffSize);
 	pBuffer[dwBuffSize] = 0;
 	sMsg = CString((LPCSTR)pBuffer, dwBuffSize);
-	sMsg = _T("Server responce body:")  + sMsg;
+	sMsg = _T("Server response body:")  + sMsg;
 	m_Assync->SetProgress(sMsg, 0);
 	
 
-	// If the first byte of HTTP responce is a digit, than assume a legacy way
-	// of determining delivery status - the HTTP responce starts with a delivery status code
+	// If the first byte of HTTP response is a digit, than assume a legacy way
+	// of determining delivery status - the HTTP response starts with a delivery status code
 	if(dwBuffSize>0 && pBuffer[0]>='0' && pBuffer[0]<='9')
 	{
-		m_Assync->SetProgress(_T("Assuming legacy method of determining delivery status (from HTTP responce body)."), 0);
+		m_Assync->SetProgress(_T("Assuming legacy method of determining delivery status (from HTTP response body)."), 0);
 
-		// Get status code from HTTP responce
+		// Get status code from HTTP response
 		if(atoi((LPCSTR)pBuffer)!=200)
 		{
-			m_Assync->SetProgress(_T("Failed (HTTP responce body doesn't start with code 200)."), 100, false);
+			m_Assync->SetProgress(_T("Failed (HTTP response body doesn't start with code 200)."), 100, false);
 			goto cleanup;
 		}
 	}
 	else
 	{
-		// If the first byte of HTTP responce is not a digit, assume that
+		// If the first byte of HTTP response is not a digit, assume that
 		// the delivery status should be read from HTTP header
 		if(!bQueryInfo || lHttpStatus!=200)
 		{
-			m_Assync->SetProgress(_T("Failed (HTTP responce code is not equal to 200)."), 100, false);
+			m_Assync->SetProgress(_T("Failed (HTTP response code is not equal to 200)."), 100, false);
 			goto cleanup;
 		}
 	}

@@ -764,7 +764,7 @@ std::string CSmtpClient::UTF16toUTF8(LPCWSTR utf16)
 int CSmtpClient::SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponse, UINT uResponseSize)
 {	
 	// This method sends a message using the specified socket and
-	// waits for responce.
+	// waits for response.
 
     strconv_t strconv;
 
@@ -790,7 +790,7 @@ int CSmtpClient::SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponse, UIN
 	
 	for(;;)
 	{
-		// Read responce
+		// Read response
 		memset(pszResponse, 0, uResponseSize);
 		int br = recv(sock, pszResponse, uResponseSize, 0);
 		// Check result
