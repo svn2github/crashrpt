@@ -1040,7 +1040,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
         }
     }
 
-    // Make sure the file exist
+    // Make sure the file exist^
     struct _stat st;
     int result = _tstat(pszFile, &st);
 

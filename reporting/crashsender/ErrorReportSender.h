@@ -141,6 +141,9 @@ private:
     // Creates crash dump file.
     BOOL CreateMiniDump();  
 
+	// This method is used to have the current process be able to call MiniDumpWriteDump.
+	BOOL SetDumpPrivileges();
+
     // Creates crash description XML file.
     BOOL CreateCrashDescriptionXML(CErrorReportInfo& eri);
 	

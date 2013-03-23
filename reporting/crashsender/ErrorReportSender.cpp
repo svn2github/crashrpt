@@ -607,7 +607,7 @@ BOOL CErrorReportSender::CreateMiniDump()
 	// Update progress
     m_Assync.SetProgress(_T("Creating crash dump file..."), 0, false);
     m_Assync.SetProgress(_T("[creating_dump]"), 0, false);
-
+	
     // Load dbghelp.dll
     hDbgHelp = LoadLibrary(m_CrashInfo.m_sDbgHelpPath);
     if(hDbgHelp==NULL)
@@ -623,6 +623,9 @@ BOOL CErrorReportSender::CreateMiniDump()
         m_Assync.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
         goto cleanup;
     }
+
+	// Try to adjust process privilegies to be able to generate minidumps.
+	SetDumpPrivileges();
 
     // Create the minidump file
     hFile = CreateFile(
@@ -744,6 +747,61 @@ cleanup:
     m_CrashInfo.GetReport(0)->AddFileItem(&fi);
 	
     return bStatus;
+}
+
+BOOL CErrorReportSender::SetDumpPrivileges()
+{
+	// This method is used to have the current process be able to call MiniDumpWriteDump
+	// This code was taken from:
+	// http://social.msdn.microsoft.com/Forums/en-US/vcgeneral/thread/f54658a4-65d2-4196-8543-7e71f3ece4b6/
+	
+
+	BOOL       fSuccess  = FALSE;
+	HANDLE      TokenHandle = NULL;
+	TOKEN_PRIVILEGES TokenPrivileges;
+
+	if (!OpenProcessToken(GetCurrentProcess(),
+		TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+		&TokenHandle))
+	{
+		m_Assync.SetProgress(_T("SetDumpPrivileges: Could not get the process token"), 0);		
+		goto Cleanup;
+	}
+
+	TokenPrivileges.PrivilegeCount = 1;
+
+	if (!LookupPrivilegeValue(NULL,
+		SE_DEBUG_NAME,
+		&TokenPrivileges.Privileges[0].Luid))
+	{
+		m_Assync.SetProgress(_T("SetDumpPrivileges: Couldn't lookup SeDebugPrivilege name"), 0);				
+		goto Cleanup;
+	}
+
+	TokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+	//Add privileges here.
+	if (!AdjustTokenPrivileges(TokenHandle,
+		FALSE,
+		&TokenPrivileges,
+		sizeof(TokenPrivileges),
+		NULL,
+		NULL))
+	{
+		m_Assync.SetProgress(_T("SetDumpPrivileges: Could not revoke the debug privilege"), 0);						
+		goto Cleanup;
+	}
+
+	fSuccess = TRUE;
+
+Cleanup:
+
+	if (TokenHandle)
+	{
+		CloseHandle(TokenHandle);
+	}
+
+	return fSuccess;
 }
 
 // This method adds an element to XML file

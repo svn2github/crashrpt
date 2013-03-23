@@ -481,6 +481,7 @@ crSetCrashCallbackA(
 #define CR_INST_SEND_MANDATORY				 0x100000 //!< This flag removes the "Close" and "Other actions" buttons from Error Report dialog, thus making the sending procedure mandatory for user.
 #define CR_INST_SHOW_ADDITIONAL_INFO_FIELDS	 0x200000 //!< Makes "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
 #define CR_INST_ALLOW_ATTACH_MORE_FILES		 0x400000 //!< Adds an ability for user to attach more files to crash report by clicking "Attach More File(s)" item from context menu of Error Report Details dialog.
+#define CR_INST_AUTO_THREAD_HANDLERS         0x800000 //!< If this flag is set, installs exception handlers for newly created threads automatically.
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOW()
@@ -617,6 +618,11 @@ crSetCrashCallbackA(
 *    <tr><td> \ref CR_INST_ALLOW_ATTACH_MORE_FILES     
 *        <td> <b>Available since v.1.3.1</b> Adds an ability for user to attach more files to crash report by choosing 
 *             "Attach More File(s)" item from context menu of Error Report Details dialog. By default this feature is disabled.
+*
+*    <tr><td> \ref CR_INST_AUTO_THREAD_HANDLERS     
+*        <td> <b>Available since v.1.4.2</b> Specifying this flag results in automatic installation of all available exception handlers to
+*             all threads that will be created in the future. This flag only works if CrashRpt is compiled as a DLL, it does 
+*             not work if you compile CrashRpt as static library.
 *   </table>
 *
 *   \b pszPrivacyPolicyURL [in, optional] 
