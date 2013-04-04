@@ -949,6 +949,29 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID /*lpReserved*/)
         // Save handle to the CrashRpt.dll module.
         g_hModuleCrashRpt = hModule;
     }
+	else if(dwReason==DLL_THREAD_ATTACH)
+	{
+		// The current process is creating a new thread. 
+		CCrashHandler *pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+		if(pCrashHandler!=NULL &&
+			pCrashHandler->IsInitialized() &&
+			(pCrashHandler->GetFlags()&CR_INST_AUTO_THREAD_HANDLERS)!=0 )
+		{    
+			pCrashHandler->SetThreadExceptionHandlers(0);
+		}
+	}
+	else  if(dwReason==DLL_THREAD_DETACH)
+	{
+		// A thread is exiting cleanly.
+		CCrashHandler *pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+		if(pCrashHandler!=NULL &&
+			pCrashHandler->IsInitialized() &&
+			(pCrashHandler->GetFlags()&CR_INST_AUTO_THREAD_HANDLERS)!=0 )
+		{    
+			pCrashHandler->UnSetThreadExceptionHandlers();
+		}
+	}
+
     return TRUE;
 }
 #endif

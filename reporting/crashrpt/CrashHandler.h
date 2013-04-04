@@ -149,6 +149,9 @@ public:
     int SetThreadExceptionHandlers(DWORD dwFlags);   
     int UnSetThreadExceptionHandlers();
 
+	// Returns flags.
+	DWORD GetFlags();
+
     // Returns the crash handler object (singleton).
     static CCrashHandler* GetCurrentProcessCrashHandler();
 	

@@ -2271,6 +2271,9 @@ void CCrashHandler::SigtermHandler(int)
     }
 }
 
-
+DWORD CCrashHandler::GetFlags()
+{
+	return m_dwFlags;
+}
 
 

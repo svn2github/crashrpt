@@ -57,6 +57,18 @@ crUninstallFromCurrentThread() function to unset exception handlers from the cal
 crUninstallFromCurrentThread() function in the main execution thread, because crUninstall() will do that for
 you automatically.
 
+The crInstallToCurrentThread2() and crUninstallFromCurrentThread() functions provide you with
+full control on when to install/uninstall thread exception handlers and which of them to install. 
+But, sometimes it may be desired to install thread exception handlers automatically. For example,
+if you you need to catch exceptions in a thread created by a third-party module, but you don't have access 
+to that module's source code. 
+
+Since v.1.4.2, you can ask CrashRpt to install the per-thread exception handlers 
+automatically by specifying the \ref CR_INST_AUTO_THREAD_HANDLERS flags for \ref CR_INSTALL_INFO::dwFlags
+structure field. If this flag is specified, CrashRpt will install all available thread exception handlers 
+in response on <b>DllMain()</b>'s reson codes \b DLL_THREAD_ATTACH/DLL_THREAD_DETACH. This flag has
+effect only when CrashRpt is compiled as a DLL (it does not work if CrashRpt is compiled as a static library).
+
 \section wrappers Convenience Wrappers
 
 You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception

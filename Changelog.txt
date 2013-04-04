@@ -1,8 +1,18 @@
 ======= Change History ========
 
+- New: Added new flag CR_INST_AUTO_THREAD_HANDLERS allowing to 
+       install/uninstall exception handlers automatically in DllMain() 
+       on DLL_THREAD_ATTACH/DETACH (issue 185).
+
+- New: adjusting dump privileges to avoid error 'Only part of a ReadProcessMemory
+       or WriteProcessMemory request was completed.'
+
 - Fixed: Screenshot file still sent even if deleted (issue 186).
 - Fixed: Video division by zero (issue 189)
 - Fixed: Video missing from report (issue 187)
+- Fixed: CCrashHandler.m_hWndVideoParent not initialized to a 
+         default value (issue 195)
+
 
 --- Ver. 1.4.1 ---
 
