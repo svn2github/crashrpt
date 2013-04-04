@@ -8,6 +8,10 @@ a previous version to the latest version.
 
 --- v.1.4.1 ---
 
+   No changes
+  
+--- v.1.4.1 ---
+
  * In [DetailDlg]
   - PreviewVideo - new
 
