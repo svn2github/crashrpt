@@ -56,6 +56,7 @@ CCrashHandler::CCrashHandler()
 	m_nVideoFrameInterval = 500; // 500 msec
 	m_DesiredFrameSize.cx = 0; // default video frame size
 	m_DesiredFrameSize.cy = 0;
+	m_hWndVideoParent = NULL; 
     m_hEvent = NULL;  
 	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
