@@ -295,8 +295,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0,1
- PRODUCTVERSION 1,4,0,1
+ FILEVERSION 1,4,0,2
+ PRODUCTVERSION 1,4,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -312,12 +312,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "Crash Report Delivery Module"
-            VALUE "FileVersion", "1.4.0.1"
+            VALUE "FileVersion", "1.4.0.2"
             VALUE "InternalName", "CrashSender"
             VALUE "LegalCopyright", "Copyright 2003-2013 The CrashRpt Project Authors"
             VALUE "OriginalFilename", "CrashSender.exe"
             VALUE "ProductName", "CrashRpt"
-            VALUE "ProductVersion", "1.4.0.1"
+            VALUE "ProductVersion", "1.4.0.2"
         END
     END
     BLOCK "VarFileInfo"

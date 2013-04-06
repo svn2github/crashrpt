@@ -215,8 +215,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0,1
- PRODUCTVERSION 1,4,0,1
+ FILEVERSION 1,4,0,2
+ PRODUCTVERSION 1,4,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -233,12 +233,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "TODO: <Company name>"
             VALUE "FileDescription", "TODO: <File description>"
-            VALUE "FileVersion", "1.4.0.1"
+            VALUE "FileVersion", "1.4.0.2"
             VALUE "InternalName", "MFCDemo.exe"
             VALUE "LegalCopyright", "Copyright 2003-2013 The CrashRpt project Authors"
             VALUE "OriginalFilename", "MFCDemo.exe"
             VALUE "ProductName", "CrashRpt"
-            VALUE "ProductVersion", "1.4.0.1"
+            VALUE "ProductVersion", "1.4.0.2"
         END
     END
     BLOCK "VarFileInfo"

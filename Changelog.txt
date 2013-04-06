@@ -10,6 +10,7 @@
 - Fixed: Screenshot file still sent even if deleted (issue 186).
 - Fixed: Video division by zero (issue 189)
 - Fixed: Video missing from report (issue 187)
+- Fixed: No crash data is sent to URL when we have a redirect (Issue 191)
 - Fixed: CCrashHandler.m_hWndVideoParent not initialized to a 
          default value (issue 195)
 
