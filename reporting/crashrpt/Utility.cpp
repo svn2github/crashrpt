@@ -590,3 +590,14 @@ long Utility::GetFileSize(const TCHAR *fileName)
     //assert(0 == fileInfo.nFileSizeHigh);
     return (long)fileInfo.nFileSizeLow;
 }
+
+BOOL Utility::IsFileSearchPattern(CString sFileName)
+{
+	// Check if the file name is a search template.		
+	BOOL bSearchPattern = FALSE;	
+	int nPos = sFileName.FindOneOf(_T("*?"));
+	if(nPos>=0)
+		bSearchPattern = true;
+	return bSearchPattern;
+}
+

@@ -86,6 +86,9 @@ public:
 	// Adds/replaces a file to crash report.
 	void AddFileItem(ERIFileItem* pfi);
 
+	// Removes an item.
+	BOOL DeleteFileItemByIndex(int nItem);
+
 	// Returns count of custom properties in error report.
 	int GetPropCount();
 

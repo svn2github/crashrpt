@@ -1028,7 +1028,14 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
 {
     crSetErrorMsg(_T("Unspecified error."));
 
-    // Check that destination file name is valid
+	// Check if source file name or search pattern is specified
+	if(pszFile==NULL)
+	{
+		crSetErrorMsg(_T("Invalid file name specified."));
+        return 1; 
+	}
+
+    // Check that the destination file name is valid
     if(pszDestFile!=NULL)
     {
         CString sDestFile = pszDestFile;
@@ -1041,50 +1048,71 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
         }
     }
 
-    // Make sure the file exist^
-    struct _stat st;
-    int result = _tstat(pszFile, &st);
+	// Check if pszFile is a search pattern or not
+	BOOL bPattern = Utility::IsFileSearchPattern(pszFile);
 
-    if (result!=0 && (dwFlags&CR_AF_MISSING_FILE_OK)==0)
-    {    
-        crSetErrorMsg(_T("Couldn't stat file. File may not exist."));
-        return 1;
-    }
+	if(!bPattern) // Usual file name
+	{
+		// Make sure the file exists
+		DWORD dwAttrs = GetFileAttributes(pszFile);
 
-    // Add file to file list.
-    FileItem fi;
-    fi.m_sDescription = pszDesc;
-    fi.m_sSrcFilePath = pszFile;
-    fi.m_bMakeCopy = (dwFlags&CR_AF_MAKE_FILE_COPY)!=0;
-	fi.m_bAllowDelete = (dwFlags&CR_AF_ALLOW_DELETE)!=0;
-    if(pszDestFile!=NULL)
-    {
-        fi.m_sDstFileName = pszDestFile;        
-    }
-    else
-    {
-        CString sDestFile = pszFile;
-        int pos = -1;
-        sDestFile.Replace('/', '\\');
-        pos = sDestFile.ReverseFind('\\');
-        if(pos!=-1)
-            sDestFile = sDestFile.Mid(pos+1);
+		BOOL bIsFile = dwAttrs!=INVALID_FILE_ATTRIBUTES && (dwAttrs&FILE_ATTRIBUTE_DIRECTORY)==0;
 
-        fi.m_sDstFileName = sDestFile;        
-    }
+		if (!bIsFile && (dwFlags&CR_AF_MISSING_FILE_OK)==0)
+		{    
+			crSetErrorMsg(_T("The file does not exists or not a regular file."));
+			return 1;
+		}
 
-    // Check if file is already in our list
-    std::map<CString, FileItem>::iterator it = m_files.find(fi.m_sDstFileName);
-    if(it!=m_files.end())
-    {
-        crSetErrorMsg(_T("A file with such destination name already exists."));
-        return 1;
-    }
+		// Add file to file list.
+		FileItem fi;
+		fi.m_sDescription = pszDesc;
+		fi.m_sSrcFilePath = pszFile;
+		fi.m_bMakeCopy = (dwFlags&CR_AF_MAKE_FILE_COPY)!=0;
+		fi.m_bAllowDelete = (dwFlags&CR_AF_ALLOW_DELETE)!=0;
+		if(pszDestFile!=NULL)
+		{
+			fi.m_sDstFileName = pszDestFile;        
+		}
+		else
+		{
+			CString sDestFile = pszFile;
+			int pos = -1;
+			sDestFile.Replace('/', '\\');
+			pos = sDestFile.ReverseFind('\\');
+			if(pos!=-1)
+				sDestFile = sDestFile.Mid(pos+1);
 
-    m_files[fi.m_sDstFileName] = fi;
+			fi.m_sDstFileName = sDestFile;        
+		}
 
-    // Pack this file item into shared mem.
-    PackFileItem(fi);
+		// Check if file is already in our list
+		std::map<CString, FileItem>::iterator it = m_files.find(fi.m_sDstFileName);
+		if(it!=m_files.end())
+		{
+			crSetErrorMsg(_T("A file with such a destination name already exists."));
+			return 1;
+		}
+
+		m_files[fi.m_sDstFileName] = fi;
+
+		// Pack this file item into shared mem.
+		PackFileItem(fi);
+	}
+	else // Search pattern
+	{			
+		// Add file search pattern to file list.
+		FileItem fi;
+		fi.m_sDescription = pszDesc;
+		fi.m_sSrcFilePath = pszFile;
+		fi.m_sDstFileName = Utility::GetFileName(pszFile);
+		fi.m_bMakeCopy = (dwFlags&CR_AF_MAKE_FILE_COPY)!=0;
+		fi.m_bAllowDelete = (dwFlags&CR_AF_ALLOW_DELETE)!=0;		
+		m_files[fi.m_sDstFileName] = fi;
+
+		// Pack this file item into shared mem.
+		PackFileItem(fi);
+	}	 
 
     // OK.
     crSetErrorMsg(_T("Success."));

@@ -244,6 +244,18 @@ void CErrorReportInfo::AddFileItem(ERIFileItem* pfi)
 	m_FileItems[pfi->m_sDestFile] = *pfi;
 }
 
+BOOL CErrorReportInfo::DeleteFileItemByIndex(int nItem)
+{
+	// Look for n-th item
+	std::map<CString, ERIFileItem>::iterator p = m_FileItems.begin();
+	for (int i = 0; i < nItem; i++, p++);
+	if(p==m_FileItems.end())
+		return FALSE;
+
+	m_FileItems.erase(p);
+	return TRUE;
+}
+
 // Returns count of custom properties in error report.
 int CErrorReportInfo::GetPropCount()
 {

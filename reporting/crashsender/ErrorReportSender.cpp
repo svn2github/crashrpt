@@ -1056,107 +1056,61 @@ cleanup:
 // This method collects user-specified files
 BOOL CErrorReportSender::CollectCrashFiles()
 { 
-    BOOL bStatus = FALSE;
+	BOOL bStatus = FALSE;
     CString str;
     CString sErrorReportDir = m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName();
     CString sSrcFile;
-    CString sDestFile;
-    HANDLE hSrcFile = INVALID_HANDLE_VALUE;
-    HANDLE hDestFile = INVALID_HANDLE_VALUE;
-    LARGE_INTEGER lFileSize;
-    BOOL bGetSize = FALSE;
-    LPBYTE buffer[1024];
-    LARGE_INTEGER lTotalWritten;
-    DWORD dwBytesRead=0;
-    DWORD dwBytesWritten=0;
-    BOOL bRead = FALSE;
-    BOOL bWrite = FALSE;
-    
+    CString sDestFile;    
+	std::vector<ERIFileItem> file_list;
+	
     // Copy application-defined files that should be copied on crash
     m_Assync.SetProgress(_T("[copying_files]"), 0, false);
-
+	
 	// Walk through error report files
     int i;
 	for(i=0; i<m_CrashInfo.GetReport(m_nCurReport)->GetFileItemCount(); i++)
     {
 		ERIFileItem* pfi = m_CrashInfo.GetReport(m_nCurReport)->GetFileItemByIndex(i);
 
-		// Check if operation was cancelled by user
+		// Check if operation has been cancelled by user
         if(m_Assync.IsCancelled())
             goto cleanup;
 
-		// If we should make a copy of the file
-        if(pfi->m_bMakeCopy)
-        {
-            str.Format(_T("Copying file %s."), pfi->m_sSrcFile);
-            m_Assync.SetProgress(str, 0, false);
-
-            // Open source file with read/write sharing permissions.
-            hSrcFile = CreateFile(pfi->m_sSrcFile, GENERIC_READ, 
-                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-            if(hSrcFile==INVALID_HANDLE_VALUE)
-            {
-                pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
-                str.Format(_T("Error opening file %s."), pfi->m_sSrcFile);
-                m_Assync.SetProgress(str, 0, false);
-            }
-
-            bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
-            if(!bGetSize)
-            {
-                pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
-                str.Format(_T("Couldn't get file size of %s"), pfi->m_sSrcFile);
-                m_Assync.SetProgress(str, 0, false);
-                CloseHandle(hSrcFile);
-                hSrcFile = INVALID_HANDLE_VALUE;
-                continue;
-            }
-
-            sDestFile = sErrorReportDir + _T("\\") + pfi->m_sDestFile;
-
-            hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
-                FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
-            if(hDestFile==INVALID_HANDLE_VALUE)
-            {
-                pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
-                str.Format(_T("Error creating file %s."), sDestFile);
-                m_Assync.SetProgress(str, 0, false);
-                CloseHandle(hSrcFile);
-                hSrcFile = INVALID_HANDLE_VALUE;
-                continue;
-            }
-
-            lTotalWritten.QuadPart = 0;
-
-            for(;;)
-            {        
-                if(m_Assync.IsCancelled())
-                    goto cleanup;
-
-                bRead = ReadFile(hSrcFile, buffer, 1024, &dwBytesRead, NULL);
-                if(!bRead || dwBytesRead==0)
-                    break;
-
-                bWrite = WriteFile(hDestFile, buffer, dwBytesRead, &dwBytesWritten, NULL);
-                if(!bWrite || dwBytesRead!=dwBytesWritten)
-                    break;
-
-                lTotalWritten.QuadPart += dwBytesWritten;
-
-                int nProgress = (int)(100.0f*lTotalWritten.QuadPart/lFileSize.QuadPart);
-
-                m_Assync.SetProgress(nProgress, false);
-            }
-
-            CloseHandle(hSrcFile);
-            hSrcFile = INVALID_HANDLE_VALUE;
-            CloseHandle(hDestFile);
-            hDestFile = INVALID_HANDLE_VALUE;
-
-			// Use the copy for display and zipping.
-			pfi->m_sSrcFile = sDestFile;
-        }
+		// Check if the file name is a search template.		
+		BOOL bSearchPattern = Utility::IsFileSearchPattern(pfi->m_sSrcFile);
+		if(bSearchPattern)
+			CollectFilesBySearchTemplate(pfi, file_list);
+		else
+			CollectSingleFile(pfi);
     }
+
+	// Add newly collected files to the list of file items
+	for(i=0; i<(int)file_list.size(); i++)
+	{
+		m_CrashInfo.GetReport(0)->AddFileItem(&file_list[i]);
+	}				
+
+	// Remove file items that are search patterns
+	BOOL bFound = FALSE;
+	do
+	{
+		bFound = FALSE;
+		for(i=0; i<m_CrashInfo.GetReport(m_nCurReport)->GetFileItemCount(); i++)
+		{
+			ERIFileItem* pfi = m_CrashInfo.GetReport(m_nCurReport)->GetFileItemByIndex(i);
+				
+			// Check if the file name is a search template.		
+			BOOL bSearchPattern = Utility::IsFileSearchPattern(pfi->m_sSrcFile);
+			if(bSearchPattern)
+			{
+				// Delete this item
+				m_CrashInfo.GetReport(m_nCurReport)->DeleteFileItemByIndex(i);
+				bFound = TRUE;
+				break;
+			}
+		}
+	}
+	while(bFound);
 
     // Create dump of registry keys
 
@@ -1203,6 +1157,104 @@ BOOL CErrorReportSender::CollectCrashFiles()
 cleanup:
 		
 	// Clean up
+    m_Assync.SetProgress(_T("Finished copying files."), 100, false);
+
+    return 0;
+}
+
+BOOL CErrorReportSender::CollectSingleFile(ERIFileItem* pfi)
+{
+	BOOL bStatus = false;
+	CString str;
+	HANDLE hSrcFile = INVALID_HANDLE_VALUE;
+	HANDLE hDestFile = INVALID_HANDLE_VALUE;
+	BOOL bGetSize = FALSE;
+	LARGE_INTEGER lFileSize;
+	LARGE_INTEGER lTotalWritten;
+	CString sDestFile;
+	BOOL bRead = FALSE;
+	BOOL bWrite = FALSE;
+	LPBYTE buffer[1024];
+	DWORD dwBytesRead = 0;
+	DWORD dwBytesWritten = 0;
+
+	CString sErrorReportDir = m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName();
+
+	// If we should make a copy of the file
+    if(pfi->m_bMakeCopy)
+    {
+        str.Format(_T("Copying file %s."), pfi->m_sSrcFile);
+        m_Assync.SetProgress(str, 0, false);
+
+        // Open source file with read/write sharing permissions.
+        hSrcFile = CreateFile(pfi->m_sSrcFile, GENERIC_READ, 
+            FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+        if(hSrcFile==INVALID_HANDLE_VALUE)
+        {
+            pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
+            str.Format(_T("Error opening file %s."), pfi->m_sSrcFile);
+            m_Assync.SetProgress(str, 0, false);
+        }
+
+        bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
+        if(!bGetSize)
+        {
+            pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
+            str.Format(_T("Couldn't get file size of %s"), pfi->m_sSrcFile);
+            m_Assync.SetProgress(str, 0, false);
+            CloseHandle(hSrcFile);
+            hSrcFile = INVALID_HANDLE_VALUE;
+            goto cleanup;
+        }
+
+        sDestFile = sErrorReportDir + _T("\\") + pfi->m_sDestFile;
+
+        hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
+            FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
+        if(hDestFile==INVALID_HANDLE_VALUE)
+        {
+            pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
+            str.Format(_T("Error creating file %s."), sDestFile);
+            m_Assync.SetProgress(str, 0, false);
+            CloseHandle(hSrcFile);
+            hSrcFile = INVALID_HANDLE_VALUE;
+            goto cleanup;
+        }
+
+        lTotalWritten.QuadPart = 0;
+
+        for(;;)
+        {        
+            if(m_Assync.IsCancelled())
+                goto cleanup;
+
+            bRead = ReadFile(hSrcFile, buffer, 1024, &dwBytesRead, NULL);
+            if(!bRead || dwBytesRead==0)
+                break;
+
+            bWrite = WriteFile(hDestFile, buffer, dwBytesRead, &dwBytesWritten, NULL);
+            if(!bWrite || dwBytesRead!=dwBytesWritten)
+                break;
+
+            lTotalWritten.QuadPart += dwBytesWritten;
+
+            int nProgress = (int)(100.0f*lTotalWritten.QuadPart/lFileSize.QuadPart);
+
+            m_Assync.SetProgress(nProgress, false);
+        }
+
+        CloseHandle(hSrcFile);
+        hSrcFile = INVALID_HANDLE_VALUE;
+        CloseHandle(hDestFile);
+        hDestFile = INVALID_HANDLE_VALUE;
+
+		// Use the copy for display and zipping.
+		pfi->m_sSrcFile = sDestFile;
+    }
+
+	bStatus = true;
+
+cleanup:
 
     if(hSrcFile!=INVALID_HANDLE_VALUE)
         CloseHandle(hSrcFile);
@@ -1210,9 +1262,68 @@ cleanup:
     if(hDestFile!=INVALID_HANDLE_VALUE)
         CloseHandle(hDestFile);
 
-    m_Assync.SetProgress(_T("Finished copying files."), 100, false);
+	
+	return bStatus;
+}
 
-    return 0;
+BOOL CErrorReportSender::CollectFilesBySearchTemplate(ERIFileItem* pfi, std::vector<ERIFileItem>& file_list)
+{
+	CString sMsg;
+	sMsg.Format(_T("Looking for files using search template: %s"), pfi->m_sSrcFile);
+	m_Assync.SetProgress(sMsg, 0);
+
+	// Look for files matching search pattern
+	WIN32_FIND_DATA ffd;		
+	HANDLE hFind = FindFirstFile(pfi->m_sSrcFile, &ffd);
+	if (hFind == INVALID_HANDLE_VALUE) 
+	{
+		// Nothing found
+		m_Assync.SetProgress(_T("Could not find any files matching the search template."), 0);
+		return FALSE;
+	} 
+	else
+	{		
+		// Get owning directory name
+		int nPos = pfi->m_sSrcFile.ReverseFind(_T('\\'));
+		CString sDir = pfi->m_sSrcFile.Mid(0, nPos);
+		
+		// Enumerate matching files 
+		BOOL bFound = TRUE;
+		int nFileCount = 0;
+		while(bFound)
+		{
+			if(m_Assync.IsCancelled())
+				break;
+
+			if((ffd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)==0)
+			{					
+				CString sFile = sDir + _T("\\");
+				sFile += ffd.cFileName;					
+
+				// Add file to file list.
+				ERIFileItem fi;
+				fi.m_sSrcFile = sFile;
+				fi.m_sDestFile = ffd.cFileName;
+				fi.m_sDesc = pfi->m_sDesc;
+				fi.m_bMakeCopy = pfi->m_bMakeCopy;
+				fi.m_bAllowDelete = pfi->m_bAllowDelete;								
+				file_list.push_back(fi);
+				
+				CollectSingleFile(&fi);
+
+				nFileCount++;								
+			}
+
+			// Go to next file
+			bFound = FindNextFile(hFind, &ffd);
+		}
+
+		// Clean up
+		FindClose(hFind);
+	}
+	
+	// Done
+	return TRUE;
 }
 
 // This method dumps a registry key contents to an XML file

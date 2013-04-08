@@ -126,6 +126,12 @@ private:
     // Collects crash report files.
     BOOL CollectCrashFiles();  
 
+	// Includes a single file to crash report
+	BOOL CollectSingleFile(ERIFileItem* pfi);
+
+	// Includes all files matching search pattern to crash report
+	BOOL CollectFilesBySearchTemplate(ERIFileItem* pfi, std::vector<ERIFileItem>& file_list);
+
     // Calculates MD5 hash for a file.
     int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
 	    

@@ -1,5 +1,9 @@
 ======= Change History ========
 
+- New: Added an ability to add multiple files to crash reports with crAddFile2() 
+       using file search pattern (e.g. "*.log"). This implements feature request
+       described in issue 190.
+
 - New: Added new flag CR_INST_AUTO_THREAD_HANDLERS allowing to 
        install/uninstall exception handlers automatically in DllMain() 
        on DLL_THREAD_ATTACH/DETACH (issue 185).

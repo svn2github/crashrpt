@@ -83,6 +83,9 @@ namespace Utility
     // Parses file path and returns file extension.
     CString GetFileExtension(CString sFileName);
 
+	// Returns TRUE if the file name is a search pattern (containing ? or * characters).
+	BOOL IsFileSearchPattern(CString sFileName);
+
     // Retrieves product version info from resources embedded into EXE or DLL
     CString GetProductVersion(CString sModuleName);
 
