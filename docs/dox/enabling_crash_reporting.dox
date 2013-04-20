@@ -23,7 +23,7 @@ If your application is MFC-based, you should override your <i>CWinApp::Run()</i>
 In the CPP file containing your App class, add the following code:
 
 \code
-int CYourApp::Run() 
+int CMFCDemoApp::Run() 
 {
   // Call your crInstall code here ...
 
