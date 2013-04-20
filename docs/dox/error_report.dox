@@ -59,6 +59,18 @@ version, processor type, CPU registers state, local variables and call stack for
 execution thread. The minidump file can be used on developer's side to determine 
 the reason of the crash and try to fix the problem.
 
+\note 
+The minidump file is created as follows. All the threads of the parent process are suspended, 
+and a "snapshot" of the process is recorded. The snapshot includes the names 
+and versions of all DLL-modules loaded into the process and the list of threads 
+that work in the process. For each of those threads, call stack image is recorded. 
+Also, the information about the version of the operating system, the number of CPUs 
+and their brand names are written to minidump file. 
+
+\note The minidump is usually created with the help of the DbgHelp DLL's 
+\b MiniDumpWriteDump() function. For additional information on the 
+\b MiniDumpWriteDump() function, please refer to MSDN.
+
 CrashRpt generates an XML crash description file (<i>crashrpt.xml</i>) complementing the minidump. 
 The XML file contains various
 information, such as application name and version, sender's E-mail address and geographic 

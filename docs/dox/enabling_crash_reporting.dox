@@ -41,6 +41,29 @@ int CYourApp::Run()
 }
 \endcode
 
+It is also recommended to override the <i>CWinApp::ProcessWndProcException()</i> 
+method as follows.
+
+\code
+LRESULT CMFCDemoApp::ProcessWndProcException(CException* e, const MSG* pMsg)
+{
+  // This is where we land with some MFC exceptions.
+  // If we needed to show a message or something, we could do that here.
+  // However, in most cases, we just want to cause MFC to throw the 
+  // exception out to CrashRpt.
+ 
+  // Make MFC throw (and not catch) this exception so that CrashRpt can catch it.
+  THROW_LAST();
+ 
+  return 0;
+  //return CWinApp::ProcessWndProcException(e, pMsg);
+}
+\endcode
+
+The method above is called by MFC when there is an unhandled MFC exception. 
+With this override in place, the MFC exception eventually finds its way 
+into the CrashRpt handlers and the crash report is generated.
+
 \section thread_crash_handlers Per-thread Installation
 
 Some of exception handlers work for entire process and others work for the caller thread

@@ -5,18 +5,6 @@
 A crash minidump file (DMP file) contains various information about the state of 
 the application at the moment of time when it crashed.                           
 
-\note 
-The minidump file is created as follows. All the threads of the parent process are suspended, 
-and a "snapshot" of the process is recorded. The snapshot includes the names 
-and versions of all DLL-modules loaded into the process and the list of threads 
-that work in the process. For each of those threads, call stack image is recorded. 
-Also, the information about the version of the operating system, the number of CPUs 
-and their brand names are written to minidump file. 
-
-\note The minidump is usually created with the help of the DbgHelp DLL's 
-\b MiniDumpWriteDump() function. For additional information on the 
-\b MiniDumpWriteDump() function, please refer to MSDN.
-
 Technically, the crash minidump file may contain:
   - general system information (OS version, CPU count, etc.);
   - blocks of process memory (including values of global variables, 

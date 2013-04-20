@@ -1,5 +1,7 @@
 ======= Change History ========
 
+--- Ver. 1.4.2 ---
+
 - New: Added an ability to add multiple files to crash reports with crAddFile2() 
        using file search pattern (e.g. "*.log"). This implements feature request
        described in issue 190.
