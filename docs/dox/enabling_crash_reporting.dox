@@ -89,7 +89,7 @@ to that module's source code.
 Since v.1.4.2, you can ask CrashRpt to install the per-thread exception handlers 
 automatically by specifying the \ref CR_INST_AUTO_THREAD_HANDLERS flags for \ref CR_INSTALL_INFO::dwFlags
 structure field. If this flag is specified, CrashRpt will install all available thread exception handlers 
-in response on <b>DllMain()</b>'s reson codes \b DLL_THREAD_ATTACH/DLL_THREAD_DETACH. This flag has
+in response on <b>DllMain()</b>'s reason codes \b DLL_THREAD_ATTACH/DLL_THREAD_DETACH. This flag has
 effect only when CrashRpt is compiled as a DLL (it does not work if CrashRpt is compiled as a static library).
 
 \section wrappers Convenience Wrappers
