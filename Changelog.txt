@@ -1,5 +1,9 @@
 ======= Change History ========
 
+--- Ver. 1.4.3 ---
+
+- New: added Slovak language file (contributed by Zoltan Tirinda)
+
 --- Ver. 1.4.2 ---
 
 - New: Added an ability to add multiple files to crash reports with crAddFile2() 

@@ -23,7 +23,7 @@ Each language file has the \a CrashRptVersion field that stores the version of C
 can use this language file in. If you try to use a language file with a wrong version, the crInstall() function
 will return an error.
 
-For example, assume you want to download the English language file. Browse for
+For example, assume you want to use the English language file. Browse for
 <i>lang_files->crashrpt_lang_EN.ini</i> (shown below).
 
 \code
