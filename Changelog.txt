@@ -3,6 +3,7 @@
 --- Ver. 1.4.3 ---
 
 - New: added Slovak language file (contributed by Zoltan Tirinda)
+- New: added Japaneze language file (contributed by devil.tamachan)
 
 --- Ver. 1.4.2 ---
 
