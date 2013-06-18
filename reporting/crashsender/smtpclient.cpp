@@ -762,7 +762,7 @@ std::string CSmtpClient::UTF16toUTF8(LPCWSTR utf16)
 }
 
 int CSmtpClient::SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponse, UINT uResponseSize)
-{	
+{		
 	// This method sends a message using the specified socket and
 	// waits for response.
 
@@ -783,17 +783,22 @@ int CSmtpClient::SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponse, UIN
 		int res = send(sock, lpszMessageA, msg_len, 0);	
 		if(res == SOCKET_ERROR) 
 		{
-			CString lasterr;
-			lasterr.FormatMessageW(WSAGetLastError());
-			m_scn->SetProgress(lasterr, 0);			
-			char buffer[32]; // bzw. TCHAR buffer[32]; 
-			sprintf_s(buffer, 32, "%d", res);
-			CString err = _T("Send error: ") + (CString)buffer;
-			m_scn->SetProgress(err, 0);    
-			return res; // Failed
+			ATLASSERT(0);
+			CString sMsg;
+			sMsg.Format(_T("Send error: %d"), res);
+			m_scn->SetProgress(sMsg, 0);    
+			
+			// Print last socket error message
+			CString sLastSocketError;
+			//sLastSocketError.FormatMessage(WSAGetLastError());
+			m_scn->SetProgress(sLastSocketError, 0);				
 		}
-	}
-	
+
+		// Check if the caller wants to get response
+		if(pszResponse==NULL) 
+			return res; // Return now
+	}    
+
 	for(;;)
 	{
 		// Read response

@@ -5,6 +5,8 @@
 - New: added Slovak language file (contributed by Zoltan Tirinda)
 - New: added Japaneze language file (contributed by devil.tamachan)
 
+- Fixed: Crashsender SMTP sendMsg - Errorhandling (issue 200)
+
 --- Ver. 1.4.2 ---
 
 - New: Added an ability to add multiple files to crash reports with crAddFile2() 
