@@ -243,7 +243,6 @@ typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
 *    to true if it wants to continue its execution after crash report generation 
 *    (otherwise the program will be terminated).
 *
-*
 *  \ref CR_CRASH_CALLBACK_INFOW and \ref CR_CRASH_CALLBACK_INFOA are 
 *  wide-character and multi-byte character versions of \ref CR_CRASH_CALLBACK_INFO
 *  structure. In your program, use the \ref CR_CRASH_CALLBACK_INFO typedef which 
@@ -258,7 +257,7 @@ typedef struct tagCR_CRASH_CALLBACK_INFOW
 	LPCWSTR pszErrorReportFolder;       //!< Directory where crash report files are located.
     CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
 	LPVOID pUserParam;                  //!< Pointer to user-defined data.
-	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.	
+	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.		
 }
 CR_CRASH_CALLBACK_INFOW;
 
@@ -273,7 +272,7 @@ typedef struct tagCR_CRASH_CALLBACK_INFOA
 	LPCSTR pszErrorReportFolder;        //!< Directory where crash report files are located.
     CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
 	LPVOID pUserParam;                  //!< Pointer to user-defined data.
-	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.	
+	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.		
 }
 CR_CRASH_CALLBACK_INFOA;
 

@@ -315,8 +315,8 @@ public:
 	LPVOID m_pCallbackParam;       // User-specified argument for callback function.
 	std::string m_sErrorReportDirA;  // Error report directory name (multi-byte).
 	std::wstring m_sErrorReportDirW; // Error report directory name (wide-char).
-	int m_nCallbackRetCode;        // Return code of the callback function.
-	BOOL m_bContinueExecution;     // Whether to terminate process (the default) or to continue execution after crash.
+	int m_nCallbackRetCode;         // Return code of the callback function.
+	BOOL m_bContinueExecution;      // Whether to terminate process (the default) or to continue execution after crash.
 };
 
 

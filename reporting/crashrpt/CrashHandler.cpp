@@ -385,7 +385,7 @@ int CCrashHandler::Init(
     {    
         m_sUnsentCrashReportsFolder = lpcszErrorReportSaveDir;
     }
-
+	
     BOOL bCreateDir = Utility::CreateFolder(m_sUnsentCrashReportsFolder);
     if(!bCreateDir)
     {
@@ -394,6 +394,16 @@ int CCrashHandler::Init(
         return 1; 
     }
 
+	// Create directory where we will store recent crash logs
+	CString sLogDir = m_sUnsentCrashReportsFolder + _T("\\Logs");	
+	bCreateDir = Utility::CreateFolder(sLogDir);
+    if(!bCreateDir)
+    {
+        ATLASSERT(0);
+        crSetErrorMsg(_T("Couldn't create logs directory."));
+        return 1; 
+    }
+		
 	// Init some fields that should be reinitialized before each new crash.
 	if(0!=PerCrashInit())
 		return 1;
@@ -1704,7 +1714,8 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 		cci.pExceptionInfo = pExInfo;
 		cci.pUserParam = m_pCallbackParam;
 		cci.pszErrorReportFolder = m_sErrorReportDirW.c_str();
-		cci.bContinueExecution = m_bContinueExecution;
+		cci.bContinueExecution = m_bContinueExecution;		
+		
 		// Call the function and get the ret code
 		m_nCallbackRetCode = m_pfnCallback2W(&cci);
 
@@ -1724,6 +1735,7 @@ int CCrashHandler::CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo)
 		cci.pUserParam = m_pCallbackParam;
 		cci.pszErrorReportFolder = m_sErrorReportDirA.c_str();
 		cci.bContinueExecution = m_bContinueExecution;
+
 		// Call the function and get the ret code
 		m_nCallbackRetCode = m_pfnCallback2A(&cci);
 

@@ -114,6 +114,9 @@ public:
 		
 private:
 
+	// Creates log file
+	BOOL InitLog();
+
 	// This method performs an action or several actions.
     BOOL DoWork(int Action);
 	    
@@ -225,6 +228,7 @@ private:
 	eMailClientConfirm m_MailClientConfirm;  // Mail program confirmation result.
     BOOL m_bSendingNow;                 // TRUE if in progress of sending reports.
 	BOOL m_bErrors;                     // TRUE if there were errors.
+	CString m_sCrashLogFile;            // Log file.
 };
 
 

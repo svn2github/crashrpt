@@ -76,7 +76,7 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 		// Set Right-to-Left reading order
         SetProcessDefaultLayout(LAYOUT_RTL);  
     }
-
+	
 	// Determine whether to record video
 	if(GetCrashInfo()->m_bAddVideo)
 	{
@@ -142,6 +142,68 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 
 	// Done.
 	m_sErrorMsg = _T("Success.");
+	return TRUE;
+}
+
+BOOL CErrorReportSender::InitLog()
+{
+	// Check if we have already created log
+	if(!m_sCrashLogFile.IsEmpty())
+		return TRUE;
+
+	// Create directory where we will store recent crash logs
+	CString sLogDir = m_CrashInfo.m_sUnsentCrashReportsFolder + _T("\\Logs");	
+	BOOL bCreateDir = Utility::CreateFolder(sLogDir);
+    if(!bCreateDir)
+    {        
+        return FALSE; 
+    }
+
+	// Remove crash logs above the maximum allowed count
+	const int MAX_CRASH_LOG_COUNT = 10;
+	WTL::CFindFile FileFinder;
+	std::set<CString> asLogFiles;
+
+	BOOL bFound = FileFinder.FindFile(sLogDir + _T("\\*.txt"));
+	while(bFound)
+	{
+		CString sFile = FileFinder.GetFileName();
+		if(FileFinder.IsDots() || FileFinder.IsDirectory())
+			continue; // Skip ".", ".." and dirs
+	
+		// Add log to list
+		asLogFiles.insert(FileFinder.GetFilePath());
+
+		// Find next log
+		bFound = FileFinder.FindNextFile();
+	}
+
+	while(asLogFiles.size()>=MAX_CRASH_LOG_COUNT)
+	{
+		std::set<CString>::iterator it = asLogFiles.begin();
+		CString sLogFile = *it;
+		asLogFiles.erase(it);
+		
+		Utility::RecycleFile(sLogFile, TRUE);
+	}
+	
+	// Create new log file
+	time_t cur_time;
+    time(&cur_time);
+    TCHAR szDateTime[64];
+
+    struct tm timeinfo;
+    localtime_s(&timeinfo, &cur_time);
+    _tcsftime(szDateTime, 64,  _T("%Y%m%d-%H%M%S"), &timeinfo);
+	
+	CString sLogFile;
+	sLogFile.Format(_T("%s\\CrashRpt-Log-%s-{%s}.txt"), 
+		sLogDir, szDateTime, 
+		m_CrashInfo.m_bSendRecentReports?_T("batch"):m_CrashInfo.GetReport(0)->GetCrashGUID());
+	m_Assync.InitLogFile(sLogFile);
+	
+	m_sCrashLogFile = sLogFile;
+
 	return TRUE;
 }
 
@@ -253,6 +315,9 @@ BOOL CErrorReportSender::DoWork(int Action)
 {
     // Reset the completion event
     m_Assync.Reset();
+
+	// Init crash log
+	InitLog();
 
     if(Action&SEND_RECENT_REPORTS) // If we are currently sending pending error reports
     {
@@ -396,13 +461,7 @@ BOOL CErrorReportSender::Finalize()
         // Remove report files if queue disabled (or if client app not crashed).
         Utility::RecycleFile(m_CrashInfo.GetReport(0)->GetErrorReportDirName(), true);    
     }
-
-	if(m_CrashInfo.m_bSendRecentReports)
-	{
-		// Delete log file
-		Utility::RecycleFile(m_Assync.GetLogFilePath(), true);
-	}
-
+		
     if(!m_CrashInfo.m_bSendErrorReport && 
         m_CrashInfo.m_bStoreZIPArchives) // If we should generate a ZIP archive
     {
@@ -1953,6 +2012,8 @@ BOOL CErrorReportSender::SendReport()
 {
     int status = 1;
 
+	InitLog();
+
     m_Assync.SetProgress(_T("[sending_report]"), 0);
 
 	// Arrange priorities in reverse order
@@ -2404,17 +2465,7 @@ BOOL CErrorReportSender::SendRecentReports()
 	// This method sends all queued error reports in turn.
 	m_bSendingNow = TRUE;
 	m_bErrors = FALSE;
-
-	// Init log file
-	Utility::RecycleFile(GetLogFilePath(), TRUE);
-	CString sCurTime;
-    Utility::GetSystemTimeUTC(sCurTime);
-    sCurTime.Replace(':', '-');    
-	CString sLogFile;
-	sLogFile.Format(_T("%s\\CrashRpt-Log-%s.txt"), 
-		m_CrashInfo.m_sUnsentCrashReportsFolder, sCurTime);
-	m_Assync.InitLogFile(sLogFile);
-
+		
 	// Send error reports in turn
 	BOOL bSend = TRUE;
 	int nReport = -1;

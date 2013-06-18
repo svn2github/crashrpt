@@ -2,6 +2,13 @@
 
 --- Ver. 1.4.3 ---
 
+- New: Crash log files are now saved under Logs subdirectory of error report directory.
+       A crash log file is named like CrashRpt-Log-<date>-<time>-{<crashguid>}.txt.
+       Recent log files are stored even if corresponding crash reports were delivered
+       (to give user an ability to review recent crash information). When more than 10 logs
+       are accumulated, the oldest ones are removed.
+       
+
 - New: added Slovak language file (contributed by Zoltan Tirinda)
 - New: added Japaneze language file (contributed by devil.tamachan)
 
