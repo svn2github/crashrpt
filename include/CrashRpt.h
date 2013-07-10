@@ -761,8 +761,7 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
     LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 	LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
-	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
-	PFNCRASHCALLBACKA pfnCrashCallback2; //!< Crash callback function.
+	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
 }
 CR_INSTALL_INFOA;
 

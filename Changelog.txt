@@ -13,6 +13,7 @@
 - New: added Japaneze language file (contributed by devil.tamachan)
 
 - Fixed: Crashsender SMTP sendMsg - Errorhandling (issue 200)
+- Fixed:  pfnCrashCallback2 is missing in tagCR_INSTALL_INFOW (issue 211)
 
 --- Ver. 1.4.2 ---
 
