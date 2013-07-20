@@ -92,6 +92,10 @@ structure field. If this flag is specified, CrashRpt will install all available 
 in response on <b>DllMain()</b>'s reason codes \b DLL_THREAD_ATTACH/DLL_THREAD_DETACH. This flag has
 effect only when CrashRpt is compiled as a DLL (it does not work if CrashRpt is compiled as a static library).
 
+\note If you are using \ref CR_INST_AUTO_THREAD_HANDLERS flag, you must not install
+per-thread exception handler manually with crInstallToCurrentThread2() function. These
+two methods are mutually exclusive and won't work together.
+
 \section wrappers Convenience Wrappers
 
 You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
