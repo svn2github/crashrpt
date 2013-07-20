@@ -1239,21 +1239,22 @@ BOOL CErrorReportSender::CollectSingleFile(ERIFileItem* pfi)
 
 	CString sErrorReportDir = m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName();
 
+	// Open source file with read/write sharing permissions.
+    hSrcFile = CreateFile(pfi->m_sSrcFile, GENERIC_READ, 
+        FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    if(hSrcFile==INVALID_HANDLE_VALUE)
+    {
+        pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
+        str.Format(_T("Error opening file %s."), pfi->m_sSrcFile);
+        m_Assync.SetProgress(str, 0, false);
+		goto cleanup;
+    }
+
 	// If we should make a copy of the file
     if(pfi->m_bMakeCopy)
     {
         str.Format(_T("Copying file %s."), pfi->m_sSrcFile);
-        m_Assync.SetProgress(str, 0, false);
-
-        // Open source file with read/write sharing permissions.
-        hSrcFile = CreateFile(pfi->m_sSrcFile, GENERIC_READ, 
-            FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-        if(hSrcFile==INVALID_HANDLE_VALUE)
-        {
-            pfi->m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
-            str.Format(_T("Error opening file %s."), pfi->m_sSrcFile);
-            m_Assync.SetProgress(str, 0, false);
-        }
+        m_Assync.SetProgress(str, 0, false);		     
 
         bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
         if(!bGetSize)

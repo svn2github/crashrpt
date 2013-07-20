@@ -593,6 +593,10 @@ long Utility::GetFileSize(const TCHAR *fileName)
 
 BOOL Utility::IsFileSearchPattern(CString sFileName)
 {
+	// Remove the "\\?\" prefix in case of a long path name
+	if(sFileName.Left(4).Compare(_T("\\\\?\\"))==0)
+		sFileName = sFileName.Mid(4);
+
 	// Check if the file name is a search template.		
 	BOOL bSearchPattern = FALSE;	
 	int nPos = sFileName.FindOneOf(_T("*?"));
