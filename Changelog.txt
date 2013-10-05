@@ -17,6 +17,7 @@
 - Fixed: Version 1402 does not include files attached with "crAddFile2" in case of 
        a long path name (issue 209)
 - Fixed: Few issues with static code analysis (issue 220)
+- Fixed: Wrong screen video capture video with multi screen (issue 215)
 	   
 --- Ver. 1.4.2 ---
 

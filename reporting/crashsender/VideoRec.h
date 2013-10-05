@@ -20,7 +20,7 @@ be found in the Authors.txt file in the root of the source tree.
 
 // class CVideoRecorder
 // Captures desktop and writes the video frames as raw uncompressed BMP files
-// Later the recorded frames are encoded to a VP8-encoded webm video file.
+// Later the recorded frames are encoded to a libtheora-encoded video file.
 //
 class CVideoRecorder
 {

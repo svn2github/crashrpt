@@ -212,11 +212,11 @@ BOOL CVideoRecorder::EncodeVideo()
 	for(i=0; i<m_aVideoFrames.size(); i++)
 	{
 		ScreenshotInfo& ssi = m_aVideoFrames[i];
-		if(ScreenSize.cx<ssi.m_rcVirtualScreen.right ||
-			ScreenSize.cy<ssi.m_rcVirtualScreen.bottom)
+		if(ScreenSize.cx<ssi.m_rcVirtualScreen.Width() ||
+		   ScreenSize.cy<ssi.m_rcVirtualScreen.Height())
 		{
-			ScreenSize.cx = ssi.m_rcVirtualScreen.right;
-			ScreenSize.cy = ssi.m_rcVirtualScreen.bottom;
+			ScreenSize.cx = ssi.m_rcVirtualScreen.Width();
+			ScreenSize.cy = ssi.m_rcVirtualScreen.Height();
 		}
 	}
 	
@@ -461,8 +461,8 @@ BOOL CVideoRecorder::ComposeFrame(int nFrameId, th_ycbcr_buffer *pImage)
 
 			float x_ratio = (float)pImage[0]->width/(float)ssi.m_rcVirtualScreen.Width();
 			float y_ratio = (float)pImage[0]->height/(float)ssi.m_rcVirtualScreen.Height();
-			int xDest = (int)ceil(ssi.m_aMonitors[i].m_rcMonitor.left*x_ratio-0.5);
-			int yDest = (int)ceil(ssi.m_aMonitors[i].m_rcMonitor.top*y_ratio-0.5);
+			int xDest = (int)ceil((ssi.m_aMonitors[i].m_rcMonitor.left +  abs(ssi.m_rcVirtualScreen.left))*x_ratio-0.5);
+			int yDest = (int)ceil((ssi.m_aMonitors[i].m_rcMonitor.top + abs(ssi.m_rcVirtualScreen.top))*y_ratio-0.5);
 			int wDest = (int)ceil(ssi.m_aMonitors[i].m_rcMonitor.Width()*x_ratio-0.5);
 			int hDest = (int)ceil(ssi.m_aMonitors[i].m_rcMonitor.Height()*y_ratio-0.5);
 
