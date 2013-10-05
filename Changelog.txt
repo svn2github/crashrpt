@@ -18,6 +18,8 @@
        a long path name (issue 209)
 - Fixed: Few issues with static code analysis (issue 220)
 - Fixed: Wrong screen video capture video with multi screen (issue 215)
+- Fixed: crAddScreenshot2() nJpegQuality is only used for the first error report 
+       then it is always set to 0 (issue 217)
 	   
 --- Ver. 1.4.2 ---
 

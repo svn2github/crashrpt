@@ -546,6 +546,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_nSmtpProxyPort = m_nSmtpProxyPort;
     m_pTmpCrashDesc->m_bAddScreenshot = m_bAddScreenshot;
     m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;      
+	m_pTmpCrashDesc->m_nJpegQuality = m_nJpegQuality;
     memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
 	m_pTmpCrashDesc->m_bAddVideo = m_bAddVideo;
 	m_pTmpCrashDesc->m_hWndVideoParent = m_hWndVideoParent;
