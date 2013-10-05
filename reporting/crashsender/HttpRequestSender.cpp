@@ -283,7 +283,7 @@ BOOL CHttpRequestSender::InternalSend()
 				bRedirect = TRUE;
 
 				TCHAR szBuffer[1024]=_T("");
-				DWORD dwBuffSize = sizeof(szBuffer)*sizeof(TCHAR);	
+				DWORD dwBuffSize = 1024*sizeof(TCHAR);	
 				DWORD nIndex = 0;				
 
 				BOOL bQueryInfo = HttpQueryInfo(hRequest, HTTP_QUERY_LOCATION,

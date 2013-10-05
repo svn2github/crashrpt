@@ -16,7 +16,8 @@
 - Fixed: pfnCrashCallback2 is missing in tagCR_INSTALL_INFOW (issue 211)
 - Fixed: Version 1402 does not include files attached with "crAddFile2" in case of 
        a long path name (issue 209)
-
+- Fixed: Few issues with static code analysis (issue 220)
+	   
 --- Ver. 1.4.2 ---
 
 - New: Added an ability to add multiple files to crash reports with crAddFile2() 

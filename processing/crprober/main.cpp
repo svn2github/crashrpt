@@ -348,7 +348,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
         if(bInputMD5FromDir)
         {
             sMD5DirName = szInputMD5;
-            size_t pos = sMD5DirName.rfind('\\');
+            int pos = sMD5DirName.rfind('\\');
             if(pos<0) // There is no back slash in path
                 sMD5DirName = _T(""); 
             else if(pos!=sMD5DirName.length()-1) // Append the back slash to dir name
@@ -833,7 +833,7 @@ int output_document(CrpHandle hReport, FILE* f)
 
                 if(!sSourceFile.empty())
                 {
-                    size_t pos = sSourceFile.rfind('\\');
+                    int pos = sSourceFile.rfind('\\');
                     if(pos>=0)
                         sSourceFile = sSourceFile.substr(pos+1);
                     str += _T(" [ ");
