@@ -113,7 +113,8 @@ void CDetailDlg::FillFileItemList()
 		CString sSize;
         
 		// Get file info
-		pfi->GetFileInfo(hIcon, sTypeName, lFileSize);
+		if(!pfi->GetFileInfo(hIcon, sTypeName, lFileSize))
+			continue; // Skip not existing/unreadable files
 
         int iImage = -1;
         if(hIcon!=NULL)

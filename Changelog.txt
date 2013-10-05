@@ -20,7 +20,9 @@
 - Fixed: Wrong screen video capture video with multi screen (issue 215)
 - Fixed: crAddScreenshot2() nJpegQuality is only used for the first error report 
        then it is always set to 0 (issue 217)
-	   
+- Fixed: Added file changes (renamed, moved, removed, etc.) within a 
+       client program's running session (issue 219)
+
 --- Ver. 1.4.2 ---
 
 - New: Added an ability to add multiple files to crash reports with crAddFile2() 

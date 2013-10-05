@@ -28,31 +28,33 @@ BOOL ERIFileItem::GetFileInfo(HICON& hIcon, CString& sTypeName, LONGLONG& lSize)
 	lSize = 0;
 	SHFILEINFO sfi;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
+	    
+	// Open file for reading
+    hFile = CreateFile(m_sSrcFile, 
+            GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
+    if(hFile==INVALID_HANDLE_VALUE)
+		return FALSE; // Error - file may not exist
 
-    SHGetFileInfo(m_sSrcFile, 0, &sfi, sizeof(sfi),
+	// Get file size
+	LARGE_INTEGER lFileSize;
+    BOOL bGetSize = GetFileSizeEx(hFile, &lFileSize);
+    if(bGetSize)
+    {            
+		lSize = lFileSize.QuadPart; 
+    }
+
+	// Get file icon and type name
+	SHGetFileInfo(m_sSrcFile, 0, &sfi, sizeof(sfi),
         SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_TYPENAME | SHGFI_SMALLICON);
 
 	hIcon = sfi.hIcon;
 	sTypeName = sfi.szTypeName;
 
-	// Open file for reading
-    hFile = CreateFile(m_sSrcFile, 
-            GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
-    if(hFile!=INVALID_HANDLE_VALUE)
-	{
-		// Get file size
-		LARGE_INTEGER lFileSize;
-        BOOL bGetSize = GetFileSizeEx(hFile, &lFileSize);
-        if(bGetSize)
-        {            
-			lSize = lFileSize.QuadPart; 
-        }
+	// Clean up
+	CloseHandle(hFile);
 
-		// Clean up
-		CloseHandle(hFile);
-	}
-
-	return TRUE;
+	// OK
+	return TRUE;	
 }
 
 //---------------------------------------------------------------------
