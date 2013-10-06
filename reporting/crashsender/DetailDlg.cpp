@@ -517,15 +517,26 @@ LRESULT CDetailDlg::OnPopupDeleteSelected(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 LRESULT CDetailDlg::OnPopupAddMoreFiles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	// Display "Open File" dialog.
-    CFileDialog dlg(TRUE, _T("*.*"), NULL,
-        OFN_PATHMUSTEXIST|OFN_ALLOWMULTISELECT,
-        _T("All Files (*.*)\0*.*\0\0"), m_hWnd);
+	TCHAR szFileTitle[4096] = _T("\0");  // contains file title after return
+	TCHAR szFileName[4096] = _T("\0");   // contains full path name after return
+	OPENFILENAME ofn;
+	memset(&ofn, 0, sizeof(OPENFILENAME)); // initialize structure to 0/NULL
+	ofn.lStructSize = sizeof(OPENFILENAME);	
+	ofn.lpstrFile = szFileName;
+	ofn.nMaxFile = 4096;
+	ofn.lpstrDefExt = _T("*.*");
+	ofn.lpstrFileTitle = (LPTSTR)szFileTitle;
+	ofn.nMaxFileTitle = 4096;
+	ofn.Flags = OFN_PATHMUSTEXIST|OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_ENABLESIZING;
+	ofn.lpstrFilter = _T("All Files (*.*)\0*.*\0\0");
+	ofn.hInstance = NULL;
+	ofn.hwndOwner = m_hWnd;
 
-    INT_PTR result = dlg.DoModal();
+    INT_PTR result = GetOpenFileName(&ofn);
     if(result==IDOK)
     {		
 		// Parse the list of files
-		TCHAR* str = dlg.m_ofn.lpstrFile;
+		TCHAR* str = szFileName;
 		std::vector<CString> asItems;		
 		CString sItem;
 		int i;

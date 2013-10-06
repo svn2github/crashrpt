@@ -24,6 +24,8 @@
        client program's running session (issue 219)
 - Fixed: Adding custom properties with same name results in CrashSender.exe assertion 
        failure (issue 216).
+- Fixed: 'Attach More Files' : Adding large amount of files (over >= 10) 
+       unsuccessfully (issue 218:)
 
 --- Ver. 1.4.2 ---
 
