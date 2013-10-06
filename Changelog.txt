@@ -22,6 +22,8 @@
        then it is always set to 0 (issue 217)
 - Fixed: Added file changes (renamed, moved, removed, etc.) within a 
        client program's running session (issue 219)
+- Fixed: Adding custom properties with same name results in CrashSender.exe assertion 
+       failure (issue 216).
 
 --- Ver. 1.4.2 ---
 

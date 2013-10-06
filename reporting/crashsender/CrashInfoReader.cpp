@@ -636,27 +636,7 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
 
         m_SharedMem.DestroyView(pView);
     }
-
-    // Perform some integrity checks
-
-    if(m_pCrashDesc->m_uFileItems!=eri.m_FileItems.size())
-    {
-        ATLASSERT(0);
-        return 1; 
-    }
-
-    if(m_pCrashDesc->m_uCustomProps!=eri.m_Props.size())
-    {
-        ATLASSERT(0);
-        return 1; 
-    }
-
-    if(m_pCrashDesc->m_uRegKeyEntries!=eri.m_RegKeys.size())
-    {
-        ATLASSERT(0);
-        return 1; 
-    }
-
+	    
     // Success
     return 0;
 }

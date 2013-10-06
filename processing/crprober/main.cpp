@@ -351,7 +351,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
             int pos = sMD5DirName.rfind('\\');
             if(pos<0) // There is no back slash in path
                 sMD5DirName = _T(""); 
-            else if(pos!=sMD5DirName.length()-1) // Append the back slash to dir name
+            else if(pos!=(int)sMD5DirName.length()-1) // Append the back slash to dir name
                 sMD5DirName = sMD5DirName.substr(0, pos+1);
         }
     }
