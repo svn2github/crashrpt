@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0,2
- PRODUCTVERSION 1,4,0,2
+ FILEVERSION 1,4,0,3
+ PRODUCTVERSION 1,4,0,3
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -68,12 +68,12 @@ BEGIN
         BLOCK "000904b0"
         BEGIN
             VALUE "FileDescription", "CrashRptProbe Module"
-            VALUE "FileVersion", "1.4.0.2"
+            VALUE "FileVersion", "1.4.0.3"
             VALUE "InternalName", "CrashRpt"
             VALUE "LegalCopyright", "Copyright 2003-2013 The CrashRpt Project Authors"
             VALUE "OriginalFilename", "CrashRptProbe.dll"
             VALUE "ProductName", "CrashRpt"
-            VALUE "ProductVersion", "1.4.0.2"
+            VALUE "ProductVersion", "1.4.0.3"
         END
     END
     BLOCK "VarFileInfo"
