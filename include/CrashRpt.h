@@ -654,7 +654,7 @@ crSetCrashCallbackA(
 *
 *   \b pszRestartCmdLine [in, optional] 
 *
-*     This arameter defines the string that specifies the 
+*     This parameter defines the string that specifies the 
 *     command-line arguments for the application when it is restarted (when using \ref CR_INST_APP_RESTART flag). 
 *     Do not include the name of the executable in the command line; it is added automatically. This parameter 
 *     can be NULL. Available since v.1.2.4.
@@ -704,6 +704,12 @@ crSetCrashCallbackA(
 *      
 *     This parameter defines the password for SMTP authentication. It is used in pair with \ref pszSmtpLogin parameter. 
 *     This parameter is available since v.1.3.1.
+*
+*   \b nRestartTimeout [in, optional] 
+*
+*     This parameter defines the timeout (in seconds) for the application restart (when using \ref CR_INST_APP_RESTART flag). 
+*     It is recommended to set this with zero (in such a case, the default restart timeout of 60 seconds is applied). 
+*     Available since v.1.4.3.
 */
 
 typedef struct tagCR_INSTALL_INFOW
@@ -729,6 +735,7 @@ typedef struct tagCR_INSTALL_INFOW
     LPCWSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 	LPCWSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
 	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
+	int nRestartTimeout;            //!< Timeout for application restart.
 }
 CR_INSTALL_INFOW;
 
@@ -762,6 +769,7 @@ typedef struct tagCR_INSTALL_INFOA
     LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 	LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
 	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
+	int nRestartTimeout;           //!< Timeout for application restart.
 }
 CR_INSTALL_INFOA;
 

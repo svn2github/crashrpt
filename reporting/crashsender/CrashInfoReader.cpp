@@ -545,6 +545,7 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
     m_bQueueEnabled = (dwInstallFlags&CR_INST_SEND_QUEUED_REPORTS)!=0;
     m_MinidumpType = m_pCrashDesc->m_MinidumpType;    
     UnpackString(m_pCrashDesc->m_dwRestartCmdLineOffs, m_sRestartCmdLine);
+	m_nRestartTimeout = m_pCrashDesc->m_nRestartTimeout;
     UnpackString(m_pCrashDesc->m_dwUrlOffs, m_sUrl);
     UnpackString(m_pCrashDesc->m_dwEmailToOffs, m_sEmailTo);  
     m_nSmtpPort = m_pCrashDesc->m_nSmtpPort;
@@ -790,11 +791,11 @@ void CCrashInfoReader::CollectMiscCrashInfo(CErrorReportInfo& eri)
         ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
         ULONG64 uStartTime = Utility::SystemTimeToULONG64(AppStartTime);
 
-        // Check that the application works for at least one minute before crash.
+		// Check that the application works for at least one minute before crash.
         // This might help to avoid cyclic error report generation when the applciation
         // crashes on startup.
         double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
-        if(dDiffTime<60)
+        if(dDiffTime<m_nRestartTimeout)
         {
             m_bAppRestart = FALSE; // Disable restart.
         } 

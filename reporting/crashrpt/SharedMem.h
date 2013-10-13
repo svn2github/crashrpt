@@ -87,6 +87,7 @@ struct CRASH_DESCRIPTION
     DWORD m_dwAppVersionOffs;      // Offset of app version.
     DWORD m_dwLangFileNameOffs;    // Offset of language INI file name.
     DWORD m_dwRestartCmdLineOffs;  // Offset of app restart command line.
+	int m_nRestartTimeout;         // Restart timeout
     DWORD m_dwEmailToOffs;         // Offset to E-mail recipient.
     DWORD m_dwCrashGUIDOffs;       // Offset to crash GUID.
     DWORD m_dwUnsentCrashReportsFolderOffs;  // Offset of folder name where error reports are stored.

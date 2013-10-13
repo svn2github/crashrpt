@@ -102,7 +102,8 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
         ptszSmtpProxy,
         ptszCustomSenderIcon,
 		ptszSmtpLogin,
-		ptszSmtpPassword
+		ptszSmtpPassword,
+		pInfo->nRestartTimeout
         );
 
     if(nInitResult!=0)
@@ -205,7 +206,8 @@ CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
         ptszSmtpProxy,
         ptszCustomSenderIcon,
 		ptszSmtpLogin,
-		ptszSmtpPassword
+		ptszSmtpPassword,
+		pInfo->nRestartTimeout
         );
 
     if(nInitResult!=0)

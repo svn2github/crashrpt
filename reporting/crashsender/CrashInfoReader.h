@@ -264,6 +264,7 @@ public:
     BOOL        m_bSendRecentReports;   // Should we send recently queued reports now?
     BOOL        m_bAppRestart;          // Should we restart the crashed application?
     CString     m_sRestartCmdLine;      // Command line for crashed app restart.
+	int         m_nRestartTimeout;      // Restart timeout.
     UINT        m_uPriorities[3];       // Error report delivery priorities.
     CString     m_sPrivacyPolicyURL;    // Privacy policy URL.
     BOOL        m_bGenerateMinidump;    // Should we generate crash minidump file?

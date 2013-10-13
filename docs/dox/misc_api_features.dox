@@ -42,14 +42,19 @@ a user should provide his/her consent to allow sending the error report.
 \section automatic_app_restart Automatic Application Restart
 
 You can tell CrashRpt to restart your application automatically when crash occurs.
-This can be done by specifying the \ref CR_INST_APP_RESTART flag for the \ref CR_INSTALL_INFO::dwFlags structure member.
+This can be done by specifying the \ref CR_INST_APP_RESTART flag for the 
+\ref CR_INSTALL_INFO::dwFlags structure member.
 
-You can pass command line parameters to the executable being restarted using \ref CR_INSTALL_INFO::pszRestartCmdLine, but can't specify another executable
-for restart. Only the same executable can be restarted that was used to start the current process.  
+You can pass command line parameters to the executable being restarted using 
+\ref CR_INSTALL_INFO::pszRestartCmdLine, but can't specify another executable
+for restart. Only the same executable can be restarted that was used to start 
+the current process.  
 
-The application is restarted only if at least 60 seconds have elapsed since its start up. This is done
-to avoid cyclic restarts of an application that crashes right on its start up. Also, the application is
-restarted only if the user does provide his/her consent.
+By default, the application is restarted only if at least 60 seconds have elapsed 
+since its start up. This is done to avoid cyclic restarts of an application that 
+crashes right on its start up. (Also, the application is restarted only if the user 
+does provide his/her consent.) You can override the default restart timeout (in seconds) 
+using the \ref CR_INSTALL_INFO::nRestartTimeout structure field.
 
 If you generate an error report manually with automatic restart feature enabled, 
 the caller process is not terminated automatically and another instance of client application is launched. If you 
