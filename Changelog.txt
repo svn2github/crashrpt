@@ -13,6 +13,7 @@
 	   
 - New: added Slovak language file (contributed by Zoltan Tirinda)
 - New: added Japaneze language file (contributed by devil.tamachan)
+- New: added Czech language file (contributed by Petr Pytelka)
 
 - Fixed: Crashsender SMTP sendMsg - Errorhandling (issue 200)
 - Fixed: pfnCrashCallback2 is missing in tagCR_INSTALL_INFOW (issue 211)
