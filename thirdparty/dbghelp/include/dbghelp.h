@@ -4591,3 +4591,4 @@ MiniDumpReadDumpStream(
 
 
 #endif // _DBGHELP_
+

@@ -30,6 +30,7 @@
        failure (issue 216).
 - Fixed: 'Attach More Files' : Adding large amount of files (over >= 10) 
        unsuccessfully (issue 218)
+- Fixed: Also add your x64 version of dbghelp.dll to the distributed file (issue 199)
 
 --- Ver. 1.4.2 ---
 

@@ -241,7 +241,7 @@ void CMiniDumpReader::Close()
 BOOL CMiniDumpReader::CheckDbgHelpApiVersion()
 {
     // Set valid dbghelp API version
-    API_VERSION CompiledApiVer;
+    /*API_VERSION CompiledApiVer;
     CompiledApiVer.MajorVersion = 6;
     CompiledApiVer.MinorVersion = 1;
     CompiledApiVer.Revision = 11;    
@@ -252,7 +252,7 @@ BOOL CMiniDumpReader::CheckDbgHelpApiVersion()
         CompiledApiVer.Revision!=pActualApiVer->Revision)
     {     
         return FALSE; // Not exact version of dbghelp.dll! Expected v6.11.
-    }
+    }*/
 
     return TRUE;
 }
